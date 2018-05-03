@@ -1,0 +1,23 @@
+platform_type: Magento
+object_types:
+  customer:
+    record_key: email
+    pipeline_stages:
+      - TopLevelAttributes
+      - AddressesAttribute
+      - Metafields:
+        type: all_platforms
+        params:
+          # Specify a custom namespace for your metafields with metafield_namespace.
+          # Uses migrated_data by default.
+          # metafield_namespace: migrated_data
+          metafields:
+            - website
+            - group
+            - free_trial_start_at
+  order:
+    record_key: increment_id
+    pipeline_stages:
+      - TopLevelAttributes
+      - LineItems
+      - AddressesAttribute

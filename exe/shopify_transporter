@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift("#{__dir__}/../lib")
+
+require 'thor'
+require 'thor/group'
+require 'shopify_transporter'
+require 'yaml'
+
+module ShopifyTransporter
+  class CLI < Thor
+    def self.exit_on_failure?
+      true
+    end
+
+    method_option :config, type: :string, default: 'config.yml',
+      desc: "The config file that lists the conversions to run."
+    method_option :object, type: :string, required: true,
+      desc: "The object type (customer, product, or order) to convert.",
+      enum: %w(customer product order)
+
+    desc 'convert FILE_NAMES', 'Converts objects into a Shopify-format. (accepts a list of space-separated files).'
+    def convert(*files)
+      conversion_error('Missing file name at the end of the command.') if files.empty?
+      migration_tool = TransporterTool.new(*files, options[:config], options[:object])
+      migration_tool.run
+    rescue TransporterTool::ConversionError => error
+      conversion_error(error.message)
+    end
+
+    no_commands do
+      def conversion_error(message)
+        say("Conversion error: #{message}", :red)
+        exit 1
+      end
+    end
+
+    register ShopifyTransporter::New,
+      'new', 'new PROJECTNAME --platform=PLATFORM', 'Generate a project for the platform'
+    register ShopifyTransporter::Generate,
+      'generate', 'generate STAGE_NAME --object=OBJECT',
+      'Generate a custom pipeline stage for the object'
+  end
+end
+
+ShopifyTransporter::CLI.start(ARGV)

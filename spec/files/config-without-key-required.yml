@@ -1,0 +1,6 @@
+platform_type: BigCommerce
+object_types:
+  customer:
+    record_key: Email Address
+    pipeline_stages:
+      - TopLevelAttributes

@@ -1,0 +1,10 @@
+language: ruby
+sudo: false
+rvm:
+  - '2.4'
+  - '2.5'
+script:
+- bundle exec rubocop
+- bundle exec rake factory_bot:lint
+- bundle exec rake build
+- bundle exec rspec

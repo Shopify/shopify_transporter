@@ -1,0 +1,31 @@
+# frozen_string_literal: true
+require 'shopify_transporter'
+
+module CustomPipeline
+  module <%= @object_type %>
+    class <%= @pipeline_class %> < ShopifyTransporter::Pipeline::Stage
+      def convert(input, record)
+      #  The convert command reads the input files one-by-one, line-by-line.
+      #
+      #  For each row, the value of the record_key column is used to lookup the Shopify object being built.
+      #
+      #  If the Shopify object doesn't exist, it's created as a default empty hash.
+      #
+      #  It's the role of a pipeline stage to examine the input rows and populate attributes on the Shopify object.
+      #
+      #  For example, the TopLevelAttributes stage of a Magento customer migration would look for a column called firstname on the input,
+      #  and then populate the Shopify object accordingly:
+      #
+      #  record['first_name'] = input['firstname']
+      #
+      #  Any modifications to the record within a pipeline stage are permanent to the Shopify record associated with the record_key.
+      #
+      #  The next pipline stage to receive the record will receive the same input and the existing record which would consist of:
+      #
+      #  {
+      #     'first_name' => 'John',
+      #  }
+      end
+    end
+  end
+end

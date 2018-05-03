@@ -1,0 +1,11 @@
+platform_type: BigCommerce
+object_types:
+  customer:
+    record_key: Email Address
+    key_required: true
+    pipeline_stages:
+      - StageDefinedAsHash:
+        params:
+          custom_key: value
+
+

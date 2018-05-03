@@ -1,0 +1,13 @@
+platform_type: Magento
+object_types:
+  customer:
+    record_key: email
+    key_required: true
+    pipeline_stages:
+      - PipelineWithParams:
+        type: custom
+        params:
+          metafield_namespace: 'migrations'
+          metafields:
+            - website
+            - group

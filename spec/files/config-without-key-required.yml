@@ -1,0 +1,6 @@
+platform_type: Magento
+object_types:
+  customer:
+    record_key: email
+    pipeline_stages:
+      - TopLevelAttributes

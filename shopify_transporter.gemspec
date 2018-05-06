@@ -3,6 +3,8 @@ $:.push File.expand_path('../lib', __FILE__)
 require 'shopify_transporter/version'
 
 Gem::Specification.new do |spec|
+  spec.required_ruby_version = '>= 2.4.0'
+
   spec.name          = %q{shopify_transporter}
   spec.version       = ShopifyTransporter::VERSION
   spec.author       = 'Shopify'

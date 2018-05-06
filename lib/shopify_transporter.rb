@@ -109,12 +109,12 @@ class TransporterTool
   def run_json(file_name)
     file_data = File.read(file_name)
     parsed_file_data = Yajl::Parser.parse(file_data)
-    return if parsed_file_data.empty?
+    return if parsed_file_data.nil? || parsed_file_data.empty?
 
     record = 1
     parsed_file_data.each do |json_row|
-      record += 1
       process(json_row, file_name, record)
+      record += 1
     end
   end
 

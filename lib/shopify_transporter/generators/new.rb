@@ -4,7 +4,7 @@ require_relative './base_group.rb'
 module ShopifyTransporter
   class New < BaseGroup
     include Thor::Actions
-    class_option :platform, type: :string, required: :true, enum: %w(magento bc)
+    class_option :platform, type: :string, required: :true, enum: %w(magento)
 
     def snake_name
       @snake_name ||= name_components.map(&:downcase).join("_")

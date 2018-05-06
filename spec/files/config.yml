@@ -1,7 +1,7 @@
-platform_type: BigCommerce
+platform_type: Magento
 object_types:
   customer:
-    record_key: Email Address
+    record_key: email
     key_required: true
     pipeline_stages:
       - TopLevelAttributes

@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 RSpec.describe ShopifyTransporter do
-  def tmpfile(content, ext='.csv')
+  def tmpfile(content)
+    (ext, content) = if content.is_a?(String)
+      ['.csv', content]
+    else
+      content = [content] unless content.is_a? Array
+      ['.json', content.to_json]
+    end
     file = Tempfile.new(['test', ext])
     file.puts content
     file.close
-    @file_path = file.path
     file
   end
 
@@ -41,7 +46,7 @@ RSpec.describe ShopifyTransporter do
         expect(Object).to receive(:const_get).once.with('CustomPipeline::Customer::CustomStage').and_return(stage_class)
         expect { TransporterTool.new(*files, config, 'customer') }.to raise_error(TransporterTool::StageNotFoundError)
       end
-    
+
       it 'raises an error when a stage cannot be found' do
         files = ['spec/files/blank.csv']
         config = 'spec/files/config-with-custom-stage.yml'
@@ -75,7 +80,7 @@ RSpec.describe ShopifyTransporter do
       config = 'spec/files/config.yml'
 
       allow(Object).to receive(:const_get).with('ShopifyTransporter::Shopify::Customer')
-      expect(Object).to receive(:const_get).once.with('ShopifyTransporter::Pipeline::BigCommerce::Customer::TopLevelAttributes').and_call_original
+      expect(Object).to receive(:const_get).once.with('ShopifyTransporter::Pipeline::Magento::Customer::TopLevelAttributes').and_call_original
 
       TransporterTool.new(*files, config, 'customer')
     end
@@ -87,7 +92,7 @@ RSpec.describe ShopifyTransporter do
       mock_stage_class = double("mock_stage_class")
 
       allow(Object).to receive(:const_get).with('ShopifyTransporter::Shopify::Customer')
-      expect(Object).to receive(:const_get).once.with('ShopifyTransporter::Pipeline::BigCommerce::Customer::StageDefinedAsHash').and_return(mock_stage_class)
+      expect(Object).to receive(:const_get).once.with('ShopifyTransporter::Pipeline::Magento::Customer::StageDefinedAsHash').and_return(mock_stage_class)
 
       expect { TransporterTool.new(*files, config, 'customer') }.to raise_error(TransporterTool::StageNotFoundError)
     end
@@ -108,6 +113,7 @@ RSpec.describe ShopifyTransporter do
       expect { TransporterTool.new(*files, config, 'customer') }.to raise_error(TransporterTool::StageNotFoundError)
     end
   end
+
   context '#run' do
     context 'with valid empty csv entries' do
       it 'can call run and output just the headers to stdout' do
@@ -120,168 +126,138 @@ RSpec.describe ShopifyTransporter do
     end
 
     context 'record_key is required and missing (RequiredKeyMissing exceptions)' do
-      it 'rescues ShopifyTransporter::RequiredKeyMissing exceptions' do
-        tmpfile <<~EOF
-          First Name,Last Name
-          john,doe
-        EOF
+      before :each do
+        file = tmpfile(firstname: 'john', lastname: 'doe')
         config = 'spec/files/config.yml'
-        tool = TransporterTool.new(*[@file_path], config, 'customer')
-        expect { capture(:stderr) { tool.run } }.not_to raise_error
+        @tool = TransporterTool.new(*[file.path], config, 'customer')
       end
 
-      it 'prints a message to stderr when a record key column does not exist in the input csv' do
-        tmpfile <<~EOF
-          First Name,Last Name
-          john,doe
-        EOF
-        config = 'spec/files/config.yml'
-        tool = TransporterTool.new(*[@file_path], config, 'customer')
-        stderr = capture(:stderr) { tool.run }
-        expected_message = "cannot process entry. Required field not found: 'Email Address'"
-        expect(stderr.strip).to eq(
-          "error: #{@file_path}:2, message: #{expected_message}"
-        )
+      it 'rescues ShopifyTransporter::RequiredKeyMissing exceptions' do
+        expect { @tool.run }.not_to raise_error
+      end
+
+      it 'prints a message to stderr when a record key column does not exist in the input' do
+        stderr = capture(:stderr) { @tool.run }
+        expect(stderr).to match(/Required field not found/)
       end
     end
 
     context 'record_key is not required and missing (MissingParentObject exceptions)' do
-      it 'rescues ShopifyTransporter::MissingParentObject exceptions' do
-        tmpfile <<~EOF
-          First Name,Last Name,Email Address
-          john,doe,
-        EOF
+      before :each do
+        file = tmpfile(firstname: 'john', lastname: 'doe')
         config = 'spec/files/config-without-key-required.yml'
-        tool = TransporterTool.new(*[@file_path], config, 'customer')
-        expect { capture(:stderr) { tool.run } }.not_to raise_error
+        @tool = TransporterTool.new(*[file.path], config, 'customer')
+      end
+
+      it 'rescues ShopifyTransporter::MissingParentObject exceptions' do
+        expect { @tool.run }.not_to raise_error
       end
 
       it 'prints a message to stderr when a record key column is nil in the input row and there is no row above it' do
-        tmpfile <<~EOF
-          First Name,Last Name,Email Address
-          john,doe,
-        EOF
-        config = 'spec/files/config-without-key-required.yml'
-        tool = TransporterTool.new(*[@file_path], config, 'customer')
-        stderr = capture(:stderr) { tool.run }
-        expected_message = "cannot process entry. Required field not found: 'Email Address'"
-        expect(stderr.strip).to eq(
-          "error: #{@file_path}:2, message: #{expected_message}"
-        )
+        stderr = capture(:stderr) { @tool.run }
+        expect(stderr).to match(/Required field not found/)
       end
 
       it 'prints a message to stderr when a record key column is nil in the input row and on rows above it' do
-        tmpfile <<~EOF
-          First Name,Last Name,Email Address
-          john,doe,
-          john,doe2,
-        EOF
+        file = tmpfile([
+          {
+            firstname: 'john', lastname: 'doe'
+          },{
+            firstname: 'john', lastname: 'doe2'
+          }
+        ]);
         config = 'spec/files/config-without-key-required.yml'
-        tool = TransporterTool.new(*[@file_path], config, 'customer')
+        tool = TransporterTool.new(*[file.path], config, 'customer')
         stderr = capture(:stderr) { tool.run }
         expected_message = "cannot process entry. Required field not found: 'Email Address'"
-        expect(stderr.strip).to eq(
-          [
-            "error: #{@file_path}:2, message: #{expected_message}",
-            "error: #{@file_path}:3, message: #{expected_message}",
-          ].join($/)
-        )
+        errors = stderr.split($/)
+        expect(errors[0]).to match(/1, .*field not found/)
+        expect(errors[1]).to match(/2, .*field not found/)
       end
     end
 
     it 'prints valid rows to stdout when other rows have errors' do
-      tmpfile <<~EOF
-        First Name,Last Name,Email Address
-        john,doe,
-        jane,doe,jane.doe@shopify.com
-      EOF
+      file = tmpfile([
+        {
+          firstname: 'john', lastname: 'doe'
+        },{
+          email: 'jane.doe@shopify.com', firstname: 'jane', lastname: 'doe'
+        }
+      ]);
       config = 'spec/files/config.yml'
-      tool = TransporterTool.new(*[@file_path], config, 'customer')
+      tool = TransporterTool.new(*[file.path], config, 'customer')
       stderr = nil
       stdout = capture(:stdout) do
         stderr = capture(:stderr) { tool.run }
       end
-      expected_message = "cannot process entry. Required field not found: 'Email Address'"
-      expect(stderr.strip).to eq(
-        "error: #{@file_path}:2, message: #{expected_message}"
-      )
+      errors = stderr.split($/)
+      expect(errors[0]).to match(/1, .*field not found/)
       expect(stdout.strip.split($/).count).to be > 1
     end
 
     it "will output an error if the file extension is neither 'csv' nor 'json'" do
-      tmpfile(''.to_json, '.pdf')
-      tool = TransporterTool.new(*[@file_path], '', 'customer')
-      stderr = nil
+      file = Tempfile.new(['test', '.pdf'])
+      file.close
+      tool = TransporterTool.new(*[file.path], '', 'customer')
       stderr = capture(:stderr) { tool.run }
-      expected_message = "File type must be one of: .csv, .json."
-      expect(stderr.strip).to eq(expected_message)
+      expect(stderr).to match(/File type must be one of: .csv, .json/)
     end
 
-    it "can retrieve the file extension regardless of casing" do
-      content = [
-        { "First Name": "john", "Last Name": "doe", "Email Address": "john.doe@shopify.com" },
-        { "First Name": "jane", "Last Name": "doe", "Email Address": "jane.doe@shopify.com" }
-      ]
-      tmpfile(content.to_json, '.JSON')
+    it 'ignores case of extension' do
+      file = Tempfile.new(['test', '.JsOn'])
+      file.close
       config = 'spec/files/config.yml'
-      tool = TransporterTool.new(*[@file_path], config, 'customer')
-      stdout = capture(:stdout) { tool.run }
-      expect(stdout.strip).to eq(
-        "First Name,Last Name,Email,Phone,Accepts Marketing,Tags,Note,Tax Exempt,"\
-        "Company,Address1,Address2,City,Province,Province Code,Zip,Country,Country Code,"\
-        "Metafield Namespace,Metafield Key,Metafield Value,Metafield Value Type\njohn,doe,john.doe@shopify.com"\
-        ",,,,,,,,,,,,,,,,,,\njane,doe,jane.doe@shopify.com,,,,,,,,,,,,,,,,,,"
-      )
+      tool = TransporterTool.new(*[file.path], config, 'customer')
+      stderr = capture(:stderr) { tool.run }
+      expect(stderr).not_to match(/File type must be one of: .csv, .json/)
     end
 
     it 'accepts a json file and goes through the pipeline stages and outputs a Shopify csv file' do
-      content = [
-        { "First Name": "john", "Last Name": "doe", "Email Address": "john.doe@shopify.com" },
-        { "First Name": "jane", "Last Name": "doe", "Email Address": "jane.doe@shopify.com" }
-      ]
-      tmpfile(content.to_json, '.json')
+      file = tmpfile([
+        { "firstname": "john", "lastname": "doe", "email": "john.doe@shopify.com" },
+        { "firstname": "jane", "lastname": "doe", "email": "jane.doe@shopify.com" }
+      ])
       config = 'spec/files/config.yml'
-      tool = TransporterTool.new(*[@file_path], config, 'customer')
-      stderr = nil
+      tool = TransporterTool.new(*[file.path], config, 'customer')
       stdout = capture(:stdout) { tool.run }
-      expect(stdout.strip).to eq(
+      expect(stdout).to eq(
         "First Name,Last Name,Email,Phone,Accepts Marketing,Tags,Note,Tax Exempt,"\
-        "Company,Address1,Address2,City,Province,Province Code,Zip,Country,Country Code,"\
-        "Metafield Namespace,Metafield Key,Metafield Value,Metafield Value Type\njohn,doe,john.doe@shopify.com"\
-        ",,,,,,,,,,,,,,,,,,\njane,doe,jane.doe@shopify.com,,,,,,,,,,,,,,,,,,"
+        "Company,Address1,Address2,City,Province,Province Code,Zip,Country,"\
+        "Country Code,Metafield Namespace,Metafield Key,Metafield Value,"\
+        "Metafield Value Type\njohn,doe,john.doe@shopify.com,,,,,,,,,,,,,,,,,,\n"\
+        "jane,doe,jane.doe@shopify.com,,,,,,,,,,,,,,,,,,\n"
       )
     end
 
     it 'sends the json data to the appropriate pipeline stages' do
       content = [
-        { "First Name": "john", "Last Name": "doe", "Email Address": "john.doe@shopify.com" }
+        { "firstname": "john", "lastname": "doe", "email": "john.doe@shopify.com" }
       ]
-      pipeline_param = { "First Name"=>"john", "Last Name"=>"doe", "Email Address"=>"john.doe@shopify.com" }
-      tmpfile(content.to_json, '.json')
+      pipeline_param = { "firstname"=>"john", "lastname"=>"doe", "email"=>"john.doe@shopify.com" }
+      file = tmpfile(content)
       config = 'spec/files/config.yml'
-      tool = TransporterTool.new(*[@file_path], config, 'customer')
-      expect_any_instance_of(ShopifyTransporter::Pipeline::BigCommerce::Customer::TopLevelAttributes).to receive(:convert).with(pipeline_param, {}).once
+      tool = TransporterTool.new(*[file.path], config, 'customer')
+      expect_any_instance_of(
+        ShopifyTransporter::Pipeline::Magento::Customer::TopLevelAttributes
+      ).to receive(:convert).with(pipeline_param, {}).once
       tool.run
     end
 
     it 'prints valid json records to stdout when other records have errors' do
       content = [
-        { "First Name": "john", "Last Name": "doe", "Email Address": "john.doe@shopify.com" },
-        { "First Name": "jane", "Last Name": "doe" }
+        { "firstname": "john", "lastname": "doe", "email": "john.doe@shopify.com" },
+        { "firstname": "jane", "lastname": "doe" }
       ]
-      tmpfile(content.to_json, '.json')
+      file = tmpfile(content)
       config = 'spec/files/config.yml'
-      tool = TransporterTool.new(*[@file_path], config, 'customer')
+      tool = TransporterTool.new(*[file.path], config, 'customer')
       stderr = nil
       stdout = capture(:stdout) do
         stderr = capture(:stderr) { tool.run }
       end
-      expected_message = "cannot process entry. Required field not found: 'Email Address'"
-      p stderr.strip
-      expect(stderr.strip).to eq(
-        "error in file: #{@file_path} at record number 3, message: #{expected_message}"
-      )
-      expect(stdout.strip.split($/).count).to be > 1
+      errors = stderr.split($/)
+      expect(errors[0]).to match(/2, .*field not found/)
+      expect(stdout.split($/).count).to be > 1
     end
   end
 
@@ -311,7 +287,7 @@ RSpec.describe ShopifyTransporter do
             ShopifyTransporter::New.start(%w(temp_project --platform=not_real))
           end
         end
-        expect(error.strip).to eq("Expected '--platform' to be one of magento, bc; got not_real")
+        expect(error.strip).to eq("Expected '--platform' to be one of magento; got not_real")
         expect(File).to_not exist('temp_project/config.yml')
         expect(File).to_not exist('temp_project/lib/custom_pipeline_stages')
       end

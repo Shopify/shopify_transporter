@@ -6,7 +6,6 @@ module ShopifyTransporter
 
     SUPPORTED_PLATFORMS_MAPPING = {
       'Magento' => 'magento',
-      'BigCommerce' => 'bc',
     }
 
     def name_components

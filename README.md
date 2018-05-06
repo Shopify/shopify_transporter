@@ -1,7 +1,7 @@
 # Transporter Tools
 
 The Transporter tool helps converts data from a third-party platform format into a format that can
-be imported into Shopify via the [Transporter app|https://help.shopify.com/manual/migrating-to-shopify/transporter-app].
+be imported into Shopify via the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app).
 
 The conversions are currently limited to JSON structured data that has been exported from Magento 1.x via its
 SOAP API.  More details about the exact structure of the JSON data, and additional scripts for procuding such
@@ -11,13 +11,35 @@ Note: the Transporter app is available to Shopify Plus plans only.
 
 ## Installation
 
-Install the Transporter tool gem:
+### Building and installing locally
+To build locally run the following command:
 
+```
+$ bundle exec rake build
+
+shopify_transporter 1.0.0 built to pkg/shopify_transporter-1.0.0.gem.
+```
+
+Then, you can install the gem system-wide by running:
+
+```
+$ gem install pkg/shopify_transporter-1.0.0.gem
+
+Successfully installed shopify_transporter-1.0.0
+Parsing documentation for shopify_transporter-1.0.0
+Installing ri documentation for shopify_transporter-1.0.0
+Done installing documentation for shopify_transporter after 0 seconds
+1 gem installed
+```
+Your locally built gem is now installed system-wide.
+
+### Installing the Transporter tool gem from rubygems:
 
 ```
 $ gem install shopify_transporter
 ```
 
+### Running
 After you install the gem, you should find the executable `shopify_transporter` available in your path:
 
 ```
@@ -255,9 +277,6 @@ It's important that all of the code introduced passes linting. To run it manuall
 `bundle exec rake rubocop`
 To automatically resolve any basic linting issues:
 `bundle exec rake rubocop:autocorrect`
-
-## Building the gem manually
-`bundle exec rake build`
 
 # Submitting Issues
 

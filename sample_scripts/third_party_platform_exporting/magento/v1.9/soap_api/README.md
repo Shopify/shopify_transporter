@@ -27,7 +27,9 @@ These environment variables are required, or the script will exit early with an 
 
 These variables are not required but can be used to customize the extraction process:
 
-* `LAST_INCREMENT_ID`: The increment ID to resume extracting from in case the script is interrupted and needs to be restarted
+* `LAST_KEY_ID`: The last ID to resume extracting from in case the script is interrupted and needs to be restarted
+
+
 
 ### Setting environment variables
 
@@ -66,7 +68,7 @@ ruby customers.rb
 
 Depending on how many objects are being extracted, there may be an initial delay while the collection of objects is being fetched before they are displayed to the console output.
 
-For 50, 000 objects it could take up to 5-10 minutes before the JSON data starts to be displayed.
+For 50, 000 objects it could take up to 5-10 minutes before the script starts to print out it's status.  While the script is running, the key ID of each object will be printed to your console on stderr.  Once all the objects have been exported then the entirety of the JSON data will be printed to stdout.  See below about redirecting just the JSON data to a file.
 
 ## Redirecting into a file
 
@@ -80,7 +82,9 @@ Afterwards, inspect that file to ensure that it contains valid JSON data and tha
 
 ## Resuming
 
-In the event that your export is interrupted, you can resume from where you left off by defining the optional `LAST_INCREMENT_ID` environment variable.
+In the event that your export is interrupted, you can resume from where you left off by defining the optional `LAST_KEY_ID` environment variable.
+
+For orders, the key is `increment_id` and for customers the key is `customer_id`.  Examine the output or file created by the previous attempt and export the value in the `LAST_KEY_ID` environment variable before resuming and previously exported objects will be skipped.
 
 *NOTE*: These scripts can take several hours to run for larger shops and are not yet capable of making concurrent requests.  Future versions may address this by performing some API calls in parallel.
 

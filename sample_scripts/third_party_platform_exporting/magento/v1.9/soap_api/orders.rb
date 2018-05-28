@@ -6,25 +6,30 @@ require_relative 'transporter_exporter'
 
 class OrderExporter < TransporterExporter
   def run
-    orders_for(required_env_vars['MAGENTO_STORE_ID']).each do |order|
-      next if skip?(order)
-
-      puts JSON.pretty_generate(order.merge('items' => items_for(order)))
-    end
+    puts JSON.pretty_generate(orders)
   end
 
   private
 
+  def key
+    :increment_id
+  end
+
   def orders
+    base_orders.each_with_object([]) do |order, orders|
+      next if skip?(order)
+
+      orders << order.merge('items' => items_for(order))
+      $stderr.puts "fetched order #{order[:increment_id]}"
+    end
+  end
+
+  def base_orders
     soap_client.call(
       :sales_order_list,
       message: { session_id: soap_session_id }
-    ).body[:sales_order_list_response][:result][:item]
-  end
-
-  def orders_for(store_id)
-    orders.select do |order|
-      order[:store_id] == store_id
+    ).body[:sales_order_list_response][:result][:item].select do |order|
+      order[:store_id] == required_env_vars['MAGENTO_STORE_ID']
     end
   end
 

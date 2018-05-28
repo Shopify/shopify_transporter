@@ -15,6 +15,10 @@ class TransporterExporter
 
   private
 
+  def key
+    raise NotImplementedError
+  end
+
   REQUIRED_ENV_VARS = %w(
     MAGENTO_SOAP_API_HOSTNAME
     MAGENTO_SOAP_API_USERNAME
@@ -22,7 +26,7 @@ class TransporterExporter
     MAGENTO_STORE_ID
   ).freeze
 
-  OPTIONAL_ENV_VARS = %w(LAST_INCREMENT_ID).freeze
+  OPTIONAL_ENV_VARS = %w(LAST_KEY_ID).freeze
 
   def soap_client
     @soap_client ||= Savon.client(
@@ -43,9 +47,9 @@ class TransporterExporter
   end
 
   def skip?(item)
-    return false if optional_env_vars['LAST_INCREMENT_ID'].nil? || item[:incremenet_id].nil?
+    return false if optional_env_vars['LAST_KEY_ID'].nil? || item[key].nil?
 
-    item[:increment_id].to_i < optional_env_vars['LAST_INCREMENT_ID'].to_i
+    item[key].to_i < optional_env_vars['LAST_KEY_ID'].to_i
   end
 
   def write_to_file(filename, str)

@@ -6,17 +6,25 @@ require_relative 'transporter_exporter.rb'
 
 class CustomerExporter < TransporterExporter
   def run
-    customers.each do |customer|
-      next if skip?(customer)
-
-      customer[:address_list] = customer_address_list(customer[:customer_id])
-      puts JSON.pretty_generate(customer)
-    end
+    puts JSON.pretty_generate(customers)
   end
 
   private
 
+  def key
+    :customer_id
+  end
+
   def customers
+    base_customers.each_with_object([]) do |customer, customers|
+      next if skip?(customer)
+
+      customers << customer.merge(address_list: customer_address_list(customer[:customer_id]))
+      $stderr.puts "fetched customer: #{customer[:customer_id]}"
+    end
+  end
+
+  def base_customers
     customers = soap_client.call(
       :customer_customer_list,
       message: {

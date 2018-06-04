@@ -33,15 +33,16 @@ class TransporterExporter
       wsdl: "https://#{required_env_vars['MAGENTO_SOAP_API_HOSTNAME']}/api/v2_soap?wsdl",
       open_timeout: 500,
       read_timeout: 500,
+      convert_request_keys_to: :none 
     )
   end
-
+  
   def soap_session_id
     @soap_session_id ||= soap_client.call(
       :login,
       message: {
         username: required_env_vars['MAGENTO_SOAP_API_USERNAME'],
-        api_key: required_env_vars['MAGENTO_SOAP_API_KEY'],
+        apiKey: required_env_vars['MAGENTO_SOAP_API_KEY'],
       }
     ).body[:login_response][:login_return]
   end

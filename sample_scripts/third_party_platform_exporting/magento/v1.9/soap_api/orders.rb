@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 require 'savon'
 require 'json'
+require 'pry'
 
 require_relative 'transporter_exporter'
 
 class OrderExporter < TransporterExporter
   def run
+    binding.pry
     puts JSON.pretty_generate(orders)
   end
 
@@ -13,6 +15,41 @@ class OrderExporter < TransporterExporter
 
   def key
     :increment_id
+  end
+
+  def filters
+    {
+      filter: {
+        item: {
+          key: 'store_id', 
+          value: '1',
+        }
+      }
+    }
+  end
+
+  # The product ID of the parent configurable is: 665548
+  def complex_filters 
+    {
+      complex_filter: [
+        item: [
+          {
+            key: 'created_at',
+            value: {
+                key: 'from',
+                value: '2018-05-01 00:00:00',
+            }
+          },
+          {
+            key: 'created_at',
+            value: {
+                key: 'to',
+                value: '2018-06-01 00:00:00',
+            }
+          },
+        ] 
+      ]
+    }
   end
 
   def orders
@@ -27,17 +64,18 @@ class OrderExporter < TransporterExporter
   def base_orders
     soap_client.call(
       :sales_order_list,
-      message: { session_id: soap_session_id }
-    ).body[:sales_order_list_response][:result][:item].select do |order|
-      order[:store_id] == required_env_vars['MAGENTO_STORE_ID']
-    end
+      message: {
+        sessionId: soap_session_id,
+        filters: filters.merge(complex_filters),
+      }
+    ).body
   end
 
   def items_for(order)
     soap_client.call(
       :sales_order_info,
       message: {
-        session_id: soap_session_id,
+        sessionId: soap_session_id,
         order_increment_id: order[:increment_id],
       }
     ).body[:sales_order_info_response]

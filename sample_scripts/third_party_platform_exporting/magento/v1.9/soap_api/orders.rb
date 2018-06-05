@@ -27,20 +27,55 @@ class OrderExporter < TransporterExporter
   def base_orders
     soap_client.call(
       :sales_order_list,
-      message: { session_id: soap_session_id }
-    ).body[:sales_order_list_response][:result][:item].select do |order|
-      order[:store_id] == required_env_vars['MAGENTO_STORE_ID']
-    end
+      message: {
+        sessionId: soap_session_id,
+        filters: filters.merge(complex_filters),
+      }
+    ).body[:sales_order_list_response][:result][:item]
   end
 
   def items_for(order)
     soap_client.call(
       :sales_order_info,
       message: {
-        session_id: soap_session_id,
-        order_increment_id: order[:increment_id],
+        sessionId: soap_session_id,
+        orderIncrementId: order[:increment_id],
       }
     ).body[:sales_order_info_response]
+  end
+
+  def filters
+    {
+      filter: {
+        item: {
+          key: 'store_id',
+          value: required_env_vars['MAGENTO_STORE_ID'],
+        }
+      }
+    }
+  end
+
+  def complex_filters
+    {
+      complex_filter: [
+        item: [
+          {
+            key: 'created_at',
+            value: {
+                key: 'from',
+                value: '2018-05-27 00:00:00',
+            }
+          },
+          {
+            key: 'created_at',
+            value: {
+                key: 'to',
+                value: '2018-05-28 00:00:00',
+            }
+          },
+        ]
+      ]
+    }
   end
 end
 

@@ -28,7 +28,8 @@ class CustomerExporter < TransporterExporter
     customers = soap_client.call(
       :customer_customer_list,
       message: {
-        session_id: soap_session_id,
+        sessionId: soap_session_id,
+        filters: filters.merge(complex_filters),
       }
     ).body
 
@@ -40,8 +41,45 @@ class CustomerExporter < TransporterExporter
   def customer_address_list(customer_id)
     soap_client.call(
       :customer_address_list,
-      message: { session_id: soap_session_id, customer_id: customer_id }
+      message: {
+        sessionId: soap_session_id,
+        customerId: customer_id ,
+      }
     ).body
+  end
+
+  def filters
+    {
+      filter: {
+        item: {
+          key: 'store_id',
+          value: required_env_vars['MAGENTO_STORE_ID'],
+        }
+      }
+    }
+  end
+
+  def complex_filters
+    {
+      complex_filter: [
+        item: [
+          {
+            key: 'customer_id',
+            value: {
+                key: 'from',
+                value: '5382',
+            }
+          },
+          {
+            key: 'customer_id',
+            value: {
+                key: 'to',
+                value: '5400',
+            }
+          },
+        ]
+      ]
+    }
   end
 end
 

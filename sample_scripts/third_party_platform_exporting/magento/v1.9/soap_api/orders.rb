@@ -20,16 +20,34 @@ class OrderExporter < TransporterExporter
       next if skip?(order)
 
       orders << order.merge('items' => items_for(order))
-      $stderr.puts "fetched order #{order[:increment_id]}"
+      $stderr.puts "fetched item details for order #{order[:increment_id]}"
     end
   end
 
   def base_orders
+    $stderr.puts "pulling order info from Magento..."
+    base_orders = orders_starting_with('')
+    $stderr.puts "\nfetched base information for all orders!"
+    base_orders
+  end
+
+  def orders_starting_with(id_prefix)
+    Timeout::timeout(TIMEOUT_DURATION, MagentoTimeoutError) do
+      $stderr.print '.'
+      order_list(id_prefix)
+    end
+  rescue MagentoTimeoutError
+    (0..9).map do |digit|
+      orders_starting_with("#{id_prefix}#{digit}")
+    end.flatten.compact
+  end
+
+  def order_list(id_prefix)
     soap_client.call(
       :sales_order_list,
       message: {
         sessionId: soap_session_id,
-        filters: filters.merge(complex_filters),
+        filters: filters.merge(filter_ids_starting_with(id_prefix)),
       }
     ).body[:sales_order_list_response][:result][:item]
   end
@@ -42,40 +60,6 @@ class OrderExporter < TransporterExporter
         orderIncrementId: order[:increment_id],
       }
     ).body[:sales_order_info_response]
-  end
-
-  def filters
-    {
-      filter: {
-        item: {
-          key: 'store_id',
-          value: required_env_vars['MAGENTO_STORE_ID'],
-        }
-      }
-    }
-  end
-
-  def complex_filters
-    {
-      complex_filter: [
-        item: [
-          {
-            key: 'created_at',
-            value: {
-                key: 'from',
-                value: '2018-05-27 00:00:00',
-            }
-          },
-          {
-            key: 'created_at',
-            value: {
-                key: 'to',
-                value: '2018-05-28 00:00:00',
-            }
-          },
-        ]
-      ]
-    }
   end
 end
 

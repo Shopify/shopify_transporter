@@ -3,6 +3,12 @@ require 'savon'
 require 'json'
 
 class TransporterExporter
+
+  TIMEOUT_DURATION = 10
+
+  class MagentoTimeoutError < StandardError
+  end
+
   class ExportError < StandardError
     def initialize(message)
       super(message)
@@ -45,6 +51,34 @@ class TransporterExporter
         apiKey: required_env_vars['MAGENTO_SOAP_API_KEY'],
       }
     ).body[:login_response][:login_return]
+  end
+
+  def filters
+    {
+      filter: {
+        item: {
+          key: 'store_id',
+          value: required_env_vars['MAGENTO_STORE_ID'],
+        }
+      }
+    }
+  end
+
+  def filter_ids_starting_with(id_prefix)
+    expr = "^#{id_prefix}.*$"
+    {
+      complex_filter: [
+        item: [
+          {
+            key: key,
+            value: {
+                key: 'regexp',
+                value: expr,
+            }
+          }
+        ]
+      ]
+    }
   end
 
   def skip?(item)

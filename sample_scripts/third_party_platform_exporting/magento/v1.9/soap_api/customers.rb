@@ -5,9 +5,9 @@ require 'timeout'
 
 require_relative 'transporter_exporter.rb'
 
-TIMEOUT_DURATION = 8
+TIMEOUT_DURATION = 10
 
-class MagentoTimeoutError < TransporterExporter::ExportError
+class MagentoTimeoutError < StandardError
 end
 
 class CustomerExporter < TransporterExporter
@@ -23,7 +23,7 @@ class CustomerExporter < TransporterExporter
 
   def customers
     $stderr.puts "pulling customer info from Magento..."
-    base_customers = base_customers_starting_with('1')
+    base_customers = base_customers_starting_with('')
     $stderr.puts "\nfetched base information for all customers!"
 
     base_customers.each_with_object([]) do |customer, customers|

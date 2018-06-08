@@ -30,7 +30,7 @@ class TransporterExporter
 
   def soap_client
     @soap_client ||= Savon.client(
-      wsdl: "https://#{required_env_vars['MAGENTO_SOAP_API_HOSTNAME']}/api/v2_soap?wsdl",
+      wsdl: "http://#{required_env_vars['MAGENTO_SOAP_API_HOSTNAME']}/api/v2_soap?wsdl",
       open_timeout: 500,
       read_timeout: 500,
       convert_request_keys_to: :none

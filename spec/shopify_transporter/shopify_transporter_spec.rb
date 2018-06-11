@@ -306,6 +306,70 @@ RSpec.describe ShopifyTransporter do
     end
   end
 
+  describe ShopifyTransporter::Exporter do
+
+    class SomePlatformExporter
+      def export
+        [{ foo: 'bar' }]
+      end
+    end
+
+    it 'writes exported data to file' do
+      Dir.mktmpdir(nil, "/var/tmp") do |dir|
+        magento_config_filename = 'spec/files/config.yml'
+        output_filename = "#{dir}/results.json"
+        api_key = 'CHANGEME'
+
+        exporter = ShopifyTransporter::Exporter.new(magento_config_filename, api_key, :unused, output_filename)
+
+        expect(MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
+        exporter.run
+
+        expect(File.read(output_filename)).to eq(JSON.pretty_generate([{ foo: 'bar' }]) + $/)
+      end
+    end
+
+    it 'raises InvalidConfigError if config file does not exist' do
+      config_filename = 'spec/files/nonexistent_config.yml'
+      output_filename = 'some/path'
+      api_key = 'CHANGEME'
+
+      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::InvalidConfigError, "Invalid configuration: cannot find file name 'spec/files/nonexistent_config.yml'")
+    end
+
+    it 'raises InvalidConfigError if config file is missing username' do
+      config_filename = 'spec/files/config_for_exports_without_username.yml'
+      output_filename = 'some/path'
+      api_key = 'CHANGEME'
+
+      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::InvalidConfigError, "Invalid configuration: missing required key 'username'")
+    end
+
+    it 'raises InvalidConfigError if config file is missing hostname' do
+      config_filename = 'spec/files/config_for_exports_without_hostname.yml'
+      output_filename = 'some/path'
+      api_key = 'CHANGEME'
+
+      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::InvalidConfigError, "Invalid configuration: missing required key 'hostname'")
+    end
+
+    it 'raises InvalidConfigError if config file is missing store id' do
+      config_filename = 'spec/files/config_for_exports_without_store_id.yml'
+      output_filename = 'some/path'
+      api_key = 'CHANGEME'
+
+      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::InvalidConfigError, "Invalid configuration: missing required key 'store_id'")
+    end
+
+    it 'raises OutputFileExistsError if output file already exists' do
+      config_filename = 'spec/files/config.yml'
+      output_filename = 'spec/files/existing_export_results.json'
+      api_key = 'CHANGEME'
+
+      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::OutputFileExistsError, "Output filename already exists: 'spec/files/existing_export_results.json'")
+    end
+  end
+
   describe ShopifyTransporter::Generate do
     context 'custom stage file generation' do
       it 'generates a custom stage for the class provided to the command' do

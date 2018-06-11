@@ -9,4 +9,3 @@ export_configuration:
   soap:
     hostname: 'magento.host'
     username: 'something'
-  store_id: 1

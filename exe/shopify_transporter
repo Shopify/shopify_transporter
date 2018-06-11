@@ -29,6 +29,23 @@ module ShopifyTransporter
       conversion_error(error.message)
     end
 
+    method_option :config, type: :string, default: 'config.yml',
+      desc: "The config file that describes the third party platform to export from."
+    method_option :output_filename, type: :string, required: true,
+      desc: "The file to write export results to."
+    method_option :object, type: :string, required: true,
+      desc: "The object type (customer, product, or order) to export.",
+      enum: %w(customer order)
+
+    desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
+    def export
+      api_key = ask('Please enter your Magento SOAP API key:')
+      exporter = Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
+      exporter.run
+    rescue TransporterTool::ConversionError => error
+      conversion_error(error.message)
+    end
+
     no_commands do
       def conversion_error(message)
         say("Conversion error: #{message}", :red)
@@ -38,6 +55,7 @@ module ShopifyTransporter
 
     register ShopifyTransporter::New,
       'new', 'new PROJECTNAME --platform=PLATFORM', 'Generate a project for the platform'
+
     register ShopifyTransporter::Generate,
       'generate', 'generate STAGE_NAME --object=OBJECT',
       'Generate a custom pipeline stage for the object'

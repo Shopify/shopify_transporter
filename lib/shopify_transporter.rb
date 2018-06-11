@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 require 'thor'
+
 require_relative 'shopify_transporter/generators.rb'
+require_relative 'shopify_transporter/exporter.rb'
 require_relative 'shopify_transporter/pipeline.rb'
 require_relative 'shopify_transporter/shopify.rb'
 require_relative 'shopify_transporter/record_builder.rb'
+
 Dir["#{Dir.pwd}/lib/custom_pipeline_stages/**/*.rb"].each { |f| require f }
 
 module ShopifyTransporter

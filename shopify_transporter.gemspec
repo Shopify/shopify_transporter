@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '~> 5.1'
   spec.add_dependency 'thor', '~> 0.20'
   spec.add_dependency 'yajl-ruby', '~> 1.3'
+  spec.add_dependency 'savon'
 end

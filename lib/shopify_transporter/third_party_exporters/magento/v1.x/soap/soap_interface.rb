@@ -1,0 +1,3 @@
+class SoapInterface
+
+end

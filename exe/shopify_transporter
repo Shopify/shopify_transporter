@@ -7,6 +7,7 @@ require 'thor'
 require 'thor/group'
 require 'shopify_transporter'
 require 'yaml'
+require 'io/console'
 
 module ShopifyTransporter
   class CLI < Thor
@@ -39,7 +40,10 @@ module ShopifyTransporter
 
     desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
     def export
-      api_key = ask('Please enter your Magento SOAP API key:')
+      api_key = $stdin.noecho do
+        ask('Please enter your Magento SOAP API key:')
+      end
+      say("\n")
       exporter = Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
       exporter.run
     rescue ShopifyTransporter::ExportError => error

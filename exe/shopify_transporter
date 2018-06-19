@@ -42,13 +42,18 @@ module ShopifyTransporter
       api_key = ask('Please enter your Magento SOAP API key:')
       exporter = Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
       exporter.run
-    rescue TransporterTool::ConversionError => error
-      conversion_error(error.message)
+    rescue ShopifyTransporter::ExportError => error
+      export_error(error.message)
     end
 
     no_commands do
       def conversion_error(message)
         say("Conversion error: #{message}", :red)
+        exit 1
+      end
+
+      def export_error(message)
+        say("Export error: #{message}", :red)
         exit 1
       end
     end

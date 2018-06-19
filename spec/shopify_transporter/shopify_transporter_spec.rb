@@ -322,7 +322,7 @@ RSpec.describe ShopifyTransporter do
 
         exporter = ShopifyTransporter::Exporter.new(magento_config_filename, api_key, :unused, output_filename)
 
-        expect(MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
+        expect(ShopifyTransporter::MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
         exporter.run
 
         expect(File.read(output_filename)).to eq(JSON.pretty_generate([{ foo: 'bar' }]) + $/)

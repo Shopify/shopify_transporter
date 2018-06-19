@@ -1,4 +1,5 @@
 require_relative './magento_customer_exporter.rb'
+require_relative './magento_order_exporter.rb'
 
 module ShopifyTransporter
   class MagentoExporter
@@ -8,6 +9,8 @@ module ShopifyTransporter
       case type
       when 'customer'
         MagentoCustomerExporter
+      when 'order'
+        MagentoOrderExporter
       else
         raise MissingMagentoExporterError
       end.new(store_id, client)

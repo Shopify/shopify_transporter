@@ -353,6 +353,14 @@ RSpec.describe ShopifyTransporter do
       expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::InvalidConfigError, "Invalid configuration: missing required key 'hostname'")
     end
 
+    it 'raises InvalidConfigError if config file is missing export configuration' do
+      config_filename = 'spec/files/config_for_exports_without_export_configuration.yml'
+      output_filename = 'some/path'
+      api_key = 'CHANGEME'
+
+      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }.to raise_error(ShopifyTransporter::InvalidConfigError, "Invalid configuration: missing required key 'export_configuration'")
+    end
+
     it 'raises InvalidConfigError if config file is missing store id' do
       config_filename = 'spec/files/config_for_exports_without_store_id.yml'
       output_filename = 'some/path'

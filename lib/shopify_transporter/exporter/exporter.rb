@@ -55,6 +55,7 @@ module ShopifyTransporter
 
     def assert_config_has_required_keys
       [
+        ['export_configuration'],
         ['export_configuration', 'soap', 'hostname'],
         ['export_configuration', 'soap', 'username'],
         ['export_configuration', 'store_id'],

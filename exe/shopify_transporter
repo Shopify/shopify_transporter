@@ -43,7 +43,7 @@ module ShopifyTransporter
       api_key = $stdin.noecho do
         ask('Please enter your Magento SOAP API key:')
       end
-      say("\n")
+      puts $/
       exporter = Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
       exporter.run
     rescue ShopifyTransporter::ExportError => error

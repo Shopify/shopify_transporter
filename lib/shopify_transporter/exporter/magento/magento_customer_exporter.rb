@@ -11,7 +11,7 @@ module ShopifyTransporter
     def export
       puts "starting export..."
       base_customers.map do |customer|
-        $stderr.puts "fetching customer: #{customer[:customer_id]}..."
+        puts "fetching customer: #{customer[:customer_id]}..."
         customer.merge(address_list: customer_address_list(customer[:customer_id]))
       end.compact
     end

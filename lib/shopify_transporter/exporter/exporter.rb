@@ -23,8 +23,8 @@ module ShopifyTransporter
 
       load_config(config_filename)
 
-      assert_config_has_required_keys
-      assert_output_file_does_not_exist
+      ensure_config_has_required_keys
+      ensure_output_file_does_not_exist
     end
 
     def run
@@ -53,7 +53,7 @@ module ShopifyTransporter
       end
     end
 
-    def assert_config_has_required_keys
+    def ensure_config_has_required_keys
       [
         ['export_configuration'],
         ['export_configuration', 'soap', 'hostname'],
@@ -64,7 +64,7 @@ module ShopifyTransporter
       end
     end
 
-    def assert_output_file_does_not_exist
+    def ensure_output_file_does_not_exist
       raise OutputFileExistsError, output_filename if File.exists?(output_filename)
     end
   end

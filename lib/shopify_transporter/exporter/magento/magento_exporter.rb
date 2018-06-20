@@ -5,7 +5,7 @@ module ShopifyTransporter
   class MagentoExporter
     class MissingMagentoExporterError < ExportError; end
 
-    def self.for(store_id, type, client)
+    def self.for(type, store_id, client)
       case type
       when 'customer'
         MagentoCustomerExporter

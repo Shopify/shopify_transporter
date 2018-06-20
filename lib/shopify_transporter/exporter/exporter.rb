@@ -35,7 +35,7 @@ module ShopifyTransporter
       )
       store_id = @config['export_configuration']['store_id']
 
-      data = MagentoExporter.for(store_id, object_type, client).export
+      data = MagentoExporter.for(object_type, store_id, client).export
 
       File.open(output_filename, 'w') do |output_file|
         output_file.write(JSON.pretty_generate(data), $/)

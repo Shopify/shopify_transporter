@@ -1,0 +1,15 @@
+#!/bin/bash
+
+exec < /dev/tty
+
+read -p "🔐 Warning: You are pushing to a public repository. Does this push include any sensitive information (y/n)? " response
+
+case ${response:0:1} in
+    n|N )
+      exit 0
+    ;;
+    * )
+      echo "🛑 Please remove the sensitive information from the git history of this branch before pushing."
+      exit 1
+    ;;
+esac

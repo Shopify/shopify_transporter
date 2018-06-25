@@ -1,0 +1,3 @@
+#!/bin/bash
+HOOK_DIR=$(git rev-parse --show-toplevel)/.git/hooks
+ln -s -f ../../git_hooks/pre-push $HOOK_DIR/pre-push

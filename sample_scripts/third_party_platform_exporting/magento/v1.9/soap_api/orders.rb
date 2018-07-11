@@ -5,6 +5,10 @@ require 'json'
 require_relative 'transporter_exporter'
 
 class OrderExporter < TransporterExporter
+  START_DATE = 3.years.ago
+  END_DATE = Time.now
+  INTERVAL_SIZE = 2.weeks
+
   def run
     puts JSON.pretty_generate(orders)
   end
@@ -26,28 +30,28 @@ class OrderExporter < TransporterExporter
 
   def base_orders
     $stderr.puts "pulling order info from Magento..."
-    base_orders = orders_starting_with('')
+
+    base_orders = orders_in_daterange(START_DATE, END_DATE, INTERVAL_SIZE)
     $stderr.puts "\nfetched base information for all orders!"
     base_orders
   end
 
-  def orders_starting_with(id_prefix)
-    Timeout::timeout(TIMEOUT_DURATION, MagentoTimeoutError) do
-      $stderr.print '.'
-      order_list(id_prefix)
+  def orders_in_daterange(start_date, end_date, interval_length)
+    orders = []
+    loop do |date, orders|
+      orders << order_list(start_date, start_date + interval_length)
+      start_date += interval_length
+      break if start_date > end_date
     end
-  rescue MagentoTimeoutError
-    (0..9).map do |digit|
-      orders_starting_with("#{id_prefix}#{digit}")
-    end.flatten.compact
+    orders
   end
 
-  def order_list(id_prefix)
+  def order_list(start_date, end_date)
     soap_client.call(
       :sales_order_list,
       message: {
         sessionId: soap_session_id,
-        filters: filters.merge(filter_ids_starting_with(id_prefix)),
+        filters: filters.merge(filter_by_date_range(start_date, end_date)),
       }
     ).body[:sales_order_list_response][:result][:item]
   end

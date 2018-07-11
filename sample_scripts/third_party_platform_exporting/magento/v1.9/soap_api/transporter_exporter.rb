@@ -64,18 +64,24 @@ class TransporterExporter
     }
   end
 
-  def filter_ids_starting_with(id_prefix)
-    expr = "^#{id_prefix}.*$"
+  def complex_filters(start_location, end_location)
     {
       complex_filter: [
         item: [
           {
-            key: key,
+            key: 'created_at',
             value: {
-                key: 'regexp',
-                value: expr,
+                key: 'from',
+                value: start_location.strftime("%Y-%m-%d %H:%M:%S"),
             }
-          }
+          },
+          {
+            key: 'CREATED_AT',
+            value: {
+                key: 'to',
+                value: end_location.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+          },
         ]
       ]
     }

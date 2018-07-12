@@ -64,7 +64,7 @@ class TransporterExporter
     }
   end
 
-  def complex_filters(start_location, end_location)
+  def filter_by_date_range(start_location, end_location)
     {
       complex_filter: [
         item: [

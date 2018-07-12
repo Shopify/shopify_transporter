@@ -70,9 +70,9 @@ class OrderExporter < TransporterExporter
   end
 end
 
-begin
-  OrderExporter.new.run
-rescue TransporterExporter::ExportError => e
-  puts "error: #{e}"
-  exit(1)
-end
+# begin
+#   OrderExporter.new.run
+# rescue TransporterExporter::ExportError => e
+#   puts "error: #{e}"
+#   exit(1)
+# end

@@ -40,13 +40,13 @@ class OrderExporter < TransporterExporter
   end
 
   def orders_in_daterange(start_date, end_date, interval_length)
-    orders = []
+    fetched_orders = []
     loop do |date, orders|
-      orders << order_list(start_date, start_date + interval_length)
+      fetched_orders << order_list(start_date, start_date + interval_length)
       start_date += interval_length
       break if start_date > end_date
     end
-    orders
+    fetched_orders
   end
 
   def order_list(start_date, end_date)

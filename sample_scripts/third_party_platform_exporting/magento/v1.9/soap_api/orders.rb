@@ -2,6 +2,9 @@
 require 'savon'
 require 'json'
 
+require 'active_support'
+require 'active_support/core_ext'
+
 require_relative 'transporter_exporter'
 
 class OrderExporter < TransporterExporter

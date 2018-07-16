@@ -50,13 +50,22 @@ class OrderExporter < TransporterExporter
   end
 
   def order_list(start_date, end_date)
-    soap_client.call(
+    result = soap_client.call(
       :sales_order_list,
       message: {
         sessionId: soap_session_id,
         filters: filters.merge(filter_by_date_range(start_date, end_date)),
       }
     ).body[:sales_order_list_response][:result][:item]
+
+    case result
+    when Array
+      result
+    when Hash
+      [result]
+    else
+      []
+    end
   end
 
   def items_for(order)

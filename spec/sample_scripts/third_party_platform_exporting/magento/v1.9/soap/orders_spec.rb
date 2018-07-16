@@ -27,9 +27,11 @@ RSpec.describe OrderExporter do
         {
           sales_order_list_response: {
             result: {
-              item: {
-                stuff: "blah"
-              }
+              item: [
+                {
+                  stuff: "blah"
+                }
+              ]
             }
           }
         }
@@ -38,9 +40,11 @@ RSpec.describe OrderExporter do
       expect(soap_client).to receive(:call).with(:sales_order_info, anything).and_return(sales_order_info_response_body).at_least(:once)
       expect(sales_order_info_response_body).to receive(:body).and_return(
         {
-          sales_order_info_response: {
-            some_detail: "yep for sure"
-          }
+          sales_order_info_response: [
+            {
+              some_detail: "yep for sure"
+            }
+          ]
         }
       ).at_least(:once)
 

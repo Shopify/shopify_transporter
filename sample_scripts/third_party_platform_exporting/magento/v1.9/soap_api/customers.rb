@@ -27,6 +27,7 @@ class CustomerExporter < TransporterExporter
   def base_customers
     $stderr.puts "pulling customer info from Magento..."
     base_customers = customers_starting_with('')
+    
     $stderr.puts "\nfetched base information for all customers!"
     base_customers
   end

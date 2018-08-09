@@ -64,6 +64,23 @@ class TransporterExporter
     }
   end
 
+  def filter_ids_starting_with(id_prefix)
+    expr = "^#{id_prefix}.*$"
+    {
+      complex_filter: [
+        item: [
+          {
+            key: key,
+            value: {
+                key: 'regexp',
+                value: expr,
+            }
+          }
+        ]
+      ]
+    }
+  end
+
   def filter_by_date_range(start_location, end_location)
     {
       complex_filter: [

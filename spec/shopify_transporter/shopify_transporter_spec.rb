@@ -306,6 +306,78 @@ RSpec.describe ShopifyTransporter do
     end
   end
 
+  describe ShopifyTransporter::MagentoOrderExporter do
+    context '#run' do
+      it 'works' do
+        soap_client = double("soap client")
+        sales_order_list_response_body = double('sales_order_list_response_body')
+        sales_order_info_response_body = double('sales_order_info_response_body')
+        expect(soap_client).to receive(:call).with(:sales_order_list, anything).and_return(sales_order_list_response_body).at_least(:once)
+        expect(sales_order_list_response_body).to receive(:body).and_return(
+          {
+            sales_order_list_response: {
+              result: {
+                item: [
+                  {
+                    stuff: "blah"
+                  }
+                ]
+              }
+            }
+          }
+        ).at_least(:once)
+        expect(soap_client).to receive(:call).with(:sales_order_info, anything).and_return(sales_order_info_response_body).at_least(:once)
+        expect(sales_order_info_response_body).to receive(:body).and_return(
+          {
+            sales_order_info_response: {
+              result: {
+                an_attribute: "thing"
+              }
+            }
+          }
+        ).at_least(:once)
+         expect { ShopifyTransporter::MagentoOrderExporter.new(1, soap_client).export }.not_to raise_error
+      end
+    end
+  end
+
+  describe ShopifyTransporter::MagentoCustomerExporter do
+    context '#run' do
+      it 'works' do
+        soap_client = double("soap client")
+        customer_customer_list_response_body = double('customer_customer_list_response_body')
+        customer_address_list_response_body = double('customer_address_list_response_body')
+        expect(soap_client).to receive(:call).with(:customer_customer_list, anything).and_return(customer_customer_list_response_body).at_least(:once)
+        expect(customer_customer_list_response_body).to receive(:body).and_return(
+          {
+            customer_customer_list_response: {
+              store_view: {
+                item: [
+                  {
+                    stuff: "blah"
+                  }
+                ]
+              }
+            }
+          }
+        ).at_least(:once)
+        expect(soap_client).to receive(:call).with(:customer_address_list, anything).and_return(customer_address_list_response_body).at_least(:once)
+        expect(customer_address_list_response_body).to receive(:body).and_return(
+          {
+            customer_address_list_response: {
+              result: {
+                item: {
+                  thing: "stuff"
+                }
+              }
+            }
+          }
+        ).at_least(:once)
+         expect { ShopifyTransporter::MagentoCustomerExporter.new(1, soap_client).export }.not_to raise_error
+      end
+    end
+  end
+
   describe ShopifyTransporter::Exporter do
 
     class SomePlatformExporter

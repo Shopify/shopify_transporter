@@ -22,18 +22,16 @@ module ShopifyTransporter
       @object_type = object_type
 
       load_config(config_filename)
-
-      ensure_config_has_required_keys
       ensure_output_file_does_not_exist
     end
 
     def run
       client = Soap.new(
-        @config['export_configuration']['soap']['hostname'],
-        @config['export_configuration']['soap']['username'],
+        config['export_configuration']['soap']['hostname'],
+        config['export_configuration']['soap']['username'],
         api_key,
       )
-      store_id = @config['export_configuration']['store_id']
+      store_id = config['export_configuration']['store_id']
 
       data = MagentoExporter.for(object_type, store_id, client).export
 
@@ -51,6 +49,7 @@ module ShopifyTransporter
         raise InvalidConfigError, "cannot find file name '#{config_filename}'" unless File.exists?(config_filename)
         YAML.load_file(config_filename)
       end
+      ensure_config_has_required_keys
     end
 
     def ensure_config_has_required_keys

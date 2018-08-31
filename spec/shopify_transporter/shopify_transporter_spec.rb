@@ -319,24 +319,36 @@ RSpec.describe ShopifyTransporter do
               result: {
                 item: [
                   {
-                    stuff: "blah"
+                    increment_id: 12345,
+                    top_level_attribute: "an_attribute",
                   }
                 ]
               }
             }
           }
         ).at_least(:once)
-        expect(soap_client).to receive(:call).with(:sales_order_info, anything).and_return(sales_order_info_response_body).at_least(:once)
+        expect(soap_client).to receive(:call).with(:sales_order_info, order_increment_id: 12345).and_return(sales_order_info_response_body).at_least(:once)
         expect(sales_order_info_response_body).to receive(:body).and_return(
           {
             sales_order_info_response: {
               result: {
-                an_attribute: "thing"
+                order_info_attribute: "another_attribute"
               }
             }
           }
         ).at_least(:once)
-         expect { ShopifyTransporter::MagentoOrderExporter.new(1, soap_client).export }.not_to raise_error
+
+        expected_result = [
+          {
+            increment_id: 12345,
+            top_level_attribute: "an_attribute",
+            items: {
+              order_info_attribute: "another_attribute",
+            }
+          }
+        ]
+
+         expect(ShopifyTransporter::MagentoOrderExporter.new(1, soap_client).export).to eq(expected_result)
       end
     end
   end

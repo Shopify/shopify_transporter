@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module ShopifyTransporter
   class MagentoOrderExporter
     attr_accessor :client, :store_id

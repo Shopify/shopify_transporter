@@ -366,26 +366,38 @@ RSpec.describe ShopifyTransporter do
               store_view: {
                 item: [
                   {
-                    stuff: "blah"
+                    customer_id: 654321,
+                    top_level_attribute: "an_attribute"
                   }
                 ]
               }
             }
           }
         ).at_least(:once)
-        expect(soap_client).to receive(:call).with(:customer_address_list, anything).and_return(customer_address_list_response_body).at_least(:once)
+        expect(soap_client).to receive(:call).with(:customer_address_list, customer_id: 654321).and_return(customer_address_list_response_body).at_least(:once)
         expect(customer_address_list_response_body).to receive(:body).and_return(
           {
             customer_address_list_response: {
               result: {
-                item: {
-                  thing: "stuff"
-                }
+                customer_address_attribute: "another_attribute"
               }
             }
           }
         ).at_least(:once)
-         expect { ShopifyTransporter::MagentoCustomerExporter.new(1, soap_client).export }.not_to raise_error
+
+
+        expected_result = [
+          {
+            customer_id: 654321,
+            top_level_attribute: "an_attribute",
+            address_list: {
+              customer_address_attribute: "another_attribute",
+            }
+          }
+        ]
+
+         expect(ShopifyTransporter::MagentoCustomerExporter.new(1, soap_client).export).to eq(expected_result)
+
       end
     end
   end

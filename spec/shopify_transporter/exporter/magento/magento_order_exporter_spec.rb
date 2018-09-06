@@ -3,7 +3,7 @@ require 'shopify_transporter/pipeline/stage'
 
 RSpec.describe ShopifyTransporter::MagentoOrderExporter do
   context '#run' do
-    it 'works' do
+    it 'retrieves orders from Magento using the SOAP API and returns the results' do
       soap_client = double("soap client")
       sales_order_list_response_body = double('sales_order_list_response_body')
       sales_order_info_response_body = double('sales_order_info_response_body')

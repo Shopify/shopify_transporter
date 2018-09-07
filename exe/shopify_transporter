@@ -40,11 +40,16 @@ module ShopifyTransporter
 
     desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
     def export
-      api_key = $stdin.noecho do
-        ask('Please enter your Magento SOAP API key:')
-      end
-      puts $/
-      exporter = ShopifyTransporter::Exporters::Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
+      api_key = $stdin.noecho { ask('Please enter your Magento SOAP API key:') }
+      puts $INPUT_RECORD_SEPARATOR
+
+      exporter = ShopifyTransporter::Exporters::Exporter.new(
+        options[:config],
+        api_key,
+        options[:object],
+        options[:output_filename]
+      )
+
       exporter.run
     rescue ShopifyTransporter::Exporters::ExportError => error
       export_error(error.message)

@@ -37,7 +37,7 @@ module ShopifyTransporter
         data = Magento::MagentoExporter.for(object_type, store_id, client).export
 
         File.open(output_filename, 'w') do |output_file|
-          output_file.write(JSON.pretty_generate(data) + $/)
+          output_file.write(JSON.pretty_generate(data) + $INPUT_RECORD_SEPARATOR)
         end
       end
 
@@ -47,7 +47,7 @@ module ShopifyTransporter
 
       def load_config(config_filename)
         @config ||= begin
-          raise InvalidConfigError, "cannot find file name '#{config_filename}'" unless File.exists?(config_filename)
+          raise InvalidConfigError, "cannot find file name '#{config_filename}'" unless File.exist?(config_filename)
           YAML.load_file(config_filename)
         end
         ensure_config_has_required_keys
@@ -55,17 +55,17 @@ module ShopifyTransporter
 
       def ensure_config_has_required_keys
         [
-          ['export_configuration'],
-          ['export_configuration', 'soap', 'hostname'],
-          ['export_configuration', 'soap', 'username'],
-          ['export_configuration', 'store_id'],
+          %w(export_configuration),
+          %w(export_configuration soap hostname),
+          %w(export_configuration soap username),
+          %w(export_configuration store_id),
         ].each do |keys|
           raise InvalidConfigError, "missing required key '#{keys.last}'" unless config.dig(*keys)
         end
       end
 
       def ensure_output_file_does_not_exist
-        raise OutputFileExistsError, output_filename if File.exists?(output_filename)
+        raise OutputFileExistsError, output_filename if File.exist?(output_filename)
       end
     end
   end

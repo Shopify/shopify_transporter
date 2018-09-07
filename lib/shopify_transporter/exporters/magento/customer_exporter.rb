@@ -3,7 +3,7 @@
 module ShopifyTransporter
   module Exporters
     module Magento
-      class MagentoCustomerExporter
+      class CustomerExporter
         attr_accessor :client, :store_id
 
         def initialize(store_id, client)
@@ -36,8 +36,8 @@ module ShopifyTransporter
               item: {
                 key: 'store_id',
                 value: store_id,
-              }
-            }
+              },
+            },
           }
         end
       end

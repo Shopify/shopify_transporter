@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 RSpec.describe ShopifyTransporter do
-  def tmpfile(content)
+  def tmpfile(content, ext = nil)
     (ext, content) = if content.is_a?(String)
       ['.csv', content]
+    elsif ext == '.yml'
+      ['.yml', YAML.dump(content)]
     else
       content = [content] unless content.is_a? Array
       ['.json', content.to_json]
@@ -12,6 +14,26 @@ RSpec.describe ShopifyTransporter do
     file.puts content
     file.close
     file
+  end
+
+  def default_config
+    {
+      "platform_type" => 'Magento',
+      "object_types" => {
+        "customer" => {
+          "record_key" => 'email',
+          "key_required" => true,
+          "pipeline_stages" => [ 'TopLevelAttributes' ],
+        },
+      },
+      "export_configuration" => {
+        "soap" => {
+          "hostname" => 'magento.host',
+          "username" => 'something',
+        },
+        "store_id" => 1,
+      }
+    }
   end
 
   context '#version' do
@@ -314,14 +336,14 @@ RSpec.describe ShopifyTransporter do
     end
 
     it 'writes exported data to file' do
-      Dir.mktmpdir(nil, "/var/tmp") do |dir|
-        magento_config_filename = 'spec/files/config.yml'
-        output_filename = "#{dir}/results.json"
+      in_temp_folder do
+        output_filename = "results.json"
         api_key = 'CHANGEME'
-
-        exporter = ShopifyTransporter::Exporters::Exporter.new(magento_config_filename, api_key, :unused, output_filename)
+        config_file = tmpfile(default_config, '.yml')
 
         expect(ShopifyTransporter::Exporters::Magento::MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
+
+        exporter = ShopifyTransporter::Exporters::Exporter.new(config_file.path, api_key, :unused, output_filename)
         exporter.run
 
         expect(File.read(output_filename)).to eq(JSON.pretty_generate([{ foo: 'bar' }]) + $/)
@@ -329,69 +351,89 @@ RSpec.describe ShopifyTransporter do
     end
 
     it 'raises InvalidConfigError if config file does not exist' do
-      config_filename = 'spec/files/nonexistent_config.yml'
+      config_filename = 'nonexistent_config.yml'
       output_filename = 'some/path'
       api_key = 'CHANGEME'
 
-      error_message = "Invalid configuration: cannot find file name 'spec/files/nonexistent_config.yml'"
+      error_message = "Invalid configuration: cannot find file name 'nonexistent_config.yml'"
 
       expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
         .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
     end
 
     it 'raises InvalidConfigError if config file is missing username' do
-      config_filename = 'spec/files/config_for_exports_without_username.yml'
-      output_filename = 'some/path'
-      api_key = 'CHANGEME'
+      in_temp_folder do
+        config_without_username = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('username') }
+        config_file = tmpfile(config_without_username, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'username'"
+        output_filename = 'not/used'
+        api_key = 'CHANGEME'
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+        error_message = "Invalid configuration: missing required key 'username'"
+
+        expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, api_key, :unused, output_filename) }
+          .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+      end
     end
 
     it 'raises InvalidConfigError if config file is missing hostname' do
-      config_filename = 'spec/files/config_for_exports_without_hostname.yml'
-      output_filename = 'some/path'
-      api_key = 'CHANGEME'
+      in_temp_folder do
+        config_without_hostname = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('hostname') }
+        config_file = tmpfile(config_without_hostname, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'hostname'"
+        output_filename = 'not/used'
+        api_key = 'CHANGEME'
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+        error_message = "Invalid configuration: missing required key 'hostname'"
+
+        expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, api_key, :unused, output_filename) }
+          .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+      end
     end
 
     it 'raises InvalidConfigError if config file is missing export configuration' do
-      config_filename = 'spec/files/config_for_exports_without_export_configuration.yml'
-      output_filename = 'some/path'
-      api_key = 'CHANGEME'
+      in_temp_folder do
+        config_without_export_configuration = default_config.tap { |cfg| cfg.delete('export_configuration') }
+        config_file = tmpfile(config_without_export_configuration, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'export_configuration'"
+        output_filename = 'not/used'
+        api_key = 'CHANGEME'
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+        error_message = "Invalid configuration: missing required key 'export_configuration'"
+
+        expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, api_key, :unused, output_filename) }
+          .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+      end
     end
 
     it 'raises InvalidConfigError if config file is missing store id' do
-      config_filename = 'spec/files/config_for_exports_without_store_id.yml'
-      output_filename = 'some/path'
-      api_key = 'CHANGEME'
+      in_temp_folder do
+        config_without_store_id = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
+        config_file = tmpfile(config_without_store_id, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'store_id'"
+        output_filename = 'not/used'
+        api_key = 'CHANGEME'
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+        error_message = "Invalid configuration: missing required key 'store_id'"
+
+        expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, api_key, :unused, output_filename) }
+          .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
+      end
     end
 
     it 'raises OutputFileExistsError if output file already exists' do
-      config_filename = 'spec/files/config.yml'
-      output_filename = 'spec/files/existing_export_results.json'
-      api_key = 'CHANGEME'
+      in_temp_folder do
+        config_file = tmpfile(default_config, '.yml')
+        output_filename = 'existing_export_results.json'
+        api_key = 'CHANGEME'
 
-      error_message = "Output filename already exists: 'spec/files/existing_export_results.json'"
+        error_message = "Output filename already exists: 'existing_export_results.json'"
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::Exporters::OutputFileExistsError, error_message)
+        File.open(output_filename, 'w') { |out_file| out_file.write('I already exist and stuff.') }
+
+        expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, api_key, :unused, output_filename) }
+          .to raise_error(ShopifyTransporter::Exporters::OutputFileExistsError, error_message)
+      end
     end
   end
 

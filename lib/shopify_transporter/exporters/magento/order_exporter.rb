@@ -3,7 +3,7 @@
 module ShopifyTransporter
   module Exporters
     module Magento
-      class MagentoOrderExporter
+      class OrderExporter
         attr_accessor :client, :store_id
 
         def initialize(store_id, client)
@@ -27,7 +27,9 @@ module ShopifyTransporter
         end
 
         def info_for(order_increment_id)
-          client.call(:sales_order_info, order_increment_id: order_increment_id).body[:sales_order_info_response][:result]
+          client
+            .call(:sales_order_info, order_increment_id: order_increment_id)
+            .body[:sales_order_info_response][:result]
         end
 
         def filters
@@ -36,8 +38,8 @@ module ShopifyTransporter
               item: {
                 key: 'store_id',
                 value: store_id,
-              }
-            }
+              },
+            },
           }
         end
       end

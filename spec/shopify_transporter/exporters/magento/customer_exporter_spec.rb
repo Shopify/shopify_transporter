@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 
-RSpec.describe ShopifyTransporter::Exporters::Magento::MagentoCustomerExporter do
+RSpec.describe ShopifyTransporter::Exporters::Magento::CustomerExporter do
   context '#run' do
     it 'retrieves customers from Magento using the SOAP API and returns the results' do
       soap_client = double("soap client")
+
       customer_customer_list_response_body = double('customer_customer_list_response_body')
       customer_address_list_response_body = double('customer_address_list_response_body')
-      expect(soap_client).to receive(:call).with(:customer_customer_list, anything).and_return(customer_customer_list_response_body).at_least(:once)
+
+      expect(soap_client)
+        .to receive(:call)
+        .with(:customer_customer_list, anything)
+        .and_return(customer_customer_list_response_body).at_least(:once)
+
       expect(customer_customer_list_response_body).to receive(:body).and_return(
         {
           customer_customer_list_response: {
@@ -22,7 +28,12 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::MagentoCustomerExporter d
           }
         }
       ).at_least(:once)
-      expect(soap_client).to receive(:call).with(:customer_address_list, customer_id: 654321).and_return(customer_address_list_response_body).at_least(:once)
+
+      expect(soap_client)
+        .to receive(:call)
+        .with(:customer_address_list, customer_id: 654321)
+        .and_return(customer_address_list_response_body).at_least(:once)
+
       expect(customer_address_list_response_body).to receive(:body).and_return(
         {
           customer_address_list_response: {
@@ -43,7 +54,8 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::MagentoCustomerExporter d
         }
       ]
 
-       expect(ShopifyTransporter::Exporters::Magento::MagentoCustomerExporter.new(1, soap_client).export).to eq(expected_result)
+      exporter = ShopifyTransporter::Exporters::Magento::CustomerExporter.new(1, soap_client)
+      expect(exporter.export).to eq(expected_result)
     end
   end
 end

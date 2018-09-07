@@ -1,20 +1,22 @@
-require_relative './magento_customer_exporter.rb'
-require_relative './magento_order_exporter.rb'
+# frozen_string_literal: true
+
+require_relative './customer_exporter.rb'
+require_relative './order_exporter.rb'
 
 module ShopifyTransporter
   module Exporters
     module Magento
-      class MagentoExporter
-        class MissingMagentoExporterError < ExportError; end
+      class MissingExporterError < ExportError; end
 
+      class MagentoExporter
         def self.for(type, store_id, client)
           case type
           when 'customer'
-            MagentoCustomerExporter
+            CustomerExporter
           when 'order'
-            MagentoOrderExporter
+            OrderExporter
           else
-            raise MissingMagentoExporterError
+            raise MissingExporterError
           end.new(store_id, client)
         end
       end

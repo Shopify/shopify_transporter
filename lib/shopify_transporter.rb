@@ -2,7 +2,7 @@
 require 'thor'
 
 require_relative 'shopify_transporter/generators.rb'
-require_relative 'shopify_transporter/exporter.rb'
+require_relative 'shopify_transporter/exporters.rb'
 require_relative 'shopify_transporter/pipeline.rb'
 require_relative 'shopify_transporter/shopify.rb'
 require_relative 'shopify_transporter/record_builder.rb'

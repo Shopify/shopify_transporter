@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 
-RSpec.describe ShopifyTransporter::MagentoCustomerExporter do
+RSpec.describe ShopifyTransporter::Exporters::Magento::MagentoCustomerExporter do
   context '#run' do
     it 'retrieves customers from Magento using the SOAP API and returns the results' do
       soap_client = double("soap client")
@@ -43,7 +43,7 @@ RSpec.describe ShopifyTransporter::MagentoCustomerExporter do
         }
       ]
 
-       expect(ShopifyTransporter::MagentoCustomerExporter.new(1, soap_client).export).to eq(expected_result)
+       expect(ShopifyTransporter::Exporters::Magento::MagentoCustomerExporter.new(1, soap_client).export).to eq(expected_result)
     end
   end
 end

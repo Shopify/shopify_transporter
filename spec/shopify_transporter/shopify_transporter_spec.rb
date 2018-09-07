@@ -306,7 +306,7 @@ RSpec.describe ShopifyTransporter do
     end
   end
 
-  describe ShopifyTransporter::Exporter do
+  describe ShopifyTransporter::Exporters::Exporter do
     class SomePlatformExporter
       def export
         [{ foo: 'bar' }]
@@ -319,9 +319,9 @@ RSpec.describe ShopifyTransporter do
         output_filename = "#{dir}/results.json"
         api_key = 'CHANGEME'
 
-        exporter = ShopifyTransporter::Exporter.new(magento_config_filename, api_key, :unused, output_filename)
+        exporter = ShopifyTransporter::Exporters::Exporter.new(magento_config_filename, api_key, :unused, output_filename)
 
-        expect(ShopifyTransporter::MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
+        expect(ShopifyTransporter::Exporters::Magento::MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
         exporter.run
 
         expect(File.read(output_filename)).to eq(JSON.pretty_generate([{ foo: 'bar' }]) + $/)
@@ -335,8 +335,8 @@ RSpec.describe ShopifyTransporter do
 
       error_message = "Invalid configuration: cannot find file name 'spec/files/nonexistent_config.yml'"
 
-      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::InvalidConfigError, error_message)
+      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
+        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
     end
 
     it 'raises InvalidConfigError if config file is missing username' do
@@ -346,8 +346,8 @@ RSpec.describe ShopifyTransporter do
 
       error_message = "Invalid configuration: missing required key 'username'"
 
-      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::InvalidConfigError, error_message)
+      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
+        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
     end
 
     it 'raises InvalidConfigError if config file is missing hostname' do
@@ -357,8 +357,8 @@ RSpec.describe ShopifyTransporter do
 
       error_message = "Invalid configuration: missing required key 'hostname'"
 
-      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::InvalidConfigError, error_message)
+      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
+        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
     end
 
     it 'raises InvalidConfigError if config file is missing export configuration' do
@@ -368,8 +368,8 @@ RSpec.describe ShopifyTransporter do
 
       error_message = "Invalid configuration: missing required key 'export_configuration'"
 
-      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::InvalidConfigError, error_message)
+      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
+        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
     end
 
     it 'raises InvalidConfigError if config file is missing store id' do
@@ -379,8 +379,8 @@ RSpec.describe ShopifyTransporter do
 
       error_message = "Invalid configuration: missing required key 'store_id'"
 
-      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::InvalidConfigError, error_message)
+      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
+        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
     end
 
     it 'raises OutputFileExistsError if output file already exists' do
@@ -390,8 +390,8 @@ RSpec.describe ShopifyTransporter do
 
       error_message = "Output filename already exists: 'spec/files/existing_export_results.json'"
 
-      expect { ShopifyTransporter::Exporter.new(config_filename, api_key, :unused, output_filename) }
-        .to raise_error(ShopifyTransporter::OutputFileExistsError, error_message)
+      expect { ShopifyTransporter::Exporters::Exporter.new(config_filename, api_key, :unused, output_filename) }
+        .to raise_error(ShopifyTransporter::Exporters::OutputFileExistsError, error_message)
     end
   end
 

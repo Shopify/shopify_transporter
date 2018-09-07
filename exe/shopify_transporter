@@ -44,9 +44,9 @@ module ShopifyTransporter
         ask('Please enter your Magento SOAP API key:')
       end
       puts $/
-      exporter = Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
+      exporter = ShopifyTransporter::Exporters::Exporter.new(options[:config], api_key, options[:object], options[:output_filename])
       exporter.run
-    rescue ShopifyTransporter::ExportError => error
+    rescue ShopifyTransporter::Exporters::ExportError => error
       export_error(error.message)
     end
 

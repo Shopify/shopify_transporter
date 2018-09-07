@@ -5,8 +5,3 @@ object_types:
     key_required: true
     pipeline_stages:
       - TopLevelAttributes
-export_configuration:
-  soap:
-    hostname: 'magento.host'
-    username: 'something'
-  store_id: 1

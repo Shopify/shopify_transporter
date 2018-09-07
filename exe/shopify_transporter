@@ -38,7 +38,8 @@ module ShopifyTransporter
 
     desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
     def export
-      api_key = $stdin.noecho { ask('Please enter your Magento SOAP API key:') }
+      #api_key = $stdin.noecho { ask('Please enter your Magento SOAP API key:') }
+      api_key = 'testboikey'
       puts $INPUT_RECORD_SEPARATOR
 
       exporter = ShopifyTransporter::Exporters::Exporter.new(

@@ -12,9 +12,9 @@ module ShopifyTransporter
         end
 
         def export
-          puts "starting export..."
+          $stderr.puts "Starting export..."
           base_orders.map do |order|
-            puts "fetching order: #{order[:increment_id]}..."
+            $stderr.puts "Fetching order: #{order[:increment_id]}..."
             order.merge(items: info_for(order[:increment_id]))
           end.compact
         end

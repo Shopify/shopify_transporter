@@ -32,8 +32,6 @@ module ShopifyTransporter
 
     method_option :config, type: :string, default: 'config.yml',
       desc: "The config file that describes the third party platform to export from."
-    method_option :output_filename, type: :string, required: true,
-      desc: "The file to write export results to."
     method_option :object, type: :string, required: true,
       desc: "The object type (customer, product, or order) to export.",
       enum: %w(customer order)
@@ -46,8 +44,7 @@ module ShopifyTransporter
       exporter = ShopifyTransporter::Exporters::Exporter.new(
         options[:config],
         api_key,
-        options[:object],
-        options[:output_filename]
+        options[:object]
       )
 
       exporter.run

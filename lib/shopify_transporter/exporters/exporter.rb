@@ -4,12 +4,6 @@ module ShopifyTransporter
   module Exporters
     class ExportError < StandardError; end
 
-    class OutputFileExistsError < ExportError
-      def initialize(output_filename)
-        super("Output filename already exists: '#{output_filename}'")
-      end
-    end
-
     class InvalidConfigError < ExportError
       def initialize(error_message)
         super("Invalid configuration: #{error_message}")
@@ -17,13 +11,11 @@ module ShopifyTransporter
     end
 
     class Exporter
-      def initialize(config_filename, api_key, object_type, output_filename)
+      def initialize(config_filename, api_key, object_type)
         @api_key = api_key
-        @output_filename = output_filename
         @object_type = object_type
 
         load_config(config_filename)
-        ensure_output_file_does_not_exist
       end
 
       def run
@@ -36,14 +28,12 @@ module ShopifyTransporter
 
         data = Magento::MagentoExporter.for(object_type, store_id, client).export
 
-        File.open(output_filename, 'w') do |output_file|
-          output_file.write(JSON.pretty_generate(data) + $INPUT_RECORD_SEPARATOR)
-        end
+        puts JSON.pretty_generate(data) + $INPUT_RECORD_SEPARATOR
       end
 
       private
 
-      attr_reader :config, :api_key, :output_filename, :object_type
+      attr_reader :config, :api_key, :object_type
 
       def load_config(config_filename)
         @config ||= begin
@@ -62,10 +52,6 @@ module ShopifyTransporter
         ].each do |keys|
           raise InvalidConfigError, "missing required key '#{keys.last}'" unless config.dig(*keys)
         end
-      end
-
-      def ensure_output_file_does_not_exist
-        raise OutputFileExistsError, output_filename if File.exist?(output_filename)
       end
     end
   end

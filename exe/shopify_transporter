@@ -33,21 +33,12 @@ module ShopifyTransporter
     method_option :config, type: :string, default: 'config.yml',
       desc: "The config file that describes the third party platform to export from."
     method_option :object, type: :string, required: true,
-      desc: "The object type (customer, product, or order) to export.",
+      desc: "The object type (customer or order) to export.",
       enum: %w(customer order)
 
     desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
     def export
-      #api_key = $stdin.noecho { ask('Please enter your Magento SOAP API key:') }
-      api_key = 'testboikey'
-      puts $INPUT_RECORD_SEPARATOR
-
-      exporter = ShopifyTransporter::Exporters::Exporter.new(
-        options[:config],
-        api_key,
-        options[:object]
-      )
-
+      exporter = ShopifyTransporter::Exporters::Exporter.new(options[:config], options[:api_key], options[:object])
       exporter.run
     rescue ShopifyTransporter::Exporters::ExportError => error
       export_error(error.message)

@@ -11,8 +11,7 @@ module ShopifyTransporter
     end
 
     class Exporter
-      def initialize(config_filename, api_key, object_type)
-        @api_key = api_key
+      def initialize(config_filename, object_type)
         @object_type = object_type
 
         load_config(config_filename)
@@ -22,7 +21,7 @@ module ShopifyTransporter
         client = Magento::Soap.new(
           config['export_configuration']['soap']['hostname'],
           config['export_configuration']['soap']['username'],
-          api_key,
+          config['export_configuration']['soap']['api_key'],
         )
         store_id = config['export_configuration']['store_id']
 
@@ -33,7 +32,7 @@ module ShopifyTransporter
 
       private
 
-      attr_reader :config, :api_key, :object_type
+      attr_reader :config, :object_type
 
       def load_config(config_filename)
         @config ||= begin
@@ -48,6 +47,7 @@ module ShopifyTransporter
           %w(export_configuration),
           %w(export_configuration soap hostname),
           %w(export_configuration soap username),
+          %w(export_configuration soap api_key),
           %w(export_configuration store_id),
         ].each do |keys|
           raise InvalidConfigError, "missing required key '#{keys.last}'" unless config.dig(*keys)

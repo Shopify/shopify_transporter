@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'shopify_transporter/pipeline/stage'
 
 module ShopifyTransporter
   module Exporters

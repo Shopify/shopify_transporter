@@ -7,6 +7,7 @@ require 'thor'
 require 'thor/group'
 require 'shopify_transporter'
 require 'yaml'
+require 'io/console'
 
 module ShopifyTransporter
   class CLI < Thor
@@ -15,9 +16,9 @@ module ShopifyTransporter
     end
 
     method_option :config, type: :string, default: 'config.yml',
-      desc: "The config file that lists the conversions to run."
+      desc: 'The config file that lists the conversions to run.'
     method_option :object, type: :string, required: true,
-      desc: "The object type (customer, product, or order) to convert.",
+      desc: 'The object type (customer, product, or order) to convert.',
       enum: %w(customer product order)
 
     desc 'convert FILE_NAMES', 'Converts objects into a Shopify-format. (accepts a list of space-separated files).'
@@ -29,15 +30,35 @@ module ShopifyTransporter
       conversion_error(error.message)
     end
 
+    method_option :config, type: :string, default: 'config.yml',
+      desc: 'The config file that describes the third party platform to export from.'
+    method_option :object, type: :string, required: true,
+      desc: 'The object type (customer or order) to export.',
+      enum: %w(customer order)
+
+    desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
+    def export
+      exporter = Exporters::Exporter.new(options[:config], options[:object])
+      exporter.run
+    rescue Exporters::ExportError => error
+      export_error(error.message)
+    end
+
     no_commands do
       def conversion_error(message)
         say("Conversion error: #{message}", :red)
+        exit 1
+      end
+
+      def export_error(message)
+        say("Export error: #{message}", :red)
         exit 1
       end
     end
 
     register ShopifyTransporter::New,
       'new', 'new PROJECTNAME --platform=PLATFORM', 'Generate a project for the platform'
+
     register ShopifyTransporter::Generate,
       'generate', 'generate STAGE_NAME --object=OBJECT',
       'Generate a custom pipeline stage for the object'

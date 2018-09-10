@@ -1,3 +1,5 @@
+# Recommended rubocop version: ~> 0.56.0
+
 AllCops:
   Exclude:
   - 'db/schema.rb'
@@ -359,7 +361,7 @@ Style/RedundantReturn:
   AllowMultipleReturnValues: false
 
 Style/RegexpLiteral:
-  EnforcedStyle: slashes
+  EnforcedStyle: mixed
   SupportedStyles:
   - slashes
   - percent_r
@@ -767,7 +769,10 @@ Style/LineEndConcatenation:
 Style/MethodCallWithoutArgsParentheses:
   Enabled: true
 
-Style/MethodMissing:
+Style/MethodMissingSuper:
+  Enabled: true
+
+Style/MissingRespondToMissing:
   Enabled: true
 
 Style/MultilineBlockChain:

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
+
 RSpec.describe ShopifyTransporter do
   def tmpfile(content)
     (ext, content) = if content.is_a?(String)

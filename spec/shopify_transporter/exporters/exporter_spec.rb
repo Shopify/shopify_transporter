@@ -22,7 +22,7 @@ RSpec.describe ShopifyTransporter::Exporters::Exporter do
         "customer" => {
           "record_key" => 'email',
           "key_required" => true,
-          "pipeline_stages" => [ 'TopLevelAttributes' ],
+          "pipeline_stages" => %w(TopLevelAttributes),
         },
       },
       "export_configuration" => {
@@ -32,19 +32,19 @@ RSpec.describe ShopifyTransporter::Exporters::Exporter do
           "api_key" => 'a_key',
         },
         "store_id" => 1,
-      }
+      },
     }
   end
 
   it 'writes exported data to file' do
-    in_temp_folder do
-      config_file = tmpfile(default_config, '.yml')
+    config_file = tmpfile(default_config, '.yml')
 
-      expect(ShopifyTransporter::Exporters::Magento::MagentoExporter).to receive(:for).and_return(SomePlatformExporter.new)
+    expect(ShopifyTransporter::Exporters::Magento::MagentoExporter)
+      .to receive(:for)
+      .and_return(SomePlatformExporter.new)
 
-      exporter = ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused)
-      expect { exporter.run }.to output(JSON.pretty_generate([{ foo: 'bar' }]) + $/).to_stdout
-    end
+    exporter = ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused)
+    expect { exporter.run }.to output(JSON.pretty_generate([{ foo: 'bar' }]) + $INPUT_RECORD_SEPARATOR).to_stdout
   end
 
   it 'raises InvalidConfigError if config file does not exist' do
@@ -57,62 +57,52 @@ RSpec.describe ShopifyTransporter::Exporters::Exporter do
   end
 
   it 'raises InvalidConfigError if config file is missing username' do
-    in_temp_folder do
-      config_without_username = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('username') }
-      config_file = tmpfile(config_without_username, '.yml')
+    config_without_username = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('username') }
+    config_file = tmpfile(config_without_username, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'username'"
+    error_message = "Invalid configuration: missing required key 'username'"
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
-    end
+    expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
+      .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
   end
 
   it 'raises InvalidConfigError if config file is missing hostname' do
-    in_temp_folder do
-      config_without_hostname = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('hostname') }
-      config_file = tmpfile(config_without_hostname, '.yml')
+    config_without_hostname = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('hostname') }
+    config_file = tmpfile(config_without_hostname, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'hostname'"
+    error_message = "Invalid configuration: missing required key 'hostname'"
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
-    end
+    expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
+      .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
   end
 
   it 'raises InvalidConfigError if config file is missing export configuration' do
-    in_temp_folder do
-      config_without_export_configuration = default_config.tap { |cfg| cfg.delete('export_configuration') }
-      config_file = tmpfile(config_without_export_configuration, '.yml')
+    config_without_export_configuration = default_config.tap { |cfg| cfg.delete('export_configuration') }
+    config_file = tmpfile(config_without_export_configuration, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'export_configuration'"
+    error_message = "Invalid configuration: missing required key 'export_configuration'"
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
-    end
+    expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
+      .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
   end
 
   it 'raises InvalidConfigError if config file is missing store id' do
-    in_temp_folder do
-      config_without_store_id = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
-      config_file = tmpfile(config_without_store_id, '.yml')
+    config_without_store_id = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
+    config_file = tmpfile(config_without_store_id, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'store_id'"
+    error_message = "Invalid configuration: missing required key 'store_id'"
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
-    end
+    expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
+      .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
   end
 
   it 'raises InvalidConfigError if config file is missing api key' do
-    in_temp_folder do
-      config_without_store_id = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('api_key') }
-      config_file = tmpfile(config_without_store_id, '.yml')
+    config_without_store_id = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('api_key') }
+    config_file = tmpfile(config_without_store_id, '.yml')
 
-      error_message = "Invalid configuration: missing required key 'api_key'"
+    error_message = "Invalid configuration: missing required key 'api_key'"
 
-      expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
-        .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
-    end
+    expect { ShopifyTransporter::Exporters::Exporter.new(config_file.path, :unused) }
+      .to raise_error(ShopifyTransporter::Exporters::InvalidConfigError, error_message)
   end
 end

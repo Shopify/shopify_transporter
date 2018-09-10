@@ -15,18 +15,16 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::OrderExporter do
         .at_least(:once)
 
       expect(sales_order_list_response_body).to receive(:body).and_return(
-        {
-          sales_order_list_response: {
-            result: {
-              item: [
-                {
-                  increment_id: 12345,
-                  top_level_attribute: "an_attribute",
-                }
-              ]
-            }
-          }
-        }
+        sales_order_list_response: {
+          result: {
+            item: [
+              {
+                increment_id: 12345,
+                top_level_attribute: "an_attribute",
+              },
+            ],
+          },
+        },
       ).at_least(:once)
 
       expect(soap_client)
@@ -35,13 +33,11 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::OrderExporter do
         .at_least(:once)
 
       expect(sales_order_info_response_body).to receive(:body).and_return(
-        {
-          sales_order_info_response: {
-            result: {
-              order_info_attribute: "another_attribute"
-            }
-          }
-        }
+        sales_order_info_response: {
+          result: {
+            order_info_attribute: "another_attribute",
+          },
+        },
       ).at_least(:once)
 
       expected_result = [
@@ -50,8 +46,8 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::OrderExporter do
           top_level_attribute: "an_attribute",
           items: {
             order_info_attribute: "another_attribute",
-          }
-        }
+          },
+        },
       ]
 
       exporter = ShopifyTransporter::Exporters::Magento::OrderExporter.new(store_id: 1, client: soap_client)

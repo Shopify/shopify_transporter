@@ -15,18 +15,16 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::CustomerExporter do
         .and_return(customer_customer_list_response_body).at_least(:once)
 
       expect(customer_customer_list_response_body).to receive(:body).and_return(
-        {
-          customer_customer_list_response: {
-            store_view: {
-              item: [
-                {
-                  customer_id: 654321,
-                  top_level_attribute: "an_attribute"
-                }
-              ]
-            }
-          }
-        }
+        customer_customer_list_response: {
+          store_view: {
+            item: [
+              {
+                customer_id: 654321,
+                top_level_attribute: "an_attribute",
+              },
+            ],
+          },
+        },
       ).at_least(:once)
 
       expect(soap_client)
@@ -35,13 +33,11 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::CustomerExporter do
         .and_return(customer_address_list_response_body).at_least(:once)
 
       expect(customer_address_list_response_body).to receive(:body).and_return(
-        {
-          customer_address_list_response: {
-            result: {
-              customer_address_attribute: "another_attribute"
-            }
-          }
-        }
+        customer_address_list_response: {
+          result: {
+            customer_address_attribute: "another_attribute",
+          },
+        },
       ).at_least(:once)
 
       expected_result = [
@@ -50,8 +46,8 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::CustomerExporter do
           top_level_attribute: "an_attribute",
           address_list: {
             customer_address_attribute: "another_attribute",
-          }
-        }
+          },
+        },
       ]
 
       exporter = ShopifyTransporter::Exporters::Magento::CustomerExporter.new(store_id: 1, client: soap_client)

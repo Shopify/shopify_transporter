@@ -6,7 +6,7 @@ gemspec
 
 group :development do
   gem 'package_cloud'
-  gem 'rubocop'
+  gem 'rubocop', '~> 0.56.0'
   gem 'rubocop-git', '~> 0.1'
 end
 

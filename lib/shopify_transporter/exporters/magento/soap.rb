@@ -24,7 +24,7 @@ module ShopifyTransporter
 
         def soap_client
           @soap_client ||= Savon.client(
-            wsdl: "https://#{hostname}/api/v2_soap?wsdl",
+            wsdl: "https://#{@hostname}/api/v2_soap?wsdl",
             open_timeout: 500,
             read_timeout: 500,
           )
@@ -34,8 +34,8 @@ module ShopifyTransporter
           @soap_session_id ||= soap_client.call(
             :login,
             message: {
-              username: username,
-              api_key: api_key,
+              username: @username,
+              api_key: @api_key,
             }
           ).body[:login_response][:login_return]
         end

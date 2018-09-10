@@ -38,7 +38,7 @@ module ShopifyTransporter
 
     desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
     def export
-      exporter = Exporters::Exporter.new(options[:config], options[:api_key], options[:object])
+      exporter = Exporters::Exporter.new(options[:config], options[:object])
       exporter.run
     rescue Exporters::ExportError => error
       export_error(error.message)

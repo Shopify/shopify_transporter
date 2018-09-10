@@ -12,10 +12,7 @@ module ShopifyTransporter
 
         def export
           $stderr.puts "Starting export..."
-          base_products.map do |product|
-            $stderr.puts "Fetching product: #{product[:product_id]}..."
-            product.merge(product_info: info_for(product[:product_id]))
-          end.compact
+          base_products.compact
         end
 
         private
@@ -23,10 +20,6 @@ module ShopifyTransporter
         def base_products
           result = @client.call(:catalog_product_list, filters: nil).body
           result[:catalog_product_list_response][:store_view][:item] || []
-        end
-
-        def info_for(product_id)
-          @client.call(:catalog_product_info, product_id: product_id).body[:catalog_product_info_response][:result]
         end
       end
     end

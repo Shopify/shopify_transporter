@@ -12,7 +12,7 @@ module ShopifyTransporter
 
       def tmpfile(content, ext)
         file = Tempfile.new(['test', ext])
-        file.puts YAML.dump(content)
+        file.puts content
         file.close
         file
       end
@@ -39,7 +39,7 @@ module ShopifyTransporter
       end
 
       it 'writes exported data to file' do
-        config_file = tmpfile(default_config, '.yml')
+        config_file = tmpfile(YAML.dump(default_config), '.yml')
 
         expect(Magento::MagentoExporter)
           .to receive(:for)
@@ -60,7 +60,7 @@ module ShopifyTransporter
 
       it 'raises InvalidConfigError if config file is missing username' do
         config_without_username = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('username') }
-        config_file = tmpfile(config_without_username, '.yml')
+        config_file = tmpfile(YAML.dump(config_without_username), '.yml')
 
         error_message = "Invalid configuration: missing required key 'username'"
 
@@ -70,7 +70,7 @@ module ShopifyTransporter
 
       it 'raises InvalidConfigError if config file is missing hostname' do
         config_without_hostname = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('hostname') }
-        config_file = tmpfile(config_without_hostname, '.yml')
+        config_file = tmpfile(YAML.dump(config_without_hostname), '.yml')
 
         error_message = "Invalid configuration: missing required key 'hostname'"
 
@@ -80,7 +80,7 @@ module ShopifyTransporter
 
       it 'raises InvalidConfigError if config file is missing export configuration' do
         config_without_export_configuration = default_config.tap { |cfg| cfg.delete('export_configuration') }
-        config_file = tmpfile(config_without_export_configuration, '.yml')
+        config_file = tmpfile(YAML.dump(config_without_export_configuration), '.yml')
 
         error_message = "Invalid configuration: missing required key 'export_configuration'"
 
@@ -90,7 +90,7 @@ module ShopifyTransporter
 
       it 'raises InvalidConfigError if config file is missing store id' do
         config_without_store_id = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
-        config_file = tmpfile(config_without_store_id, '.yml')
+        config_file = tmpfile(YAML.dump(config_without_store_id), '.yml')
 
         error_message = "Invalid configuration: missing required key 'store_id'"
 
@@ -100,7 +100,7 @@ module ShopifyTransporter
 
       it 'raises InvalidConfigError if config file is missing api key' do
         config_without_store_id = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('api_key') }
-        config_file = tmpfile(config_without_store_id, '.yml')
+        config_file = tmpfile(YAML.dump(config_without_store_id), '.yml')
 
         error_message = "Invalid configuration: missing required key 'api_key'"
 

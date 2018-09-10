@@ -4,9 +4,7 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class CustomerExporter
-        attr_accessor :client, :store_id
-
-        def initialize(store_id, client)
+        def initialize(store_id: nil, client: nil)
           @client = client
           @store_id = store_id
         end
@@ -22,12 +20,12 @@ module ShopifyTransporter
         private
 
         def base_customers
-          result = client.call(:customer_customer_list, filters: filters).body
+          result = @client.call(:customer_customer_list, filters: filters).body
           result[:customer_customer_list_response][:store_view][:item] || []
         end
 
         def customer_address_list(customer_id)
-          client.call(:customer_address_list, customer_id: customer_id).body[:customer_address_list_response][:result]
+          @client.call(:customer_address_list, customer_id: customer_id).body[:customer_address_list_response][:result]
         end
 
         def filters
@@ -35,7 +33,7 @@ module ShopifyTransporter
             filter: {
               item: {
                 key: 'store_id',
-                value: store_id,
+                value: @store_id,
               },
             },
           }

@@ -22,8 +22,6 @@ module ShopifyTransporter
 
         private
 
-        attr_accessor :hostname, :username, :api_key
-
         def soap_client
           @soap_client ||= Savon.client(
             wsdl: "https://#{hostname}/api/v2_soap?wsdl",

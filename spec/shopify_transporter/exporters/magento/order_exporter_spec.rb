@@ -54,7 +54,7 @@ RSpec.describe ShopifyTransporter::Exporters::Magento::OrderExporter do
         }
       ]
 
-      exporter = ShopifyTransporter::Exporters::Magento::OrderExporter.new(1, soap_client)
+      exporter = ShopifyTransporter::Exporters::Magento::OrderExporter.new(store_id: 1, client: soap_client)
       expect(exporter.export).to eq(expected_result)
     end
   end

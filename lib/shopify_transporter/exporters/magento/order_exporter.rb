@@ -4,9 +4,7 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class OrderExporter
-        attr_accessor :client, :store_id
-
-        def initialize(store_id, client)
+        def initialize(store_id: nil, client: nil)
           @client = client
           @store_id = store_id
         end
@@ -22,12 +20,12 @@ module ShopifyTransporter
         private
 
         def base_orders
-          result = client.call(:sales_order_list, filters: filters).body
+          result = @client.call(:sales_order_list, filters: filters).body
           result[:sales_order_list_response][:result][:item] || []
         end
 
         def info_for(order_increment_id)
-          client
+          @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
             .body[:sales_order_info_response][:result]
         end
@@ -37,7 +35,7 @@ module ShopifyTransporter
             filter: {
               item: {
                 key: 'store_id',
-                value: store_id,
+                value: @store_id,
               },
             },
           }

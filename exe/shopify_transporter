@@ -16,9 +16,9 @@ module ShopifyTransporter
     end
 
     method_option :config, type: :string, default: 'config.yml',
-      desc: "The config file that lists the conversions to run."
+      desc: 'The config file that lists the conversions to run.'
     method_option :object, type: :string, required: true,
-      desc: "The object type (customer, product, or order) to convert.",
+      desc: 'The object type (customer, product, or order) to convert.',
       enum: %w(customer product order)
 
     desc 'convert FILE_NAMES', 'Converts objects into a Shopify-format. (accepts a list of space-separated files).'
@@ -31,9 +31,9 @@ module ShopifyTransporter
     end
 
     method_option :config, type: :string, default: 'config.yml',
-      desc: "The config file that describes the third party platform to export from."
+      desc: 'The config file that describes the third party platform to export from.'
     method_option :object, type: :string, required: true,
-      desc: "The object type (customer or order) to export.",
+      desc: 'The object type (customer or order) to export.',
       enum: %w(customer order)
 
     desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'

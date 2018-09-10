@@ -15,5 +15,8 @@ AllCops:
     - 'spec/**/*'
     - '.pryrc'
 
+Style/StringLiterals:
+  Enabled: true
+
 Security/Open:
   Enabled: false

@@ -2,6 +2,7 @@
 
 require_relative './customer_exporter.rb'
 require_relative './order_exporter.rb'
+require_relative './product_exporter.rb'
 
 module ShopifyTransporter
   module Exporters
@@ -15,6 +16,8 @@ module ShopifyTransporter
             CustomerExporter
           when 'order'
             OrderExporter
+          when 'product'
+            ProductExporter
           else
             raise MissingExporterError
           end.new(store_id: store_id, client: client)

@@ -38,7 +38,7 @@ module ShopifyTransporter
         }
       end
 
-      it 'writes exported data to file' do
+      it 'writes exported data to stdout' do
         config_file = tmpfile(YAML.dump(default_config), '.yml')
 
         expect(Magento::MagentoExporter)

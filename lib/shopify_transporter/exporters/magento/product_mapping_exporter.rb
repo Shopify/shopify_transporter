@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'sequel'
+require 'English'
 
 module ShopifyTransporter
   module Exporters
@@ -47,14 +48,14 @@ module ShopifyTransporter
 
         def write_headers
           File.open(@filename, 'w') do |file|
-            file << "product_id,associated_product_id\n"
+            file << "product_id,associated_product_id#{$INPUT_RECORD_SEPARATOR}"
           end
         end
 
         def write_data(mappings)
           File.open(@filename, 'a') do |file|
             mappings.each do |mapping|
-              file << "#{mapping[:parent_id]},#{mapping[:child_id]}\n"
+              file << "#{mapping[:parent_id]},#{mapping[:child_id]}#{$INPUT_RECORD_SEPARATOR}"
             end
           end
         end

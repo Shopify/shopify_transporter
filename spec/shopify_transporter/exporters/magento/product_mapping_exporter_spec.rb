@@ -175,7 +175,7 @@ module ShopifyTransporter
 
               expected_file_data = "product_id,associated_product_id\n"
               mappings.each do |mapping|
-                expected_file_data += "#{mapping[:parent_id]},#{mapping[:child_id]}\n"
+                expected_file_data += "#{mapping[:parent_id]},#{mapping[:child_id]}#{$INPUT_RECORD_SEPARATOR}"
               end
 
               expect(File.read(@tempfile.path)).to eq(expected_file_data)

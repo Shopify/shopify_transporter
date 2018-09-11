@@ -12,7 +12,7 @@ module ShopifyTransporter
 
         def export
           $stderr.puts "Starting export..."
-          apply_mappings(base_products, product_mappings).compact
+          apply_mappings(base_products).compact
         end
 
         private
@@ -23,18 +23,15 @@ module ShopifyTransporter
         end
 
         def product_mappings
-          # dummy. TODO: generate and use real mapping file here!
-          raw_mappings = CSV.read("magento_product_mappings.csv")
-
-          {}.tap do |table|
-            raw_mappings.each do |pair|
-              table[pair[0]] ||= []
-              table[pair[0]] << pair[1]
+          @product_mappings ||= {}.tap do |product_mapping_table|
+            CSV.read("magento_product_mappings.csv").each do |(parent_id, child_id)| # TODO: generate and use real mapping file here!
+              product_mapping_table[parent_id] ||= []
+              product_mapping_table[parent_id] << child_id
             end
           end
         end
 
-        def apply_mappings(product_list, product_mappings)
+        def apply_mappings(product_list)
           product_list.map do |product|
             if product[:type] == 'configurable'
               product.merge(simple_product_ids: product_mappings[product[:product_id]])

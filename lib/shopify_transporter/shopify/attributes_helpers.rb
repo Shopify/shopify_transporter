@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require "active_support/core_ext/string"
+require 'active_support/core_ext/string'
 module ShopifyTransporter
   module Shopify
     module AttributesHelpers

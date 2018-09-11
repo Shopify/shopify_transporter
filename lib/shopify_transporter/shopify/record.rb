@@ -2,7 +2,7 @@
 module ShopifyTransporter
   module Shopify
     class Record
-      METAFIELD_PREFIX = "metafield_"
+      METAFIELD_PREFIX = 'metafield_'
 
       METAFIELD_ATTRIBUTES = %w(namespace key value value_type).freeze
 

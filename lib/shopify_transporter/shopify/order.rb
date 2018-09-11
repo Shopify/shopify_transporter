@@ -61,7 +61,7 @@ module ShopifyTransporter
         company name phone first_name last_name address1 address2 city province province_code zip country country_code
       )
 
-      LINE_ITEM_PREFIX = "lineitem_"
+      LINE_ITEM_PREFIX = 'lineitem_'
 
       LINE_ITEM_ATTRIBUTES = %w(
         name quantity price discount compare_at_price sku requires_shipping taxable fulfillment_status

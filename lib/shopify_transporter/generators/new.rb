@@ -7,7 +7,7 @@ module ShopifyTransporter
     class_option :platform, type: :string, required: :true, enum: %w(magento)
 
     def snake_name
-      @snake_name ||= name_components.map(&:downcase).join("_")
+      @snake_name ||= name_components.map(&:downcase).join('_')
     end
 
     def platform
@@ -16,7 +16,7 @@ module ShopifyTransporter
 
     def generate_config
       template("templates/#{@platform}/config.tt", "#{@snake_name}/config.yml")
-      template("templates/gemfile.tt", "#{@snake_name}/Gemfile")
+      template('templates/gemfile.tt', "#{@snake_name}/Gemfile")
       empty_directory("#{@snake_name}/lib/custom_pipeline_stages")
     end
   end

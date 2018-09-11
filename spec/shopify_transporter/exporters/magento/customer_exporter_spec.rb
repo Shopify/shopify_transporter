@@ -21,7 +21,7 @@ module ShopifyTransporter
                 store_view: {
                   item: [
                     {
-                      customer_id: 654321,
+                      customer_id: '654321',
                       top_level_attribute: "an_attribute",
                     },
                   ],
@@ -31,7 +31,7 @@ module ShopifyTransporter
 
             expect(soap_client)
               .to receive(:call)
-              .with(:customer_address_list, customer_id: 654321)
+              .with(:customer_address_list, customer_id: '654321')
               .and_return(customer_address_list_response_body).at_least(:once)
 
             expect(customer_address_list_response_body).to receive(:body).and_return(
@@ -44,7 +44,7 @@ module ShopifyTransporter
 
             expected_result = [
               {
-                customer_id: 654321,
+                customer_id: '654321',
                 top_level_attribute: "an_attribute",
                 address_list: {
                   customer_address_attribute: "another_attribute",

@@ -33,7 +33,8 @@ module ShopifyTransporter
 
         def apply_mappings(product_list)
           product_list.map do |product|
-            if product[:type] == 'configurable'
+            case product[:type]
+            when 'configurable'
               product.merge(simple_product_ids: product_mappings[product[:product_id]])
             else
               product

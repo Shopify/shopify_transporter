@@ -11,7 +11,7 @@ module ShopifyTransporter
         end
 
         def export
-          $stderr.puts "Starting export..."
+          $stderr.puts 'Starting export...'
           apply_mappings(base_products).compact
         end
 
@@ -24,7 +24,8 @@ module ShopifyTransporter
 
         def product_mappings
           @product_mappings ||= {}.tap do |product_mapping_table|
-            CSV.read("magento_product_mappings.csv").each do |(parent_id, child_id)| # TODO: generate and use real mapping file here!
+            # TODO: generate and use real mapping file here!
+            CSV.read('magento_product_mappings.csv').each do |(parent_id, child_id)|
               product_mapping_table[parent_id] ||= []
               product_mapping_table[parent_id] << child_id
             end

@@ -24,17 +24,14 @@ module ShopifyTransporter
 
         def product_mappings
           # dummy. TODO: generate and use real mapping file here!
-          x = CSV.read("magento_product_mappings.csv")
+          raw_mappings = CSV.read("magento_product_mappings.csv")
 
-          keys = x.map(&:first)
-
-          keys.map do |key|
-            values = []
-            x.each do |pair|
-              values << pair[1] if key == pair[0]
+          {}.tap do |table|
+            raw_mappings.each do |pair|
+              table[pair[0]] ||= []
+              table[pair[0]] << pair[1]
             end
-            [key, values]
-          end.to_h
+          end
         end
 
         def apply_mappings(product_list, product_mappings)

@@ -7,7 +7,7 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class Soap
-        def initialize(hostname, username, api_key)
+        def initialize(hostname: '', username: '', api_key: '')
           @hostname = hostname
           @username = username
           @api_key = api_key

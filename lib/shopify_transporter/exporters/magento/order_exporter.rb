@@ -4,8 +4,8 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class OrderExporter
-        def initialize(store_id: nil, client: nil, database_adapter: nil)
-          @client = client
+        def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
+          @client = soap_client
           @store_id = store_id
         end
 

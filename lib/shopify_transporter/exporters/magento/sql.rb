@@ -7,14 +7,14 @@ module ShopifyTransporter
       class SQL
         def initialize(
           database: '',
-          host: '',
+          hostname: '',
           port: 3306,
           username: '',
           password: ''
         )
 
           @database = database
-          @host = host
+          @hostname = hostname
           @port = port
           @username = username
           @password = password

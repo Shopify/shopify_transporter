@@ -12,19 +12,6 @@ module ShopifyTransporter
           end
         end
 
-        describe '#initialize' do
-          it 'initializes when provided the right values' do
-            described_class.new(
-              database: 'test',
-              host: '127.0.0.1',
-              port: 3306,
-              user: 'dbuser',
-              password: 'dbuserpassword',
-              filename: @tempfile.path
-            )
-          end
-        end
-
         describe '#extract_mappings' do
           it 'creates a new file' do
             expect(Sequel).to receive(:connect)

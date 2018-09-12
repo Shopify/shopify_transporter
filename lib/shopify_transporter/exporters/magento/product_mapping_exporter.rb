@@ -8,28 +8,14 @@ module ShopifyTransporter
       class ProductMappingExporter
         BATCH_SIZE = 1000
 
-        def initialize(
-          database: '',
-          host: '',
-          port: 3306,
-          user: '',
-          password: '',
-          filename: 'magento_product_mappings.csv'
-        )
-          @host = host
-          @port = port
-          @user = user
-          @password = password
-          @filename = filename
-          @database = database
+        def initialize(database_adapter: database_adapter)
+          @database_adapter = database_adapter
         end
 
         def extract_mappings
           write_headers
 
-          Sequel.connect(
-            adapter: :mysql2, user: @user, password: @password, host: @host, port: @port, database: @database
-          ) do |db|
+          @database_adapter do |db|
             ordered_mappings = db
               .from(:catalog_product_relation)
               .order(:parent_id)

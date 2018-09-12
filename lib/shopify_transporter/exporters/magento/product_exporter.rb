@@ -4,9 +4,11 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class ProductExporter
-        def initialize(store_id: nil, client: nil)
+        def initialize(store_id: nil, client: nil, database_adapter: nil)
           @client = client
           @store_id = store_id
+          @intermediate_file_name = 'transporter/magento_product_mappings.csv'
+          @database_adapter: database_adapter
         end
 
         def export
@@ -22,14 +24,19 @@ module ShopifyTransporter
         end
 
         def product_mappings
+          # @database_adapter.extract_mappings_to_file(@intermediate_file_name)
+          product_mapping_exporter.extract_mappings
+
           @product_mappings ||= {}.tap do |product_mapping_table|
-            # TODO: generate and use real mapping file here!
-            CSV.read('magento_product_mappings.csv').each do |(parent_id, child_id)|
+            CSV.read(@intermediate_file_name).each do |(parent_id, child_id)|
               product_mapping_table[parent_id] ||= []
               product_mapping_table[parent_id] << child_id
             end
           end
         end
+
+        def product_mapping_exporter
+          @product_mapping_exporter ||= ProductMappingExporter.new(database_adapter: @database_adapter)
 
         def apply_mappings(product_list)
           product_list.map do |product|

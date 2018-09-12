@@ -4,7 +4,7 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class OrderExporter
-        def initialize(store_id: nil, client: nil)
+        def initialize(store_id: nil, client: nil, database_adapter: nil)
           @client = client
           @store_id = store_id
         end

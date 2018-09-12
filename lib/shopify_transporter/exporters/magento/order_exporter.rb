@@ -27,7 +27,7 @@ module ShopifyTransporter
         def info_for(order_increment_id)
           @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
-            .body[:sales_order_info_response][:result]
+            .body[:sales_order_info_response]
         end
 
         def filters

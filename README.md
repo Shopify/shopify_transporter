@@ -9,7 +9,7 @@ data, will be made available in the near future.
 
 Note: the Transporter app is available to Shopify Plus plans only.
 
-# Submitting Issues
+## Submitting Issues
 
 Please open an issue here if you encounter a specific bug with this library or if something is documented
 incorrectly.
@@ -17,7 +17,7 @@ incorrectly.
 When filing an issue, please ensure that:
 
 - The issue is not already covered in another open issue
-- The issue does not contain any confidential or personally identifying information
+- The issue does not contain any confidential or personally identifiable information
 - The issue is specifically regarding the `shopify_transporter` gem and not related to the Transporter App.
 
 

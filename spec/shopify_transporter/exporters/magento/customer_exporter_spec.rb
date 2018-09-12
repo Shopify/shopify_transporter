@@ -37,7 +37,9 @@ module ShopifyTransporter
             expect(customer_address_list_response_body).to receive(:body).and_return(
               customer_address_list_response: {
                 result: {
-                  customer_address_attribute: "another_attribute",
+                  item: {
+                    customer_address_attribute: "another_attribute",
+                  }
                 },
               },
             ).at_least(:once)
@@ -47,7 +49,13 @@ module ShopifyTransporter
                 customer_id: 654321,
                 top_level_attribute: "an_attribute",
                 address_list: {
-                  customer_address_attribute: "another_attribute",
+                  customer_address_list_response: {
+                    result: {
+                      item: {
+                        customer_address_attribute: "another_attribute",
+                      }
+                    }
+                  },
                 },
               },
             ]

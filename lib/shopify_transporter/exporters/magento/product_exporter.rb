@@ -24,8 +24,7 @@ module ShopifyTransporter
         end
 
         def product_mappings
-          # @database_adapter.extract_mappings_to_file(@intermediate_file_name)
-          product_mapping_exporter.extract_mappings
+          product_mapping_exporter.write_mappings(@intermediate_file_name)
 
           @product_mappings ||= {}.tap do |product_mapping_table|
             CSV.read(@intermediate_file_name).each do |(parent_id, child_id)|

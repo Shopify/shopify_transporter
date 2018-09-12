@@ -12,8 +12,8 @@ module ShopifyTransporter
           @database_adapter = database_adapter
         end
 
-        def extract_mappings
-          write_headers
+        def write_mappings(filename)
+          write_headers(filename)
 
           @database_adapter do |db|
             ordered_mappings = db
@@ -24,7 +24,7 @@ module ShopifyTransporter
 
             while current_id < max_id
               mappings_batch = ordered_mappings.where(parent_id: current_id...(current_id + BATCH_SIZE))
-              write_data(mappings_batch)
+              write_data(mappings_batch, filename)
               current_id += BATCH_SIZE
             end
           end
@@ -32,14 +32,14 @@ module ShopifyTransporter
 
         private
 
-        def write_headers
-          File.open(@filename, 'w') do |file|
+        def write_headers(filename)
+          File.open(filename, 'w') do |file|
             file << "product_id,associated_product_id#{$INPUT_RECORD_SEPARATOR}"
           end
         end
 
-        def write_data(mappings)
-          File.open(@filename, 'a') do |file|
+        def write_data(mappings, filename)
+          File.open(filename, 'a') do |file|
             mappings.each do |mapping|
               file << "#{mapping[:parent_id]},#{mapping[:child_id]}#{$INPUT_RECORD_SEPARATOR}"
             end

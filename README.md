@@ -9,29 +9,19 @@ data, will be made available in the near future.
 
 Note: the Transporter app is available to Shopify Plus plans only.
 
+# Submitting Issues
+
+Please open an issue here if you encounter a specific bug with this library or if something is documented
+incorrectly.
+
+When filing an issue, please ensure that:
+
+- The issue is not already covered in another open issue
+- The issue does not contain any confidential or personally identifying information
+- The issue is specifically regarding the `shopify_transporter` gem and not related to the Transporter App.
+
+
 ## Installation
-
-### Building and installing locally
-To build locally run the following command:
-
-```
-$ bundle exec rake build
-
-shopify_transporter 1.0.0 built to pkg/shopify_transporter-1.0.0.gem.
-```
-
-Then, you can install the gem system-wide by running:
-
-```
-$ gem install pkg/shopify_transporter-1.0.0.gem
-
-Successfully installed shopify_transporter-1.0.0
-Parsing documentation for shopify_transporter-1.0.0
-Installing ri documentation for shopify_transporter-1.0.0
-Done installing documentation for shopify_transporter after 0 seconds
-1 gem installed
-```
-Your locally built gem is now installed system-wide.
 
 ### Installing the Transporter tool gem from rubygems:
 
@@ -60,7 +50,7 @@ Commands:
   shopify_transporter new PROJECTNAME --platform=PLATFORM                             # Generates a new project structure for a platform
 ```
 
-## Create a conversion project
+### Create a conversion project
 
 It's convenient to create a conversion project for each store that you want to migrate to Shopify.
 To create it, use the `new` sub-command:
@@ -96,7 +86,7 @@ $ bundle install
 ```
 
 
-## Convert records from the third-party platform to Shopify
+### Convert records from the third-party platform to Shopify
 
 Run `shopify_transporter` and use the `convert` command to convert your objects from the
 third-party platform to the Shopify format. For example, the following command converts a
@@ -109,7 +99,7 @@ shopify_transporter convert --config=config.yml --object=customer magento_custom
 In this example, the converted customer objects are saved to *shopify_customers.csv*. If errors occur during
 the conversion, then they appear in your terminal.
 
-## Convert multiple files
+### Convert multiple files
 
 To convert multiple files to Shopify, separate the file names with a space:
 
@@ -117,7 +107,7 @@ To convert multiple files to Shopify, separate the file names with a space:
 shopify_transporter convert --config=config.yml --object=customer magento_customers_1.json magento_customers_2.json ...
 ```
 
-## Configuration file (_config.yml_)
+### Configuration file (_config.yml_)
 
 The configuraton file is generated when you create your conversion project. This file is specific to the
 third-party platform that you are converting to Shopify.
@@ -209,7 +199,6 @@ Existing pipeline stages and the attributes are populated below.
 
 ### Magento v1.x customer
 
-
 ### AddressesAttribute
 
 Addresses are built from the `shipping_` and `billing_` prefixed fields.  The Shopify object's `addresses`
@@ -266,25 +255,38 @@ A file named `your_custom_stage.rb` is added to the `lib/magento/custom_pipeline
 The `convert` command currently only converts customer and order JSON objects that have been exported by SOAP API
 from Magento 1.x.
 
-## Running unit tests
+## Contributing
+
+### Running unit tests
 
 We use rspec to run our test suite:
 `bundle exec rspec`
 
-## Running the linter
+### Running the linter
 
 It's important that all of the code introduced passes linting. To run it manually:
 `bundle exec rake rubocop`
 To automatically resolve any basic linting issues:
 `bundle exec rake rubocop:autocorrect`
 
-# Submitting Issues
+### Building and installing locally
+To build locally run the following command:
 
-Please open an issue here if you encounter a specific bug with this library or if something is documented
-incorrectly.
+```
+$ bundle exec rake build
 
-When filing an issue, please ensure that:
+shopify_transporter 1.0.0 built to pkg/shopify_transporter-1.0.0.gem.
+```
 
-- The issue is not already covered in another open issue
-- The issue does not contain any confidential or personally identifying information
-- The issue is specifically regarding the `shopify_transporter` gem and not related to the Transporter App.
+Then, you can install the gem system-wide by running:
+
+```
+$ gem install pkg/shopify_transporter-1.0.0.gem
+
+Successfully installed shopify_transporter-1.0.0
+Parsing documentation for shopify_transporter-1.0.0
+Installing ri documentation for shopify_transporter-1.0.0
+Done installing documentation for shopify_transporter after 0 seconds
+1 gem installed
+```
+Your locally built gem is now installed system-wide.

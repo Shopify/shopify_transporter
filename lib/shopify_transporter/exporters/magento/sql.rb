@@ -10,7 +10,7 @@ module ShopifyTransporter
           host: '',
           port: 3306,
           username: '',
-          password: '',
+          password: ''
         )
 
           @database = database

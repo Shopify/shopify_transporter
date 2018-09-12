@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './product_mapping_exporter.rb'
+
 module ShopifyTransporter
   module Exporters
     module Magento
@@ -8,7 +10,7 @@ module ShopifyTransporter
           @client = client
           @store_id = store_id
           @intermediate_file_name = 'transporter/magento_product_mappings.csv'
-          @database_adapter: database_adapter
+          @database_adapter = database_adapter
         end
 
         def export
@@ -36,6 +38,7 @@ module ShopifyTransporter
 
         def product_mapping_exporter
           @product_mapping_exporter ||= ProductMappingExporter.new(database_adapter: @database_adapter)
+        end
 
         def apply_mappings(product_list)
           product_list.map do |product|

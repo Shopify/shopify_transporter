@@ -15,7 +15,7 @@ module ShopifyTransporter
         def write_mappings(filename)
           write_headers(filename)
 
-          @database_adapter do |db|
+          @database_adapter.connect do |db|
             ordered_mappings = db
               .from(:catalog_product_relation)
               .order(:parent_id)

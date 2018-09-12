@@ -45,8 +45,8 @@ module ShopifyTransporter
           database: config['export_configuration']['database']['name'],
           hostname: config['export_configuration']['database']['hostname'],
           username: config['export_configuration']['database']['username'],
-          port: config['export_configuration']['database']['port']
-          password: config['export_configuration']['database']['password']
+          port: config['export_configuration']['database']['port'],
+          password: config['export_configuration']['database']['password'],
         )
       end
 

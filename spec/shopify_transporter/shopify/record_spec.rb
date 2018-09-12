@@ -17,6 +17,16 @@ module ShopifyTransporter
           expect{subject.new.to_csv}.to raise_error(NotImplementedError)
         end
       end
+
+      context 'static methods' do
+        it 'raises a NotImplementedError when calling Record#columns' do
+          expect { Record.columns }.to raise_error(NotImplementedError)
+        end
+
+        it 'raises a NotImplementedError when calling Record#keys' do
+          expect { Record.keys }.to raise_error(NotImplementedError)
+        end
+      end
     end
   end
 end

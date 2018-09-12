@@ -152,11 +152,11 @@ class TransporterTool
   def stage_class_from(name, type)
     class_name = stage_classname(name, type)
     klass = begin
-      k = Object.const_get(class_name)
-      k.is_a?(Class) && k
-    rescue NameError
-      nil
-    end
+              k = Object.const_get(class_name)
+              k.is_a?(Class) && k
+            rescue NameError
+              nil
+            end
     raise StageNotFoundError, name unless class_exists?(klass)
     klass
   end

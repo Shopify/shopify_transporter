@@ -10,5 +10,8 @@ module ShopifyTransporter::Pipeline
     it 'initializes with params' do
       expect { Stage.new('test_params') }.not_to raise_error
     end
+    it 'raises a NotImplementedError when Stage#convert is called' do
+      expect { Stage.new('test_params').convert({}, nil) }.to raise_error(NotImplementedError)
+    end
   end
 end

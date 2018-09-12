@@ -31,7 +31,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 12.3'
 
   spec.add_dependency 'activesupport', '~> 5.1'
+  spec.add_dependency 'mysql2'
+  spec.add_dependency 'savon', '~> 2.12'
+  spec.add_dependency 'sequel', '~> 5.12'
   spec.add_dependency 'thor', '~> 0.20'
   spec.add_dependency 'yajl-ruby', '~> 1.3'
-  spec.add_dependency 'savon', '~> 2.12'
 end

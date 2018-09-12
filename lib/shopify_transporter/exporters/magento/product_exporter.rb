@@ -10,7 +10,7 @@ module ShopifyTransporter
         end
 
         def export
-          $stderr.puts "Starting export..."
+          $stderr.puts 'Starting export...'
           base_products.compact
         end
 

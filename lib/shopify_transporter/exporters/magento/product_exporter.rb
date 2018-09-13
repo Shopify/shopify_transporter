@@ -37,7 +37,7 @@ module ShopifyTransporter
         end
 
         def product_mapping_exporter
-          @product_mapping_exporter ||= ProductMappingExporter.new(database_adapter: @database_adapter)
+          @product_mapping_exporter ||= ProductMappingExporter.new(@database_adapter)
         end
 
         def apply_mappings(product_list)

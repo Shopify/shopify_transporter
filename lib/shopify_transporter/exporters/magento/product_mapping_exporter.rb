@@ -8,7 +8,7 @@ module ShopifyTransporter
       class ProductMappingExporter
         BATCH_SIZE = 1000
 
-        def initialize(database_adapter: nil)
+        def initialize(database_adapter)
           @database_adapter = database_adapter
         end
 

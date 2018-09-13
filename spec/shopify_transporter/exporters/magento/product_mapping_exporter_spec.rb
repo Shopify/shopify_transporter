@@ -5,6 +5,9 @@ module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe ProductMappingExporter do
+        let(:database_adapter) { double('database_adapter') }
+        let(:db) { double('sequel database connection') }
+
         around :each do |example|
           Tempfile.open('test_product_mappings.csv', Dir.tmpdir) do |file|
             @tempfile = file
@@ -13,45 +16,45 @@ module ShopifyTransporter
         end
 
         describe '#write_mappings' do
-          it 'creates a new file' do
-            database_adapter = double('database_adapter')
-            db = double('sequel database connection')
-            expect(database_adapter).to receive(:connect)
-
-            File.open(@tempfile.path, 'w') do |file|
-              file << "test data"
+          describe 'pre-fetch setup' do
+            before :each do
+              expect(database_adapter).to receive(:connect)
             end
 
-            exporter = described_class.new(database_adapter: database_adapter)
+            it 'creates a new file' do
+              File.open(@tempfile.path, 'w') do |file|
+                file << "test data"
+              end
 
-            exporter.write_mappings(@tempfile.path)
+              exporter = described_class.new(database_adapter)
+              exporter.write_mappings(@tempfile.path)
 
-            expect(File.read(@tempfile.path)).to eq <<~EOS
-              product_id,associated_product_id
-              EOS
+              expect(File.read(@tempfile.path)).to eq <<~EOS
+                product_id,associated_product_id
+                EOS
+            end
+
+            it 'writes the expected headers to the output file' do
+              exporter = described_class.new(database_adapter)
+              exporter.write_mappings(@tempfile.path)
+
+              expect(File.read(@tempfile.path)).to eq <<~EOS
+                product_id,associated_product_id
+                EOS
+            end
           end
 
-          it 'writes the expected headers to the output file' do
-            database_adapter = double('database_adapter')
-            expect(database_adapter).to receive(:connect)
-
-            exporter = described_class.new(database_adapter: database_adapter)
-
-            exporter.write_mappings(@tempfile.path)
-
-            expect(File.read(@tempfile.path)).to eq <<~EOS
-              product_id,associated_product_id
-              EOS
-          end
-
-          describe 'fetching product batches and outputting to file' do
-            let(:database_adapter) { double('database_adapter') }
-
+          describe 'fetching product batches and outputting to file' do\
             subject do
-              described_class.new(database_adapter: database_adapter)
+              described_class.new(database_adapter)
             end
 
-            let(:db) { double('sequel database connection') }
+            before :each do
+              expect(database_adapter).to receive(:connect) do |&block|
+                block.call(db)
+              end
+            end
+
             let(:mappings) { double('product mappings relation') }
             let(:ordered_mappings) { double('ordered product mapping relation') }
 
@@ -74,12 +77,6 @@ module ShopifyTransporter
                   child_id: 6,
                 },
               ]
-            end
-
-            before :each do
-              expect(database_adapter).to receive(:connect) do |&block|
-                block.call(db)
-              end
             end
 
             it 'fetches product mappings in batches from the database' do

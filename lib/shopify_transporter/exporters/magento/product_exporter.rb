@@ -15,7 +15,7 @@ module ShopifyTransporter
 
         def export
           $stderr.puts 'Starting export...'
-          apply_mappings(base_products).compact
+          apply_mappings(base_products.compact)
         end
 
         private

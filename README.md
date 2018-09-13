@@ -23,6 +23,12 @@ When filing an issue, please ensure that:
 
 ## Installation
 
+### Requirements:
+1. A Ruby version of 2.4.0 or higher
+2. You are able to install Ruby gems. Please visit [the Bundler website](https://bundler.io/) to troubleshoot issues with installing gems.
+
+We test and support the gem for Mac OS environments. While not officially supported, the gem may work on other operating systems provided they meet the above requirements.
+
 ### Installing the Transporter tool gem from rubygems:
 
 ```

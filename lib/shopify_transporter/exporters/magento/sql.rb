@@ -25,7 +25,7 @@ module ShopifyTransporter
             adapter: :mysql2,
             user: @username,
             password: @password,
-            host: @host,
+            host: @hostname,
             port: @port,
             database: @database
           )

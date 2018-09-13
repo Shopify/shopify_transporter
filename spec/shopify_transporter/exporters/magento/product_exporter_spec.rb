@@ -39,12 +39,13 @@ module ShopifyTransporter
               },
             ]
 
-            exporter = described_class.new(store_id: 1, soap: soap_client)
+            exporter = described_class.new(store_id: 1, soap_client: soap_client)
             expect(exporter.export).to eq(expected_result)
           end
 
           it 'retrieves configurable products from Magento using the SOAP API and injects simple product ids' do
             soap_client = double("soap client")
+            product_mapping_exporter = double("product_mapping_exporter")
 
             catalog_product_list_response_body = double('catalog_product_list_response_body')
             catalog_product_info_response_body = double('catalog_product_info_response_body')
@@ -53,6 +54,9 @@ module ShopifyTransporter
               .to receive(:call).with(:catalog_product_list, anything)
               .and_return(catalog_product_list_response_body)
               .at_least(:once)
+
+            expect(ProductMappingExporter).to receive(:new).and_return(product_mapping_exporter)
+            expect(product_mapping_exporter).to receive(:write_mappings)
 
             expect(catalog_product_list_response_body).to receive(:body).and_return(
               catalog_product_list_response: {
@@ -88,7 +92,7 @@ module ShopifyTransporter
 
             in_temp_folder do
               File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
-              exporter = described_class.new(store_id: 1, soap_client: soap_client)
+              exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
               expect(exporter.export).to eq(expected_result)
             end
           end

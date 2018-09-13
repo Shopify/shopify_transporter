@@ -33,7 +33,7 @@ module ShopifyTransporter
       attr_reader :config, :object_type
 
       def soap_client
-        soap_client = Magento::Soap.new(
+        Magento::Soap.new(
           hostname: config['export_configuration']['soap']['hostname'],
           username: config['export_configuration']['soap']['username'],
           api_key: config['export_configuration']['soap']['api_key'],
@@ -41,7 +41,7 @@ module ShopifyTransporter
       end
 
       def database_adapter
-        database_adapter = Magento::SQL.new(
+        Magento::SQL.new(
           database: config['export_configuration']['database']['name'],
           hostname: config['export_configuration']['database']['hostname'],
           username: config['export_configuration']['database']['username'],

@@ -7,6 +7,7 @@ module ShopifyTransporter
         def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
           @client = soap_client
           @store_id = store_id
+          @database_adapter = database_adapter
         end
 
         def export

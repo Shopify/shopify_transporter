@@ -45,11 +45,11 @@ module ShopifyTransporter::Pipeline::Magento::Order
             sku: "sku #{i}",
             name: "name #{i}",
             price: "price #{i}",
-            tax_lines: {
+            tax_lines: [{
               title: 'Tax',
               price: "tax_amount #{i}",
               rate: "tax_percent #{i}",
-            }
+            }]
           }.deep_stringify_keys
         end
         expect(shopify_order['line_items']).to match_array(expected_shopify_order_line_items)

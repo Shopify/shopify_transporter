@@ -12,3 +12,6 @@
 .rspec_status
 .byebug_history
 Gemfile.lock
+
+# IDE related config
+.idea/

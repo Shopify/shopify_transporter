@@ -42,11 +42,12 @@ module ShopifyTransporter
           end
 
           def tax_lines(item)
-            {
+            # Magento supports only one type of tax, the tax_lines should always be in array format
+            [{
               title: 'Tax',
               price: item['tax_amount'],
               rate: item['tax_percent'],
-            }.stringify_keys
+            }.stringify_keys]
           end
         end
       end

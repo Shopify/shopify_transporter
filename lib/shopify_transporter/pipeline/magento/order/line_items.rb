@@ -42,11 +42,13 @@ module ShopifyTransporter
           end
 
           def tax_lines(item)
-            {
-              title: 'Tax',
-              price: item['tax_amount'],
-              rate: item['tax_percent'],
-            }.stringify_keys
+            [
+              {
+                title: 'Tax',
+                price: item['tax_amount'],
+                rate: item['tax_percent'],
+              }.stringify_keys,
+            ]
           end
         end
       end

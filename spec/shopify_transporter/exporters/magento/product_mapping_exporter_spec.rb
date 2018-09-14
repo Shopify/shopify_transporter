@@ -97,7 +97,7 @@ module ShopifyTransporter
                 mappings[2..3]
               )
 
-              subject.write_mappings('unused_file_name.ext')
+              subject.write_mappings(@tempfile.path)
             end
 
             it 'writes product mappings to the external file specified' do

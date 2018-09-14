@@ -59,13 +59,23 @@ module ShopifyTransporter
       end
 
       def ensure_config_has_required_keys
-        [
+        base_required_keys = [
           %w(export_configuration),
           %w(export_configuration soap hostname),
           %w(export_configuration soap username),
           %w(export_configuration soap api_key),
           %w(export_configuration store_id),
-        ].each do |keys|
+        ]
+
+        product_required_keys = [
+          %w(export_configuration database hostname),
+          %w(export_configuration database username),
+          %w(export_configuration database name),
+        ]
+
+        required_keys = base_required_keys + (@object_type == 'product' ? product_required_keys : [])
+
+        required_keys.each do |keys|
           raise InvalidConfigError, "missing required key '#{keys.last}'" unless config.dig(*keys)
         end
       end

@@ -24,7 +24,7 @@ module ShopifyTransporter
               password: 'some_password'
             )
 
-            sql_client.connect
+            sql_client.connect { |db| nil }
           end
         end
       end

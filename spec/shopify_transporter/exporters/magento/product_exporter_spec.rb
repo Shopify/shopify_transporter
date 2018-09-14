@@ -6,7 +6,7 @@ module ShopifyTransporter
     module Magento
       RSpec.describe ProductExporter do
         context '#run' do
-          it 'retrieves simple products from Magento using the SOAP API and returns the results' do
+          it 'retrieves configurable products from Magento using the SOAP API and returns the results' do
             soap_client = double("soap client")
 
             catalog_product_list_response_body = double('catalog_product_list_response_body')
@@ -23,7 +23,7 @@ module ShopifyTransporter
                   item: [
                     {
                       product_id: '12345',
-                      type: 'simple',
+                      type: 'configurable',
                       top_level_attribute: "an_attribute",
                     },
                   ],
@@ -34,7 +34,7 @@ module ShopifyTransporter
             expected_result = [
               {
                 product_id: '12345',
-                type: 'simple',
+                type: 'configurable',
                 top_level_attribute: "an_attribute",
               },
             ]
@@ -43,7 +43,7 @@ module ShopifyTransporter
             expect(exporter.export).to eq(expected_result)
           end
 
-          it 'retrieves configurable products from Magento using the SOAP API and injects simple product ids' do
+          it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
             soap_client = double("soap client")
             product_mapping_exporter = double("product_mapping_exporter")
 
@@ -63,8 +63,8 @@ module ShopifyTransporter
                 store_view: {
                   item: [
                     {
-                      product_id: '12345',
-                      type: 'configurable',
+                      product_id: '801',
+                      type: 'simple',
                       top_level_attribute: "an_attribute",
                     },
                   ],
@@ -74,10 +74,10 @@ module ShopifyTransporter
 
             expected_result = [
               {
-                product_id: '12345',
+                product_id: '801',
                 top_level_attribute: "an_attribute",
-                type: 'configurable',
-                simple_product_ids: ['800', '801', '802'],
+                type: 'simple',
+                parent_id: '12345',
               },
             ]
 

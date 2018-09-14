@@ -30,8 +30,7 @@ module ShopifyTransporter
 
           @product_mappings ||= {}.tap do |product_mapping_table|
             CSV.read(@intermediate_file_name).each do |(parent_id, child_id)|
-              product_mapping_table[parent_id] ||= []
-              product_mapping_table[parent_id] << child_id
+              product_mapping_table[child_id] = parent_id
             end
           end
         end
@@ -43,8 +42,8 @@ module ShopifyTransporter
         def apply_mappings(product_list)
           product_list.map do |product|
             case product[:type]
-            when 'configurable'
-              product.merge(simple_product_ids: product_mappings[product[:product_id]])
+            when 'simple'
+              product.merge(parent_id: product_mappings[product[:product_id]])
             else
               product
             end

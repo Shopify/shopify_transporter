@@ -14,7 +14,6 @@ module ShopifyTransporter
 
           class TopLevelAttributesAccumulator < Shopify::AttributesAccumulator
             COLUMN_MAPPING = {
-              'sku' => 'sku',
               'name' => 'title',
               'description' => 'body_html',
             }

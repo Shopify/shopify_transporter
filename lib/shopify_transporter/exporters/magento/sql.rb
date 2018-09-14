@@ -20,8 +20,8 @@ module ShopifyTransporter
           @password = password
         end
 
-        def connect(&block)
-          block.call(Sequel.connect(
+        def connect
+          yield(Sequel.connect(
             adapter: :mysql2,
             user: @username,
             password: @password,

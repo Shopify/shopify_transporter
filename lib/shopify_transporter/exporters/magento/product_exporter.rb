@@ -43,11 +43,17 @@ module ShopifyTransporter
           product_list.map do |product|
             case product[:type]
             when 'simple'
-              product.merge(parent_id: product_mappings[product[:product_id]])
+              merge_simple_product_with_parent(product, product_mappings)
             else
               product
             end
           end
+        end
+
+        def merge_simple_product_with_parent(product, product_mappings)
+          return product unless product_mappings[product[:product_id]].present?
+
+          product.merge(parent_id: product_mappings[product[:product_id]])
         end
       end
     end

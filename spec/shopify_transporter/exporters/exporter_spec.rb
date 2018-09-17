@@ -33,6 +33,13 @@ module ShopifyTransporter
               "username" => 'something',
               "api_key" => 'a_key',
             },
+            "database" => {
+              "hostname" => 'magento.host',
+              "username" => 'something',
+              "password" => 'a_password',
+              "port" => '1234',
+              "name" => 'testdatabase',
+            },
             "store_id" => 1,
           },
         }

@@ -5,6 +5,9 @@ module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe ProductMappingExporter do
+        let(:database_adapter) { double('database_adapter') }
+        let(:db) { double('sequel database connection') }
+
         around :each do |example|
           Tempfile.open('test_product_mappings.csv', Dir.tmpdir) do |file|
             @tempfile = file
@@ -12,96 +15,46 @@ module ShopifyTransporter
           end
         end
 
-        describe '#initialize' do
-          it 'initializes when provided the right values' do
-            described_class.new(
-              database: 'test',
-              host: '127.0.0.1',
-              port: 3306,
-              user: 'dbuser',
-              password: 'dbuserpassword',
-              filename: @tempfile.path
-            )
-          end
-        end
-
-        describe '#extract_mappings' do
-          it 'creates a new file' do
-            expect(Sequel).to receive(:connect)
-
-            File.open(@tempfile.path, 'w') do |file|
-              file << "test data"
+        describe '#write_mappings' do
+          describe 'pre-fetch setup' do
+            before :each do
+              expect(database_adapter).to receive(:connect)
             end
 
-            exporter = described_class.new(
-              database: 'test',
-              host: '127.0.0.1',
-              port: 3306,
-              user: 'dbuser',
-              password: 'dbuserpassword',
-              filename: @tempfile.path
-            )
+            it 'creates a new file' do
+              File.open(@tempfile.path, 'w') do |file|
+                file << "test data"
+              end
 
-            exporter.extract_mappings
+              exporter = described_class.new(database_adapter)
+              exporter.write_mappings(@tempfile.path)
 
-            expect(File.read(@tempfile.path)).to eq <<~EOS
-              product_id,associated_product_id
-              EOS
+              expect(File.read(@tempfile.path)).to eq <<~EOS
+                product_id,associated_product_id
+                EOS
+            end
+
+            it 'writes the expected headers to the output file' do
+              exporter = described_class.new(database_adapter)
+              exporter.write_mappings(@tempfile.path)
+
+              expect(File.read(@tempfile.path)).to eq <<~EOS
+                product_id,associated_product_id
+                EOS
+            end
           end
 
-          it 'writes the expected headers to the output file' do
-            expect(Sequel).to receive(:connect)
-
-            exporter = described_class.new(
-              database: 'test',
-              host: '127.0.0.1',
-              port: 3306,
-              user: 'dbuser',
-              password: 'dbuserpassword',
-              filename: @tempfile.path
-            )
-
-            exporter.extract_mappings
-
-            expect(File.read(@tempfile.path)).to eq <<~EOS
-              product_id,associated_product_id
-              EOS
-          end
-
-          it 'uses Sequel to connect to the MySQL database with the provided parameters' do
-            expect(Sequel).to receive(:connect).with(
-              adapter: :mysql2,
-              database: 'test',
-              host: '127.0.0.1',
-              port: 3306,
-              user: 'dbuser',
-              password: 'dbuserpassword',
-            )
-
-            exporter = described_class.new(
-              database: 'test',
-              host: '127.0.0.1',
-              port: 3306,
-              user: 'dbuser',
-              password: 'dbuserpassword',
-              filename: @tempfile.path
-            )
-
-            exporter.extract_mappings
-          end
-
-          describe 'fetching product batches and outputting to file' do
+          describe 'fetching product batches and outputting to file' do\
             subject do
-              described_class.new(
-                database: 'test',
-                host: '127.0.0.1',
-                port: 3306,
-                user: 'dbuser',
-                password: 'dbuserpassword',
-                filename: @tempfile.path
-              )
+              described_class.new(database_adapter)
             end
-            let(:db) { double('sequel database connection') }
+
+            before :each do
+              expect(database_adapter).to receive(:connect) do |&block|
+                block.call(db)
+              end
+            end
+
             let(:mappings) { double('product mappings relation') }
             let(:ordered_mappings) { double('ordered product mapping relation') }
 
@@ -126,12 +79,6 @@ module ShopifyTransporter
               ]
             end
 
-            before :each do
-              expect(Sequel).to receive(:connect) do |&block|
-                block.call(db)
-              end
-            end
-
             it 'fetches product mappings in batches from the database' do
               expect(db).to receive(:from).and_return(mappings).ordered
               expect(mappings).to receive(:order).with(:parent_id).and_return(ordered_mappings).ordered
@@ -150,7 +97,7 @@ module ShopifyTransporter
                 mappings[2..3]
               )
 
-              subject.extract_mappings
+              subject.write_mappings(@tempfile.path)
             end
 
             it 'writes product mappings to the external file specified' do
@@ -171,7 +118,7 @@ module ShopifyTransporter
                 mappings[2..3]
               )
 
-              subject.extract_mappings
+              subject.write_mappings(@tempfile.path)
 
               expected_file_data = "product_id,associated_product_id\n"
               mappings.each do |mapping|

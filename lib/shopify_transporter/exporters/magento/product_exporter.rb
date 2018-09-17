@@ -7,10 +7,10 @@ module ShopifyTransporter
     module Magento
       class ProductExporter
         def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
-          @client = soap_client
           @store_id = store_id
-          @intermediate_file_name = 'magento_product_mappings.csv'
+          @client = soap_client
           @database_adapter = database_adapter
+          @intermediate_file_name = 'magento_product_mappings.csv'
         end
 
         def export
@@ -22,7 +22,7 @@ module ShopifyTransporter
 
         def base_products
           result = @client.call(:catalog_product_list, filters: nil).body
-          result[:catalog_product_list_response][:store_view][:item] || []
+          result.to_hash.dig(:catalog_product_list_response, :store_view, :item) || []
         end
 
         def product_mappings

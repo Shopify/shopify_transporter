@@ -9,9 +9,9 @@ module ShopifyTransporter
           it 'calls Sequel with the right parameters' do
             sql_client = SQL.new(
               database: 'magento',
-              hostname: 'magento-instance.domain.com',
+              host: 'magento-instance.domain.com',
               port: 1234,
-              username: 'dbuser',
+              user: 'dbuser',
               password: 'some_password'
             )
 

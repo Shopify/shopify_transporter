@@ -10,22 +10,22 @@ module ShopifyTransporter
           let(:fake_adapter) { double('fake_adapter') }
 
           it 'returns CustomerExporter for customer type' do
-            expect(described_class.for(type: 'customer', store_id: 1, soap_client: fake_client, database_adapter: fake_adapter))
-              .to be_a(CustomerExporter)
+            expect(described_class.for(type: 'customer'))
+              .to be(Magento::CustomerExporter)
           end
 
           it 'returns OrderExporter for order type' do
-            expect(described_class.for(type: 'order', store_id: 1, soap_client: fake_client, database_adapter: fake_adapter))
-              .to be_a(OrderExporter)
+            expect(described_class.for(type: 'order'))
+              .to be(Magento::OrderExporter)
           end
 
           it 'returns ProductExporter for product type' do
-            expect(described_class.for(type: 'product', store_id: 1, soap_client: fake_client, database_adapter: fake_adapter))
-              .to be_a(ProductExporter)
+            expect(described_class.for(type: 'product'))
+              .to be(Magento::ProductExporter)
           end
 
           it 'raises for any other type' do
-            expect { described_class.for(type: 'nonexistent_type', store_id: 1, soap_client: fake_client, database_adapter: fake_adapter) }
+            expect { described_class.for(type: 'nonexistent_type') }
               .to raise_error(MissingExporterError)
           end
         end

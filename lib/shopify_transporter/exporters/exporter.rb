@@ -18,13 +18,14 @@ module ShopifyTransporter
       end
 
       def run
-        data = Magento::MagentoExporter.for(
-          type: object_type,
-          store_id: config['export_configuration']['store_id'],
-          soap_client: soap_client,
-          database_adapter: database_adapter
-        ).export
-
+        data = Magento::MagentoExporter
+          .for(type: object_type)
+          .new(
+            store_id: config['export_configuration']['store_id'],
+            soap_client: soap_client,
+            database_adapter: database_adapter
+          )
+          .export
         puts JSON.pretty_generate(data) + $INPUT_RECORD_SEPARATOR
       end
 
@@ -42,9 +43,9 @@ module ShopifyTransporter
 
       def database_adapter
         Magento::SQL.new(
-          database: config['export_configuration']['database']['name'],
-          hostname: config['export_configuration']['database']['hostname'],
-          username: config['export_configuration']['database']['username'],
+          database: config['export_configuration']['database']['database'],
+          host: config['export_configuration']['database']['host'],
+          user: config['export_configuration']['database']['user'],
           port: config['export_configuration']['database']['port'],
           password: config['export_configuration']['database']['password'],
         )
@@ -68,9 +69,9 @@ module ShopifyTransporter
         ]
 
         product_required_keys = [
-          %w(export_configuration database hostname),
-          %w(export_configuration database username),
-          %w(export_configuration database name),
+          %w(export_configuration database host),
+          %w(export_configuration database user),
+          %w(export_configuration database database),
         ]
 
         required_keys = base_required_keys + (@object_type == 'product' ? product_required_keys : [])

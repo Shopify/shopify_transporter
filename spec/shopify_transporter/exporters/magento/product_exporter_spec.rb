@@ -10,7 +10,6 @@ module ShopifyTransporter
             soap_client = double("soap client")
 
             catalog_product_list_response_body = double('catalog_product_list_response_body')
-            catalog_product_info_response_body = double('catalog_product_info_response_body')
 
             expect(soap_client)
               .to receive(:call).with(:catalog_product_list, anything)
@@ -48,7 +47,6 @@ module ShopifyTransporter
             let(:product_mapping_exporter) { double("product_mapping_exporter") }
 
             let(:catalog_product_list_response_body) { double('catalog_product_list_response_body') }
-            let(:catalog_product_info_response_body) { double('catalog_product_info_response_body') }
 
             it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
               expect(soap_client)

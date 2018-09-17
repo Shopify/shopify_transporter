@@ -7,28 +7,29 @@ module ShopifyTransporter
       class SQL
         def initialize(
           database: '',
-          hostname: '',
+          host: '',
           port: 3306,
-          username: '',
+          user: '',
           password: ''
         )
 
           @database = database
-          @hostname = hostname
+          @host = host
           @port = port
-          @username = username
+          @user = user
           @password = password
         end
 
         def connect
-          yield(Sequel.connect(
+          @connection ||= Sequel.connect(
             adapter: :mysql2,
-            user: @username,
+            user: @user,
             password: @password,
-            host: @hostname,
+            host: @host,
             port: @port,
             database: @database
-          ))
+          )
+          yield(@connection)
         end
       end
     end

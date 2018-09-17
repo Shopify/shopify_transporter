@@ -48,7 +48,9 @@ module ShopifyTransporter
                 increment_id: 12345,
                 top_level_attribute: "an_attribute",
                 items: {
-                  order_info_attribute: "another_attribute",
+                  result: {
+                    order_info_attribute: "another_attribute",
+                  }
                 },
               },
             ]

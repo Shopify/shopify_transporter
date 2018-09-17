@@ -25,7 +25,7 @@ module ShopifyTransporter
         end
 
         def customer_address_list(customer_id)
-          @client.call(:customer_address_list, customer_id: customer_id).body[:customer_address_list_response][:result]
+          @client.call(:customer_address_list, customer_id: customer_id).body
         end
 
         def filters

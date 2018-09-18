@@ -4,9 +4,10 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class OrderExporter
-        def initialize(store_id: nil, client: nil)
-          @client = client
+        def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
+          @client = soap_client
           @store_id = store_id
+          @database_adapter = database_adapter
         end
 
         def export
@@ -27,7 +28,7 @@ module ShopifyTransporter
         def info_for(order_increment_id)
           @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
-            .body[:sales_order_info_response][:result]
+            .body[:sales_order_info_response]
         end
 
         def filters

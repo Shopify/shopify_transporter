@@ -5,6 +5,8 @@ module ShopifyTransporter
   module Exporters
     RSpec.describe Exporter do
       class SomePlatformExporter
+        def initialize(_)
+        end
         def export
           [{ foo: 'bar' }]
         end
@@ -33,6 +35,13 @@ module ShopifyTransporter
               "username" => 'something',
               "api_key" => 'a_key',
             },
+            "database" => {
+              "host" => 'magento.host',
+              "user" => 'something',
+              "password" => 'a_password',
+              "port" => '1234',
+              "name" => 'testdatabase',
+            },
             "store_id" => 1,
           },
         }
@@ -43,7 +52,7 @@ module ShopifyTransporter
 
         expect(Magento::MagentoExporter)
           .to receive(:for)
-          .and_return(SomePlatformExporter.new)
+          .and_return(SomePlatformExporter)
 
         exporter = Exporter.new(config_file.path, :unused)
         expect { exporter.run }.to output(JSON.pretty_generate([{ foo: 'bar' }]) + $INPUT_RECORD_SEPARATOR).to_stdout

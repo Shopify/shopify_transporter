@@ -22,7 +22,7 @@ module ShopifyTransporter
                 result: {
                   item: [
                     {
-                      increment_id: 12345,
+                      increment_id: '12345',
                       top_level_attribute: "an_attribute",
                     },
                   ],
@@ -31,7 +31,7 @@ module ShopifyTransporter
             ).at_least(:once)
 
             expect(soap_client)
-              .to receive(:call).with(:sales_order_info, order_increment_id: 12345)
+              .to receive(:call).with(:sales_order_info, order_increment_id: '12345')
               .and_return(sales_order_info_response_body)
               .at_least(:once)
 
@@ -45,15 +45,17 @@ module ShopifyTransporter
 
             expected_result = [
               {
-                increment_id: 12345,
+                increment_id: '12345',
                 top_level_attribute: "an_attribute",
                 items: {
-                  order_info_attribute: "another_attribute",
+                  result: {
+                    order_info_attribute: "another_attribute",
+                  }
                 },
               },
             ]
 
-            exporter = described_class.new(store_id: 1, client: soap_client)
+            exporter = described_class.new(store_id: 1, soap_client: soap_client)
             expect(exporter.export).to eq(expected_result)
           end
         end

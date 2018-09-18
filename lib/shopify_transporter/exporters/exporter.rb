@@ -18,21 +18,38 @@ module ShopifyTransporter
       end
 
       def run
-        client = Magento::Soap.new(
-          config['export_configuration']['soap']['hostname'],
-          config['export_configuration']['soap']['username'],
-          config['export_configuration']['soap']['api_key'],
-        )
-        store_id = config['export_configuration']['store_id']
-
-        data = Magento::MagentoExporter.for(type: object_type, store_id: store_id, client: client).export
-
+        data = Magento::MagentoExporter
+          .for(type: object_type)
+          .new(
+            store_id: config['export_configuration']['store_id'],
+            soap_client: soap_client,
+            database_adapter: database_adapter
+          )
+          .export
         puts JSON.pretty_generate(data) + $INPUT_RECORD_SEPARATOR
       end
 
       private
 
       attr_reader :config, :object_type
+
+      def soap_client
+        Magento::Soap.new(
+          hostname: config['export_configuration']['soap']['hostname'],
+          username: config['export_configuration']['soap']['username'],
+          api_key: config['export_configuration']['soap']['api_key'],
+        )
+      end
+
+      def database_adapter
+        Magento::SQL.new(
+          database: config['export_configuration']['database']['database'],
+          host: config['export_configuration']['database']['host'],
+          user: config['export_configuration']['database']['user'],
+          port: config['export_configuration']['database']['port'],
+          password: config['export_configuration']['database']['password'],
+        )
+      end
 
       def load_config(config_filename)
         @config ||= begin
@@ -43,13 +60,23 @@ module ShopifyTransporter
       end
 
       def ensure_config_has_required_keys
-        [
+        base_required_keys = [
           %w(export_configuration),
           %w(export_configuration soap hostname),
           %w(export_configuration soap username),
           %w(export_configuration soap api_key),
           %w(export_configuration store_id),
-        ].each do |keys|
+        ]
+
+        product_required_keys = [
+          %w(export_configuration database host),
+          %w(export_configuration database user),
+          %w(export_configuration database database),
+        ]
+
+        required_keys = base_required_keys + (@object_type == 'product' ? product_required_keys : [])
+
+        required_keys.each do |keys|
           raise InvalidConfigError, "missing required key '#{keys.last}'" unless config.dig(*keys)
         end
       end

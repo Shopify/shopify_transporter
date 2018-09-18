@@ -10,7 +10,7 @@ module ShopifyTransporter
       class MissingExporterError < ExportError; end
 
       class MagentoExporter
-        def self.for(type: nil, store_id: nil, client: nil)
+        def self.for(type: nil)
           case type
           when 'customer'
             CustomerExporter
@@ -20,7 +20,7 @@ module ShopifyTransporter
             ProductExporter
           else
             raise MissingExporterError
-          end.new(store_id: store_id, client: client)
+          end
         end
       end
     end

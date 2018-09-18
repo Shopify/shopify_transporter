@@ -2,3 +2,4 @@
 
 require_relative 'magento/magento_exporter.rb'
 require_relative 'magento/soap.rb'
+require_relative 'magento/sql.rb'

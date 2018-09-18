@@ -1,0 +1,35 @@
+platform_type: Magento
+object_types:
+  customer:
+    record_key: email
+    pipeline_stages:
+      - TopLevelAttributes
+      - AddressesAttribute
+      - Metafields:
+        type: all_platforms
+        params:
+          # Specify a custom namespace for your metafields with metafield_namespace.
+          # Uses migrated_data by default.
+          # metafield_namespace: migrated_data
+          metafields:
+            - website
+            - group
+            - free_trial_start_at
+  order:
+    record_key: increment_id
+    pipeline_stages:
+      - TopLevelAttributes
+      - LineItems
+      - AddressesAttribute
+export_configuration:
+  soap:
+    hostname: magento-sandbox.myshopify.io
+    username: zliu1020
+    api_key: password1
+  database:
+    host: 192.168.64.62
+    port: 3306
+    user: root
+    password: ‘’
+    database: magento_sandbox
+  store_id: 1

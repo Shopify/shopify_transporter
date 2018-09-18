@@ -110,6 +110,10 @@ class TransporterExporter
     item[key].to_i < optional_env_vars['LAST_KEY_ID'].to_i
   end
 
+  def print_json_seperator(index)
+    puts "," unless index == 0
+  end
+
   def write_to_file(filename, str)
     open(filename, 'a') do |f|
       flock(f, File::LOCK_EX) do |f_locked|

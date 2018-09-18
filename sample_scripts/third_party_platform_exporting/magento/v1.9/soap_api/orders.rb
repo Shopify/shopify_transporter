@@ -8,12 +8,15 @@ require 'active_support/core_ext'
 require_relative 'transporter_exporter'
 
 class OrderExporter < TransporterExporter
-  START_DATE = 3.years.ago
+  START_DATE = 5.years.ago
   END_DATE = Time.now
   INTERVAL_SIZE = 2.weeks
 
   def run
-    puts JSON.pretty_generate(orders)
+    puts "["
+    print_orders
+  ensure
+    puts "]"
   end
 
   private
@@ -22,20 +25,45 @@ class OrderExporter < TransporterExporter
     :increment_id
   end
 
-  def orders
-    base_orders.each_with_object([]) do |order, orders|
+  def print_orders
+    base_orders.each_with_index do |order, index|
       next if skip?(order)
 
-      orders << order.merge('items' => items_for(order))
-      $stderr.puts "fetched item details for order #{order[:increment_id]}"
+      begin
+        order.merge!('items' => items_for(order))
+      rescue => e
+        print_order_details_error(order, e)
+      end
+
+      print_order(order, index)
     end
   end
 
+  def print_order(order, index)
+    print_json_seperator(index)
+    puts JSON.pretty_generate(order)
+    $stderr.puts "Exported order: #{order[:increment_id]}"
+  end
+
+  def print_order_details_error(order, e)
+    $stderr.puts "***"
+    $stderr.puts "Warning:"
+    $stderr.puts "Encountered an error with fetching details for order with id: #{order[:increment_id]}"
+    $stderr.puts JSON.pretty_generate(order)
+    $stderr.puts "The exact error was:"
+    $stderr.puts "#{e.class}: "
+    $stderr.puts e.message
+    $stderr.puts "-"
+    $stderr.puts "Exporting the order (#{order[:increment_id]}) without its details."
+    $stderr.puts "Continuing with the next order."
+    $stderr.puts "***"
+  end
+
   def base_orders
-    $stderr.puts "pulling order info from Magento..."
+    $stderr.puts "Retrieving orders in the specified date range from Magento..."
 
     base_orders = orders_in_daterange(START_DATE, END_DATE, INTERVAL_SIZE)
-    $stderr.puts "\nfetched base information for all orders!"
+    $stderr.puts "\nFetched the order list, starting to process each order."
     base_orders
   end
 

@@ -35,7 +35,7 @@ class CustomerExporter < TransporterExporter
   def print_customer(customer, index)
     print_json_seperator(index)
     puts JSON.pretty_generate(customer)
-    $stderr.puts "Exported all details for customer: #{customer[:customer_id]}"
+    $stderr.puts "Exported customer: #{customer[:customer_id]}"
   end
 
   def print_customer_address_error(customer, e)
@@ -47,13 +47,9 @@ class CustomerExporter < TransporterExporter
     $stderr.puts "#{e.class}: "
     $stderr.puts e.message
     $stderr.puts "-"
-    $stderr.puts "Exported the customer (#{customer[:customer_id]}) without their addresses."
+    $stderr.puts "Exporting the customer (#{customer[:customer_id]}) without their addresses."
     $stderr.puts "Continuing with the next customer."
     $stderr.puts "***"
-  end
-
-  def print_json_seperator(index)
-    puts "," unless index == 0
   end
 
   def base_customers

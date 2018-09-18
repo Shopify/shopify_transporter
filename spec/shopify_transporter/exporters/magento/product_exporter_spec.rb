@@ -30,10 +30,26 @@ module ShopifyTransporter
               },
             ).at_least(:once)
 
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_info, product_id: 12345)
+              .and_return(catalog_product_info_response_body)
+              .at_least(:once)
+
+            expect(catalog_product_info_response_body).to receive(:body).and_return(
+              catalog_product_info_response: {
+                  info: "another_attribute",
+              }
+            ).at_least(:once)
+
             expected_result = [
               {
                 product_id: 12345,
                 top_level_attribute: "an_attribute",
+                items: {
+                  catalog_product_info_response: {
+                    info: "another_attribute"
+                  }
+                }
               },
             ]
 

@@ -24,10 +24,11 @@ class CustomerExporter < TransporterExporter
 
       begin
         customer.merge!(address_list: customer_address_list(customer[:customer_id]))
-        print_customer(customer, index)
       rescue => e
         print_customer_address_error(customer, e)
       end
+
+      print_customer(customer, index)
     end
   end
 
@@ -39,12 +40,15 @@ class CustomerExporter < TransporterExporter
 
   def print_customer_address_error(customer, e)
     $stderr.puts "***"
-    $stderr.puts "Encountered error with fetching address for customer: #{customer[:customer_id]}"
+    $stderr.puts "Warning:"
+    $stderr.puts "Encountered an error with fetching addresses for customer with id: #{customer[:customer_id]}"
     $stderr.puts JSON.pretty_generate(customer)
     $stderr.puts "The exact error was:"
     $stderr.puts "#{e.class}: "
     $stderr.puts e.message
-    $stderr.puts "Continuing with next customer."
+    $stderr.puts "-"
+    $stderr.puts "Exported the customer (#{customer[:customer_id]}) without their addresses."
+    $stderr.puts "Continuing with the next customer."
     $stderr.puts "***"
   end
 

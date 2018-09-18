@@ -30,6 +30,7 @@ module ShopifyTransporter
             database: @database
           )
           yield(@connection)
+          @connection.disconnect
         end
       end
     end

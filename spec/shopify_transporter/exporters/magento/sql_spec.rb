@@ -15,6 +15,8 @@ module ShopifyTransporter
               password: 'some_password'
             )
 
+            connection = double('connection')
+
             expect(Sequel).to receive(:connect).with(
               adapter: :mysql2,
               database: 'magento',
@@ -22,7 +24,9 @@ module ShopifyTransporter
               port: 1234,
               user: 'dbuser',
               password: 'some_password'
-            )
+            ).and_return(connection)
+
+            expect(connection).to receive(:disconnect)
 
             sql_client.connect { |db| nil }
           end

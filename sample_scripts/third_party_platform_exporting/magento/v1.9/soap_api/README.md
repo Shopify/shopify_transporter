@@ -75,7 +75,7 @@ For 50, 000 objects it could take up to 5-10 minutes before the script starts to
 Until these scripts are enhanced to support specifying an output file, you can redirect the script's output into a file using the `>` redirection approach.
 
 ```
-ruby customers.rb > magento_customers.rb
+ruby customers.rb > magento_customers.json
 ```
 
 Afterwards, inspect that file to ensure that it contains valid JSON data and that the script didn't prematurely exit with a connection or other error.

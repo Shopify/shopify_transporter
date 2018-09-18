@@ -6,7 +6,10 @@ require_relative 'transporter_exporter.rb'
 
 class CustomerExporter < TransporterExporter
   def run
-    puts JSON.pretty_generate(customers)
+    puts "["
+    print_customers
+  ensure
+    puts "]"
   end
 
   private
@@ -15,20 +18,44 @@ class CustomerExporter < TransporterExporter
     :customer_id
   end
 
-  def customers
-    base_customers.each_with_object([]) do |customer, customers|
+  def print_customers
+    base_customers.each_with_index do |customer, index|
       next if skip?(customer)
 
-      customers << customer.merge(address_list: customer_address_list(customer[:customer_id]))
-      $stderr.puts "fetched address details for customer: #{customer[:customer_id]}"
+      begin
+        customer.merge!(address_list: customer_address_list(customer[:customer_id]))
+        print_customer(customer, index)
+      rescue => e
+        print_customer_address_error(customer, e)
+      end
     end
   end
 
+  def print_customer(customer, index)
+    print_json_seperator(index)
+    puts JSON.pretty_generate(customer)
+    $stderr.puts "Exported all details for customer: #{customer[:customer_id]}"
+  end
+
+  def print_customer_address_error(customer, e)
+    $stderr.puts "***"
+    $stderr.puts "Encountered error with fetching address for customer: #{customer[:customer_id]}"
+    $stderr.puts JSON.pretty_generate(customer)
+    $stderr.puts "The exact error was:"
+    $stderr.puts "#{e.class}: "
+    $stderr.puts e.message
+    $stderr.puts "Continuing with next customer."
+    $stderr.puts "***"
+  end
+
+  def print_json_seperator(index)
+    puts "," unless index == 0
+  end
+
   def base_customers
-    $stderr.puts "pulling customer info from Magento..."
+    $stderr.puts "Retrieving customer list from Magento using SOAP..."
     base_customers = customers_starting_with('')
-    
-    $stderr.puts "\nfetched base information for all customers!"
+    $stderr.puts "\nFetched customer list, starting to process each customer."
     base_customers
   end
 
@@ -67,6 +94,6 @@ end
 begin
   CustomerExporter.new.run
 rescue TransporterExporter::ExportError => e
-  puts "error: #{e}"
+  puts "Encountered error: #{e}"
   exit(1)
 end

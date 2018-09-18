@@ -36,7 +36,7 @@ class TransporterExporter
 
   def soap_client
     @soap_client ||= Savon.client(
-      wsdl: "http://#{required_env_vars['MAGENTO_SOAP_API_HOSTNAME']}/api/v2_soap?wsdl",
+      wsdl: "https://#{required_env_vars['MAGENTO_SOAP_API_HOSTNAME']}/api/v2_soap?wsdl",
       open_timeout: 500,
       read_timeout: 500,
       convert_request_keys_to: :none
@@ -81,10 +81,37 @@ class TransporterExporter
     }
   end
 
+  def filter_by_date_range(start_location, end_location)
+    {
+      complex_filter: [
+        item: [
+          {
+            key: 'created_at',
+            value: {
+                key: 'from',
+                value: start_location.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+          },
+          {
+            key: 'CREATED_AT',
+            value: {
+                key: 'to',
+                value: end_location.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+          },
+        ]
+      ]
+    }
+  end
+
   def skip?(item)
     return false if optional_env_vars['LAST_KEY_ID'].nil? || item[key].nil?
 
     item[key].to_i < optional_env_vars['LAST_KEY_ID'].to_i
+  end
+
+  def print_json_seperator(index)
+    puts "," unless index == 0
   end
 
   def write_to_file(filename, str)

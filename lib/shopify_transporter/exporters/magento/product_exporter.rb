@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-
 require_relative './product_mapping_exporter.rb'
-
 
 module ShopifyTransporter
   module Exporters

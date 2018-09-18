@@ -29,7 +29,7 @@ module ShopifyTransporter
                   ],
                 },
               },
-            ).at_least(:once)
+            )
 
             expect(soap_client)
               .to receive(:call).with(:catalog_product_info, product_id: '12345')
@@ -39,7 +39,7 @@ module ShopifyTransporter
               catalog_product_info_response: {
                   info: "another_attribute",
               }
-            ).at_least(:once)
+            )
 
             expected_result = [
               {
@@ -191,4 +191,3 @@ module ShopifyTransporter
     end
   end
 end
-

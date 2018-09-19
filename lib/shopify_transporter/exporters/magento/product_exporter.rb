@@ -16,7 +16,7 @@ module ShopifyTransporter
         def export
           $stderr.puts 'Starting export...'
           products = base_products.map do |product|
-            $stderr.puts "Fetching products: #{product[:product_id]}"
+            $stderr.puts "Fetching product: #{product[:product_id]}"
             product.merge(items: info_for(product[:product_id]))
           end.compact
           apply_mappings(products)

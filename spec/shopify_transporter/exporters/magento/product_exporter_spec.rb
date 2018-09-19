@@ -37,7 +37,9 @@ module ShopifyTransporter
 
             expect(catalog_product_info_response_body).to receive(:body).and_return(
               catalog_product_info_response: {
-                  info: "another_attribute",
+                info: {
+                  "attribute_key": "another_attribute"
+                }
               }
             )
 
@@ -46,11 +48,7 @@ module ShopifyTransporter
                 product_id: '12345',
                 type: 'configurable',
                 top_level_attribute: "an_attribute",
-                items: {
-                  catalog_product_info_response: {
-                    info: "another_attribute"
-                  }
-                }
+                attribute_key: "another_attribute",
               },
             ]
 
@@ -93,7 +91,9 @@ module ShopifyTransporter
 
               expect(catalog_product_info_response_body).to receive(:body).and_return(
                   catalog_product_info_response: {
-                      info: "another_attribute",
+                    info: {
+                      "attribute_key": "another_attribute"
+                    }
                   }
               ).at_least(:once)
               expected_result = [
@@ -102,11 +102,7 @@ module ShopifyTransporter
                   top_level_attribute: "an_attribute",
                   type: 'simple',
                   parent_id: '12345',
-                  items: {
-                      catalog_product_info_response: {
-                          info: "another_attribute"
-                      }
-                  }
+                  attribute_key: "another_attribute",
                 },
               ]
 
@@ -154,20 +150,18 @@ module ShopifyTransporter
 
               expect(catalog_product_info_response_body).to receive(:body).and_return(
                   catalog_product_info_response: {
-                      info: "another_attribute",
+                    info: {
+                      "another_key": "another_attribute",
+                    },
                   }
               ).at_least(:once)
 
               expected_result = [
                 {
                   product_id: '801',
-                  top_level_attribute: "an_attribute",
                   type: 'simple',
-                  items: {
-                      catalog_product_info_response: {
-                          info: "another_attribute"
-                      }
-                  }
+                  top_level_attribute: "an_attribute",
+                  another_key: "another_attribute",
                 },
               ]
 

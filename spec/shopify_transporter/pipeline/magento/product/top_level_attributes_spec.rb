@@ -9,9 +9,11 @@ module ShopifyTransporter::Pipeline::Magento::Product
         magento_product = FactoryBot.build(:magento_product)
         shopify_product = described_class.new.convert(magento_product, {})
         expected_shopify_product = {
-          sku: magento_product['sku'],
           title: magento_product['name'],
           body_html: magento_product['description'],
+          handle: magento_product['url_key'],
+          created_at: magento_product['created_at'],
+          published_scope: "web",
         }
 
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
@@ -26,11 +28,12 @@ module ShopifyTransporter::Pipeline::Magento::Product
         magento_product = FactoryBot.build(:magento_product, with_nonsense)
         shopify_product = described_class.new.convert(magento_product, {})
         expected_shopify_product = {
-          sku: magento_product['sku'],
           title: magento_product['name'],
           body_html: magento_product['description'],
+          handle: magento_product['url_key'],
+          created_at: magento_product['created_at'],
+          published_scope: "web",
         }
-
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
       end
     end

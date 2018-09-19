@@ -14,9 +14,10 @@ module ShopifyTransporter
 
           class TopLevelAttributesAccumulator < Shopify::AttributesAccumulator
             COLUMN_MAPPING = {
-              'sku' => 'sku',
               'name' => 'title',
               'description' => 'body_html',
+              'url_key' => 'handle',
+              'created_at' => 'created_at',
             }
 
             private
@@ -26,7 +27,15 @@ module ShopifyTransporter
             end
 
             def attributes_from(input)
-              map_from_key_to_val(COLUMN_MAPPING, input)
+              attributes = map_from_key_to_val(COLUMN_MAPPING, input)
+              attributes['published_scope'] = published_scope(input)
+              attributes
+            end
+
+            def published_scope(input)
+              value = input['visibility']
+              return unless value.present?
+              value == '1' ? 'web' : ' '
             end
           end
         end

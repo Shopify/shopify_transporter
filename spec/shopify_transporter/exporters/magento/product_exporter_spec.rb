@@ -5,16 +5,17 @@ module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe ProductExporter do
-        context '#run' do
+        context '#run'
           it 'retrieves configurable products from Magento using the SOAP API and returns the results' do
             soap_client = double("soap client")
 
             catalog_product_list_response_body = double('catalog_product_list_response_body')
+            catalog_product_info_response_body = double('catalog_product_info_response_body')
 
             expect(soap_client)
               .to receive(:call).with(:catalog_product_list, anything)
               .and_return(catalog_product_list_response_body)
-              .at_least(:once)
+
 
             expect(catalog_product_list_response_body).to receive(:body).and_return(
               catalog_product_list_response: {
@@ -28,13 +29,28 @@ module ShopifyTransporter
                   ],
                 },
               },
-            ).at_least(:once)
+            )
+
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_info, product_id: '12345')
+              .and_return(catalog_product_info_response_body)
+
+            expect(catalog_product_info_response_body).to receive(:body).and_return(
+              catalog_product_info_response: {
+                  info: "another_attribute",
+              }
+            )
 
             expected_result = [
               {
                 product_id: '12345',
                 type: 'configurable',
                 top_level_attribute: "an_attribute",
+                items: {
+                  catalog_product_info_response: {
+                    info: "another_attribute"
+                  }
+                }
               },
             ]
 
@@ -47,12 +63,12 @@ module ShopifyTransporter
             let(:product_mapping_exporter) { double("product_mapping_exporter") }
 
             let(:catalog_product_list_response_body) { double('catalog_product_list_response_body') }
-
+            let(:catalog_product_info_response_body) { double('catalog_product_info_response_body') }
             it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
               expect(soap_client)
                 .to receive(:call).with(:catalog_product_list, anything)
                 .and_return(catalog_product_list_response_body)
-                .at_least(:once)
+
 
               expect(ProductMappingExporter).to receive(:new).and_return(product_mapping_exporter)
               expect(product_mapping_exporter).to receive(:write_mappings)
@@ -71,12 +87,26 @@ module ShopifyTransporter
                 },
               ).at_least(:once)
 
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_info, product_id: '801')
+                .and_return(catalog_product_info_response_body)
+
+              expect(catalog_product_info_response_body).to receive(:body).and_return(
+                  catalog_product_info_response: {
+                      info: "another_attribute",
+                  }
+              ).at_least(:once)
               expected_result = [
                 {
                   product_id: '801',
                   top_level_attribute: "an_attribute",
                   type: 'simple',
                   parent_id: '12345',
+                  items: {
+                      catalog_product_info_response: {
+                          info: "another_attribute"
+                      }
+                  }
                 },
               ]
 
@@ -100,7 +130,10 @@ module ShopifyTransporter
               expect(soap_client)
                 .to receive(:call).with(:catalog_product_list, anything)
                 .and_return(catalog_product_list_response_body)
-                .at_least(:once)
+
+              expect(soap_client)
+                  .to receive(:call).with(:catalog_product_info, product_id: '801')
+                          .and_return(catalog_product_info_response_body)
 
               expect(ProductMappingExporter).to receive(:new).and_return(product_mapping_exporter)
               expect(product_mapping_exporter).to receive(:write_mappings)
@@ -119,11 +152,22 @@ module ShopifyTransporter
                 },
               ).at_least(:once)
 
+              expect(catalog_product_info_response_body).to receive(:body).and_return(
+                  catalog_product_info_response: {
+                      info: "another_attribute",
+                  }
+              ).at_least(:once)
+
               expected_result = [
                 {
                   product_id: '801',
                   top_level_attribute: "an_attribute",
                   type: 'simple',
+                  items: {
+                      catalog_product_info_response: {
+                          info: "another_attribute"
+                      }
+                  }
                 },
               ]
 
@@ -144,7 +188,6 @@ module ShopifyTransporter
             end
           end
         end
-      end
     end
   end
 end

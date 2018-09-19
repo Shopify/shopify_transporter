@@ -15,7 +15,11 @@ module ShopifyTransporter
 
         def export
           $stderr.puts 'Starting export...'
-          apply_mappings(base_products.compact)
+          products = base_products.map do |product|
+            $stderr.puts "Fetching product: #{product[:product_id]}"
+            product.merge(items: info_for(product[:product_id]))
+          end.compact
+          apply_mappings(products)
         end
 
         private
@@ -54,6 +58,12 @@ module ShopifyTransporter
           return product unless product_mappings[product[:product_id]].present?
 
           product.merge(parent_id: product_mappings[product[:product_id]])
+        end
+
+        def info_for(product_id)
+          @client
+            .call(:catalog_product_info, product_id: product_id)
+            .body
         end
       end
     end

@@ -76,6 +76,17 @@ RSpec.describe ShopifyTransporter do
       )
     end
 
+    it 'runs a pipeline for all_platforms' do
+      files = ['spec/files/blank.csv']
+      config = 'spec/files/config-with-all-platforms-stage-type.yml'
+      mock_stage_class = double("mock_stage_class")
+
+      allow(Object).to receive(:const_get).with('ShopifyTransporter::Shopify::Customer')
+      expect(Object).to receive(:const_get).once.with('ShopifyTransporter::Pipeline::AllPlatforms::TopLevelAttributes').and_return(mock_stage_class)
+
+      expect { TransporterTool.new(*files, config, 'customer') }.to raise_error(TransporterTool::StageNotFoundError)
+    end
+
     it 'looks in the default namespace for namespaces that are specified as strings' do
       files = ['spec/files/blank.csv']
       config = 'spec/files/config.yml'

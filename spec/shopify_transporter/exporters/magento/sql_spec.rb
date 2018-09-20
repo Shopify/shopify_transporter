@@ -28,12 +28,13 @@ module ShopifyTransporter
               user: 'dbuser',
               password: 'some_password'
             ).and_return(connection)
-            expect(connection).to receive(:disconnect)
 
             sql_client.connect { |db| nil }
           end
 
-          it 'disconnects the database even if the given block raises an error' do
+          it 'yields the db connection on SQL#connect' do
+            connection = double('db connection')
+
             expect(Sequel).to receive(:connect).with(
               adapter: :mysql2,
               database: 'magento',
@@ -41,12 +42,9 @@ module ShopifyTransporter
               port: 1234,
               user: 'dbuser',
               password: 'some_password'
-            ).and_return(connection)
-            expect(connection).to receive(:disconnect)
+            ).and_yield(connection)
 
-            expect do
-              sql_client.connect { |db| raise('database lost connection!') }
-            end.to raise_error('database lost connection!')
+            sql_client.connect { |db| expect(db).to eq(connection) }
           end
         end
       end

@@ -21,17 +21,16 @@ module ShopifyTransporter
         end
 
         def connect
-          @connection ||= Sequel.connect(
+          Sequel.connect(
             adapter: :mysql2,
             user: @user,
             password: @password,
             host: @host,
             port: @port,
             database: @database
-          )
-          yield(@connection)
-        ensure
-          @connection.disconnect
+          ) do |connection|
+            yield connection
+          end
         end
       end
     end

@@ -5,8 +5,8 @@ require_relative 'shopify_transporter/generators.rb'
 require_relative 'shopify_transporter/exporters.rb'
 require_relative 'shopify_transporter/pipeline.rb'
 require_relative 'shopify_transporter/shopify.rb'
-require_relative 'shopify_transporter/record_builder.rb'
-
+require_relative 'shopify_transporter/record_builder/record_builder.rb'
+require_relative 'shopify_transporter/record_builder/product_record_builder'
 Dir["#{Dir.pwd}/lib/custom_pipeline_stages/**/*.rb"].each { |f| require f }
 
 module ShopifyTransporter
@@ -235,9 +235,16 @@ class TransporterTool
 
   def build_classes_based_on_config
     @record_class = Object.const_get("ShopifyTransporter::Shopify::#{@object_type.capitalize}")
-    @record_builder = ShopifyTransporter::RecordBuilder.new(
-      record_key_from_config, key_required_from_config
-    )
+    if @object_type.capitalize == 'Product'
+      @record_builder = ShopifyTransporter::ProductRecordBuilder.new(
+          record_key_from_config, key_required_from_config
+      )
+    else
+      @record_builder = ShopifyTransporter::RecordBuilder.new(
+          record_key_from_config, key_required_from_config
+      )
+    end
+
   end
 
   def record_key_from_config

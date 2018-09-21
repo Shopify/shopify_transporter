@@ -22,8 +22,8 @@ module ShopifyTransporter
 
             private
 
-            def input_applies?(_input)
-              true
+            def input_applies?(input)
+              true unless input['parent_id'].present?
             end
 
             def attributes_from(input)

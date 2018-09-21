@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 #
 module ShopifyTransporter
-
   class ProductRecordBuilder < RecordBuilder
-
     def initialize(key_name, key_required)
       super(key_name, key_required)
     end

@@ -72,13 +72,8 @@ module ShopifyTransporter
 
         def inventory_quantity_for(product_id)
           @client
-<<<<<<< HEAD
-            .call(:catalog_product_info, product_id: product_id)
-            .body[:catalog_product_info_response][:info]
-=======
             .call(:catalog_inventory_stock_item_list, products: { product_id: product_id })
             .body[:catalog_inventory_stock_item_list_response][:result][:item][:qty].to_i
->>>>>>> 10fed5b... initial commit
         end
       end
     end

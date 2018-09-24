@@ -62,7 +62,7 @@ module ShopifyTransporter
         end
 
         def info_for(product_id)
-          @client.call(:catalog_product_info, product_id: product_id).body
+          @client.call(:catalog_product_info, product_id: product_id).body[:catalog_product_info_response][:info]
         end
 
         def inventory_quantity_for(product_id)

@@ -18,8 +18,8 @@ module ShopifyTransporter
           products = base_products.map do |product|
             $stderr.puts "Fetching product: #{product[:product_id]}"
             product
-              .merge(items: info_for(product[:product_id]))
-              .merge(images: image_attribute(product[:product_id]))
+              .merge(images: images_attribute(product[:product_id]))
+              .merge(info_for(product[:product_id]))
           end.compact
           apply_mappings(products)
         end
@@ -68,7 +68,7 @@ module ShopifyTransporter
             .body[:catalog_product_info_response][:info]
         end
 
-        def image_attribute(product_id)
+        def images_attribute(product_id)
           @client
             .call(:catalog_product_attribute_media_list, product: product_id.to_i)
             .body[:catalog_product_attribute_media_list_response][:result][:item]

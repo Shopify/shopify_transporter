@@ -10,6 +10,32 @@ FactoryBot.define do
     sequence(:created_at) { |n| "created_at-#{n}" }
     sequence(:visibility) { '1' }
 
+    trait :with_no_label_image do
+      images do
+        [
+          {
+            'url': :src_value,
+            'position': 1,
+            'label': {
+              '@xsi:type': 'xsd:string'
+            }
+          }
+        ]
+      end
+    end
+
+    trait :with_label_image do
+      images do
+        [
+          {
+            'url': :src_value2,
+            'position': 2,
+            'label': 'alt_text'
+          }
+        ]
+      end
+    end
+
     initialize_with { attributes.deep_stringify_keys }
   end
 

@@ -30,11 +30,29 @@ module ShopifyTransporter
               attributes['published'] = published?(input)
               attributes['published_scope'] = published?(input) ? 'global' : ''
               attributes['published_at'] = published?(input) ? input['updated_at'] : ''
+              attributes['images'] = append_images(input) if input['images'].present?
               attributes
             end
 
             def published?(input)
               input['visibility'].present? && input['visibility'].to_i != 1
+            end
+
+            def append_images(input)
+              images = input['images'].map do |image|
+                {
+                  'src': image['url'],
+                  'position': image['position'],
+                  'alt_text': image_alt_text(image['label']),
+                }.compact
+              end
+              images.sort_by { |image| image['position'] }
+            end
+
+            def image_alt_text(label)
+              if label.is_a? String
+                label
+              end
             end
           end
         end

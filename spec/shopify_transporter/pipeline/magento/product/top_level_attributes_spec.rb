@@ -17,7 +17,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
           published_scope: '',
         }
 
-        expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
+        expect(shopify_product.deep_stringify_keys).to eq(expected_shopify_product.deep_stringify_keys)
       end
 
       it 'should handle published scope properly' do
@@ -32,7 +32,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
           published_scope: "global",
         }
 
-        expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
+        expect(shopify_product.deep_stringify_keys).to eq(expected_shopify_product.deep_stringify_keys)
       end
 
       it 'ignores attributes that are not explicitly specified in the top-level' do
@@ -49,9 +49,42 @@ module ShopifyTransporter::Pipeline::Magento::Product
           handle: magento_product['url_key'],
           published_scope: '',
           published: false,
-          published_at: ''
+          published_at: '',
         }
-        expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
+        expect(shopify_product.deep_stringify_keys).to eq(expected_shopify_product.deep_stringify_keys)
+      end
+
+      context '#images' do
+        it 'handles images with no labels' do
+          magento_product = FactoryBot.build(:magento_product, :with_no_label_image)
+          shopify_product = described_class.new.convert(magento_product, {})
+          expected_shopify_product_image = {
+            images: [
+              {
+                src: :src_value,
+                position: 1,
+              }
+            ]
+          }
+
+          expect(shopify_product.deep_stringify_keys).to include(expected_shopify_product_image.deep_stringify_keys)
+        end
+
+        it 'handles images with labels' do
+          magento_product = FactoryBot.build(:magento_product, :with_label_image)
+          shopify_product = described_class.new.convert(magento_product, {})
+          expected_shopify_product_image = {
+            images: [
+              {
+                src: :src_value2,
+                position: 2,
+                alt_text: 'alt_text',
+              }
+            ]
+          }
+
+          expect(shopify_product.deep_stringify_keys).to include(expected_shopify_product_image.deep_stringify_keys)
+        end
       end
     end
   end

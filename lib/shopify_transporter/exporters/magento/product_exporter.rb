@@ -16,14 +16,9 @@ module ShopifyTransporter
           $stderr.puts 'Starting export...'
           products = base_products.map do |product|
             $stderr.puts "Fetching product: #{product[:product_id]}"
-            if product[:product_id].to_i > 250
-              nil
-            else
-              product.merge(
-                info_for(product[:product_id]),
-                inventory_quantity: inventory_quantity_for(product[:product_id])
-              )
-            end
+            product
+              .merge(info_for(product[:product_id]))
+              .merge(inventory_quantity: inventory_quantity_for(product[:product_id]))
           end.compact
           apply_mappings(products)
         end

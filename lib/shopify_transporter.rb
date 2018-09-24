@@ -202,6 +202,7 @@ class TransporterTool
     @record_builder.instances.each do |_, record_hash|
       puts @record_class.new(record_hash).to_csv
     end
+    $stderr.puts JSON.pretty_generate(@record_builder.instances)
   end
 
   def config_file(config)
@@ -235,15 +236,12 @@ class TransporterTool
 
   def build_classes_based_on_config
     @record_class = Object.const_get("ShopifyTransporter::Shopify::#{@object_type.capitalize}")
-    @record_builder = if @object_type.capitalize == 'Product'
-      ShopifyTransporter::ProductRecordBuilder.new(
-        record_key_from_config, key_required_from_config
-      )
-    else
-      ShopifyTransporter::RecordBuilder.new(
-        record_key_from_config, key_required_from_config
-      )
-    end
+    record_build_class = @object_type.capitalize == 'Product' ? ShopifyTransporter::ProductRecordBuilder : ShopifyTransporter::RecordBuilder
+
+    @record_builder = record_build_class.new(
+       record_key_from_config, key_required_from_config
+    )
+
   end
 
   def record_key_from_config

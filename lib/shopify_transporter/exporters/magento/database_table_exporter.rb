@@ -35,7 +35,7 @@ module ShopifyTransporter
 
         def write_headers(export_file_path, headers)
           File.open(export_file_path, 'w') do |file|
-            file << "#{headers.join(',')}#{$/}"
+            file << "#{headers.join(',')}#{$INPUT_RECORD_SEPARATOR}"
           end
         end
 
@@ -43,7 +43,7 @@ module ShopifyTransporter
           File.open(export_file_path, 'a') do |file|
             batch.each do |row|
               data = headers.map { |header| row[header] }
-              file << "#{data.join(',')}#{$/}"
+              file << "#{data.join(',')}#{$INPUT_RECORD_SEPARATOR}"
             end
           end
         end

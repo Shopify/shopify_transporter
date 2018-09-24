@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'sequel'
-require_relative './magento_helpers'
 
 module ShopifyTransporter
   module Exporters

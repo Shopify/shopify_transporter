@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require_relative './product_mapping_exporter.rb'
 
 module ShopifyTransporter
@@ -17,7 +16,9 @@ module ShopifyTransporter
           $stderr.puts 'Starting export...'
           products = base_products.map do |product|
             $stderr.puts "Fetching product: #{product[:product_id]}"
-            product.merge(info_for(product[:product_id]))
+            product
+              .merge(info_for(product[:product_id]))
+              .merge(inventory_quantity: inventory_quantity_for(product[:product_id]))
           end.compact
           apply_mappings(products)
         end
@@ -61,9 +62,13 @@ module ShopifyTransporter
         end
 
         def info_for(product_id)
+          @client.call(:catalog_product_info, product_id: product_id).body[:catalog_product_info_response][:info]
+        end
+
+        def inventory_quantity_for(product_id)
           @client
-            .call(:catalog_product_info, product_id: product_id)
-            .body[:catalog_product_info_response][:info]
+            .call(:catalog_inventory_stock_item_list, products: { product_id: product_id })
+            .body[:catalog_inventory_stock_item_list_response][:result][:item][:qty].to_i
         end
       end
     end

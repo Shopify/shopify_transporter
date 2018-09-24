@@ -5,9 +5,9 @@ module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe ProductExporter do
-        context '#run'
+        describe '#run' do
           it 'retrieves configurable products from Magento using the SOAP API and returns the results' do
-            soap_client = double("soap client")
+            soap_client = double('soap client')
 
             catalog_product_list_response_body = double('catalog_product_list_response_body')
             catalog_product_info_response_body = double('catalog_product_info_response_body')
@@ -24,7 +24,7 @@ module ShopifyTransporter
                     {
                       product_id: '12345',
                       type: 'configurable',
-                      top_level_attribute: "an_attribute",
+                      top_level_attribute: 'an_attribute',
                     },
                   ],
                 },
@@ -76,9 +76,8 @@ module ShopifyTransporter
             expect(exporter.export).to eq(expected_result)
           end
 
-          context '#parent_id' do
-            let(:soap_client) { double("soap client") }
-            let(:product_mapping_exporter) { double("product_mapping_exporter") }
+          describe '#parent_id' do
+            let(:soap_client) { double('soap client') }
 
             let(:catalog_product_list_response_body) { double('catalog_product_list_response_body') }
             let(:catalog_product_info_response_body) { double('catalog_product_info_response_body') }
@@ -92,10 +91,6 @@ module ShopifyTransporter
                 .to receive(:call).with(:catalog_product_list, anything)
                 .and_return(catalog_product_list_response_body)
 
-
-              expect(ProductMappingExporter).to receive(:new).and_return(product_mapping_exporter)
-              expect(product_mapping_exporter).to receive(:write_mappings)
-
               expect(catalog_product_list_response_body).to receive(:body).and_return(
                 catalog_product_list_response: {
                   store_view: {
@@ -107,7 +102,7 @@ module ShopifyTransporter
                       },
                     ],
                   },
-                },
+                }
               ).at_least(:once)
 
               expect(soap_client)
@@ -167,21 +162,30 @@ module ShopifyTransporter
                 },
               ]
 
-              mappings = <<~EOS
-                product_id,associated_product_id
-                12345,800
-                12345,801
-                12345,802
-                67890,900
-                67890,901
-              EOS
+              expect_any_instance_of(DatabaseTableExporter).to receive(:export_table).with(
+                'catalog_product_relation',
+                'parent_id'
+              )
 
-              in_temp_folder do
-                FileUtils.mkdir_p(ProductExporter::MAPPINGS_FILE_PATH[%r{(.*)/.*$}, 1])
-                File.open(ProductExporter::MAPPINGS_FILE_PATH, 'w') { |file| file.write(mappings) }
-                exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
-                expect(exporter.export).to eq(expected_result)
-              end
+              expect_any_instance_of(DatabaseCache).to receive(:table).with('catalog_product_relation').and_return(
+                [
+                  {
+                    'parent_id' => '12345',
+                    'child_id' => '800',
+                  },
+                  {
+                    'parent_id' => '12345',
+                    'child_id' => '801',
+                  },
+                  {
+                    'parent_id' => '67890',
+                    'child_id' => '912',
+                  }
+                ]
+              )
+
+              exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
+              expect(exporter.export).to eq(expected_result)
             end
 
             it 'retrieves simple products from Magento and does not inject parent_id if the parent_id does not exist' do
@@ -192,9 +196,6 @@ module ShopifyTransporter
               expect(soap_client)
                   .to receive(:call).with(:catalog_product_info, product_id: '801')
                           .and_return(catalog_product_info_response_body)
-
-              expect(ProductMappingExporter).to receive(:new).and_return(product_mapping_exporter)
-              expect(product_mapping_exporter).to receive(:write_mappings)
 
               expect(catalog_product_list_response_body).to receive(:body).and_return(
                 catalog_product_list_response: {
@@ -258,28 +259,35 @@ module ShopifyTransporter
                   top_level_attribute: "an_attribute",
                   inventory_quantity: 5,
                   another_key: "another_attribute",
-                  images: [{ url: :img_src }, { url: :img_src2 }]
+                  images: [{ url: :img_src }, { url: :img_src2 }],
+                  type: 'simple',
                 },
               ]
 
-              mappings = <<~EOS
-                product_id,associated_product_id
-                ,800
-                ,801
-                ,802
-                67890,900
-                67890,901
-              EOS
+              expect_any_instance_of(DatabaseTableExporter).to receive(:export_table).with(
+                'catalog_product_relation',
+                'parent_id'
+              )
 
-              in_temp_folder do
-                FileUtils.mkdir_p(ProductExporter::MAPPINGS_FILE_PATH[%r{(.*)/.*$}, 1])
-                File.open(ProductExporter::MAPPINGS_FILE_PATH, 'w') { |file| file.write(mappings) }
-                exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
-                expect(exporter.export).to eq(expected_result)
-              end
+              expect_any_instance_of(DatabaseCache).to receive(:table).with('catalog_product_relation').and_return(
+                [
+                  {
+                    'product_id' => '12345',
+                    'child_id' => '800',
+                  },
+                  {
+                    'product_id' => '67890',
+                    'child_id' => '912',
+                  }
+                ]
+              )
+
+              exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
+              expect(exporter.export).to eq(expected_result)
             end
           end
         end
+      end
     end
   end
 end

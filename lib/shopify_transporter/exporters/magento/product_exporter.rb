@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require_relative './product_mapping_exporter.rb'
+require_relative './database_table_exporter.rb'
+require_relative './database_cache.rb'
 
 module ShopifyTransporter
   module Exporters
     module Magento
       class ProductExporter
-        MAPPINGS_FILE_PATH = './cache/magento_db/catalog_product_relation.csv'
-
         def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
           @store_id = store_id
           @client = soap_client
-          @database_adapter = database_adapter
+          @database_table_exporter = DatabaseTableExporter.new(database_adapter)
+          @database_cache = DatabaseCache.new
         end
 
         def export
@@ -31,17 +31,13 @@ module ShopifyTransporter
         end
 
         def product_mappings
-          product_mapping_exporter.write_mappings(MAPPINGS_FILE_PATH)
+          @database_table_exporter.export_table('catalog_product_relation', 'parent_id')
 
           @product_mappings ||= {}.tap do |product_mapping_table|
-            CSV.read(MAPPINGS_FILE_PATH).each do |(parent_id, child_id)|
-              product_mapping_table[child_id] = parent_id
+            @database_cache.table('catalog_product_relation').each do |row|
+              product_mapping_table[row['child_id']] = row['parent_id']
             end
           end
-        end
-
-        def product_mapping_exporter
-          @product_mapping_exporter ||= ProductMappingExporter.new(@database_adapter)
         end
 
         def apply_mappings(product_list)

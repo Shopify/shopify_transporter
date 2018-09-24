@@ -52,5 +52,32 @@ FactoryBot.define do
 
     initialize_with { attributes.deep_stringify_keys }
   end
+
+  factory :advanced_configurable_product, class: Hash do
+    skip_create
+
+    sequence(:product_id) { '3' }
+    sequence(:title) { 'French Cuff Cotton Twill Oxford' }
+    sequence(:body_html) { 'French Cuff Cotton Twill Oxford' }
+    sequence(:handle) { 'french-cuff-cotton-twill-oxford' }
+    sequence(:variants) { [] }
+
+    initialize_with { attributes.deep_stringify_keys }
+  end
+
+  factory :advanced_simple_product, class: Hash do
+    skip_create
+
+    sequence(:product_id) { '4' }
+    sequence(:title) { 'French Cuff Cotton Twill Oxford' }
+    sequence(:body_html) { 'Button front. Long sleeves. Tapered collar, chest pocket, french cuffs.' }
+    sequence(:handle) { 'french-cuff-cotton-twill-oxford' }
+    sequence(:parent_id) { '4' }
+    sequence(:price) { '222' }
+    sequence(:weight) { '100' }
+    sequence(:sku) { 'm100' }
+
+    initialize_with { attributes.deep_stringify_keys }
+  end
 end
 

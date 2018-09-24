@@ -31,11 +31,13 @@ module ShopifyTransporter
         end
 
         def product_mappings
-          @database_table_exporter.export_table('catalog_product_relation', 'parent_id')
+          @product_mappings ||= begin
+            @database_table_exporter.export_table('catalog_product_relation', 'parent_id')
 
-          @product_mappings ||= {}.tap do |product_mapping_table|
-            @database_cache.table('catalog_product_relation').each do |row|
-              product_mapping_table[row['child_id']] = row['parent_id']
+            {}.tap do |product_mapping_table|
+              @database_cache.table('catalog_product_relation').each do |row|
+                product_mapping_table[row['child_id']] = row['parent_id']
+              end
             end
           end
         end

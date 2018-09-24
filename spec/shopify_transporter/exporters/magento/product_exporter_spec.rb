@@ -38,7 +38,7 @@ module ShopifyTransporter
             expect(catalog_product_info_response_body).to receive(:body).and_return(
               catalog_product_info_response: {
                 info: {
-                  "attribute_key": "another_attribute"
+                  "another_key": "another_attribute"
                 }
               }
             )
@@ -67,7 +67,7 @@ module ShopifyTransporter
                 product_id: '12345',
                 type: 'configurable',
                 top_level_attribute: "an_attribute",
-                attribute_key: "another_attribute",
+                another_key: "another_attribute",
                 images: [{ url: :img_src }, { url: :img_src2 }]
               },
             ]
@@ -86,7 +86,7 @@ module ShopifyTransporter
               double('catalog_product_attribute_media_list_response_body')
             end
 
-            it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
+            def setup_soap_response_for_single_product
               expect(soap_client)
                 .to receive(:call).with(:catalog_product_list, anything)
                 .and_return(catalog_product_list_response_body)
@@ -112,10 +112,14 @@ module ShopifyTransporter
               expect(catalog_product_info_response_body).to receive(:body).and_return(
                   catalog_product_info_response: {
                     info: {
-                      "attribute_key": "another_attribute"
+                      "another_key": "another_attribute"
                     }
                   }
               ).at_least(:once)
+            end
+
+            it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
+              setup_soap_response_for_single_product
 
               expect(soap_client)
                 .to receive(:call).with(:catalog_inventory_stock_item_list, {:products=>{:product_id=>"801"}})
@@ -157,8 +161,8 @@ module ShopifyTransporter
                   type: 'simple',
                   parent_id: '12345',
                   inventory_quantity: 5,
-                  attribute_key: "another_attribute",
-                  images: [{ url: :img_src }, { url: :img_src2 }]
+                  images: [{ url: :img_src }, { url: :img_src2 }],
+                  another_key: "another_attribute",
                 },
               ]
 
@@ -189,35 +193,7 @@ module ShopifyTransporter
             end
 
             it 'retrieves simple products from Magento and does not inject parent_id if the parent_id does not exist' do
-              expect(soap_client)
-                .to receive(:call).with(:catalog_product_list, anything)
-                .and_return(catalog_product_list_response_body)
-
-              expect(soap_client)
-                  .to receive(:call).with(:catalog_product_info, product_id: '801')
-                          .and_return(catalog_product_info_response_body)
-
-              expect(catalog_product_list_response_body).to receive(:body).and_return(
-                catalog_product_list_response: {
-                  store_view: {
-                    item: [
-                      {
-                        product_id: '801',
-                        type: 'simple',
-                        top_level_attribute: "an_attribute",
-                      },
-                    ],
-                  },
-                },
-              ).at_least(:once)
-
-              expect(catalog_product_info_response_body).to receive(:body).and_return(
-                  catalog_product_info_response: {
-                    info: {
-                      "another_key": "another_attribute",
-                    },
-                  }
-              ).at_least(:once)
+              setup_soap_response_for_single_product
 
               expect(soap_client)
                 .to receive(:call).with(:catalog_product_attribute_media_list, product: 801)
@@ -284,6 +260,71 @@ module ShopifyTransporter
 
               exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
               expect(exporter.export).to eq(expected_result)
+            end
+
+            it 'only calls the database exporter once' do
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_list, anything)
+                .and_return(catalog_product_list_response_body)
+
+              allow(catalog_product_list_response_body).to receive(:body).and_return(
+                catalog_product_list_response: {
+                  store_view: {
+                    item: [
+                      {
+                        product_id: '801',
+                        type: 'simple',
+                        top_level_attribute: "an_attribute",
+                      },
+                      {
+                        product_id: '802',
+                        type: 'simple',
+                        top_level_attribute: "an_attribute",
+                      },
+                    ],
+                  },
+                }
+              )
+
+              allow(soap_client)
+                .to receive(:call).with(:catalog_product_attribute_media_list, anything)
+                .and_return(catalog_product_attribute_media_list_response_body)
+
+              allow(catalog_product_attribute_media_list_response_body).to receive(:body).and_return(
+                catalog_product_attribute_media_list_response: {
+                  result: {
+                    item: [
+                      {
+                        url: :img_src
+                      },
+                      {
+                        url: :img_src2
+                      }
+                    ]
+                  }
+                }
+              )
+
+              allow(soap_client).to receive(:call).with(:catalog_product_info, product_id: '801').and_return(catalog_product_info_response_body)
+              allow(soap_client).to receive(:call).with(:catalog_product_info, product_id: '802').and_return(catalog_product_info_response_body)
+
+              allow(catalog_product_info_response_body).to receive(:body).and_return(
+                catalog_product_info_response: {
+                  info: {
+                    "another_key": "another_attribute"
+                  }
+                }
+              )
+
+              expect_any_instance_of(DatabaseTableExporter).to receive(:export_table).with(
+                'catalog_product_relation',
+                'parent_id'
+              ).once
+
+              expect_any_instance_of(DatabaseCache).to receive(:table).with('catalog_product_relation').and_return([])
+
+              exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
+              exporter.export
             end
           end
         end

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 require 'sequel'
 require 'English'
+require_relative './magento_helpers'
 
 module ShopifyTransporter
   module Exporters
     module Magento
       class ProductMappingExporter
-        BATCH_SIZE = 1000
+        include MagentoHelpers
 
         def initialize(database_adapter)
           @database_adapter = database_adapter
@@ -19,13 +20,9 @@ module ShopifyTransporter
             ordered_mappings = db
               .from(:catalog_product_relation)
               .order(:parent_id)
-            current_id = ordered_mappings.first[:parent_id]
-            max_id = ordered_mappings.last[:parent_id]
 
-            while current_id < max_id
-              mappings_batch = ordered_mappings.where(parent_id: current_id...(current_id + BATCH_SIZE))
+            in_batches(ordered_mappings, :parent_id) do |mappings_batch|
               write_data(mappings_batch, filename)
-              current_id += BATCH_SIZE
             end
           end
         end

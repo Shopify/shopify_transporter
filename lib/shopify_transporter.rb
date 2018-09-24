@@ -235,12 +235,12 @@ class TransporterTool
 
   def build_classes_based_on_config
     @record_class = Object.const_get("ShopifyTransporter::Shopify::#{@object_type.capitalize}")
-    record_build_class = if @object_type.capitalize == 'Product'
+    record_builder_class = if @object_type.capitalize == 'Product'
       ShopifyTransporter::ProductRecordBuilder
     else
       ShopifyTransporter::RecordBuilder
     end
-    @record_builder = record_build_class.new(
+    @record_builder = record_builder_class.new(
       record_key_from_config, key_required_from_config
     )
   end

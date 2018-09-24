@@ -13,6 +13,19 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 
+  factory :published_magento_product, class: Hash do
+    skip_create
+
+    sequence(:name) { |n| "Nike-issue-#{n}" }
+    sequence(:description) { |n| "description-#{n}" }
+    sequence(:url_key) { |n| "handle-#{n}" }
+    sequence(:created_at) { |n| "created_at-#{n}" }
+    sequence(:updated_at) { |n| "updated_at-#{n}" }
+    sequence(:visibility) { '2' }
+
+    initialize_with { attributes.deep_stringify_keys }
+  end
+
   factory :configurable_magento_product, class: Hash do
     skip_create
 

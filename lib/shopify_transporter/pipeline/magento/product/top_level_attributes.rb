@@ -17,7 +17,6 @@ module ShopifyTransporter
               'name' => 'title',
               'description' => 'body_html',
               'url_key' => 'handle',
-              'created_at' => 'created_at',
             }
 
             private
@@ -28,14 +27,14 @@ module ShopifyTransporter
 
             def attributes_from(input)
               attributes = map_from_key_to_val(COLUMN_MAPPING, input)
-              attributes['published_scope'] = published_scope(input)
+              attributes['published'] = published?(input)
+              attributes['published_scope'] = published?(input) ? 'global' : ''
+              attributes['published_at'] = published?(input) ? input['updated_at'] : ''
               attributes
             end
 
-            def published_scope(input)
-              value = input['visibility']
-              return unless value.present?
-              value == '1' ? 'web' : ' '
+            def published?(input)
+              input['visibility'].present? && input['visibility'].to_i != 1
             end
           end
         end

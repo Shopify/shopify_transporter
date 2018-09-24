@@ -12,8 +12,24 @@ module ShopifyTransporter::Pipeline::Magento::Product
           title: magento_product['name'],
           body_html: magento_product['description'],
           handle: magento_product['url_key'],
-          created_at: magento_product['created_at'],
-          published_scope: "web",
+          published: false,
+          published_at: '',
+          published_scope: '',
+        }
+
+        expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
+      end
+
+      it 'should handle published scope properly' do
+        magento_product = FactoryBot.build(:published_magento_product)
+        shopify_product = described_class.new.convert(magento_product, {})
+        expected_shopify_product = {
+          title: magento_product['name'],
+          body_html: magento_product['description'],
+          handle: magento_product['url_key'],
+          published: true,
+          published_at: magento_product['updated_at'],
+          published_scope: "global",
         }
 
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
@@ -31,8 +47,9 @@ module ShopifyTransporter::Pipeline::Magento::Product
           title: magento_product['name'],
           body_html: magento_product['description'],
           handle: magento_product['url_key'],
-          created_at: magento_product['created_at'],
-          published_scope: "web",
+          published_scope: '',
+          published: false,
+          published_at: ''
         }
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
       end

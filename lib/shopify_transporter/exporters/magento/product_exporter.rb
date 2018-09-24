@@ -6,11 +6,12 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class ProductExporter
+        MAPPINGS_FILE_PATH = './cache/magento_db/catalog_product_relation.csv'
+
         def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
           @store_id = store_id
           @client = soap_client
           @database_adapter = database_adapter
-          @intermediate_file_name = 'magento_product_mappings.csv'
         end
 
         def export
@@ -30,10 +31,10 @@ module ShopifyTransporter
         end
 
         def product_mappings
-          product_mapping_exporter.write_mappings(@intermediate_file_name)
+          product_mapping_exporter.write_mappings(MAPPINGS_FILE_PATH)
 
           @product_mappings ||= {}.tap do |product_mapping_table|
-            CSV.read(@intermediate_file_name).each do |(parent_id, child_id)|
+            CSV.read(MAPPINGS_FILE_PATH).each do |(parent_id, child_id)|
               product_mapping_table[child_id] = parent_id
             end
           end

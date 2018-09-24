@@ -177,7 +177,8 @@ module ShopifyTransporter
               EOS
 
               in_temp_folder do
-                File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
+                FileUtils.mkdir_p(ProductExporter::MAPPINGS_FILE_PATH[%r{(.*)/.*$}, 1])
+                File.open(ProductExporter::MAPPINGS_FILE_PATH, 'w') { |file| file.write(mappings) }
                 exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
                 expect(exporter.export).to eq(expected_result)
               end
@@ -271,7 +272,8 @@ module ShopifyTransporter
               EOS
 
               in_temp_folder do
-                File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
+                FileUtils.mkdir_p(ProductExporter::MAPPINGS_FILE_PATH[%r{(.*)/.*$}, 1])
+                File.open(ProductExporter::MAPPINGS_FILE_PATH, 'w') { |file| file.write(mappings) }
                 exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
                 expect(exporter.export).to eq(expected_result)
               end

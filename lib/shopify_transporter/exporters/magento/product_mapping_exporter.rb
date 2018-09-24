@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'sequel'
-require 'English'
 require_relative './magento_helpers'
 
 module ShopifyTransporter
@@ -14,6 +13,7 @@ module ShopifyTransporter
         end
 
         def write_mappings(filename)
+          create_export_dir_if_needed(filename)
           write_headers(filename)
 
           @database_adapter.connect do |db|
@@ -31,16 +31,21 @@ module ShopifyTransporter
 
         def write_headers(filename)
           File.open(filename, 'w') do |file|
-            file << "product_id,associated_product_id#{$INPUT_RECORD_SEPARATOR}"
+            file << "parent_id,child_id#{$/}"
           end
         end
 
         def write_data(mappings, filename)
           File.open(filename, 'a') do |file|
             mappings.each do |mapping|
-              file << "#{mapping[:parent_id]},#{mapping[:child_id]}#{$INPUT_RECORD_SEPARATOR}"
+              file << "#{mapping[:parent_id]},#{mapping[:child_id]}#{$/}"
             end
           end
+        end
+
+        def create_export_dir_if_needed(filename)
+          folder_path = filename[%r{(.*)/.*$}, 1]
+          FileUtils.mkdir_p(folder_path) unless Dir.exists?(folder_path)
         end
       end
     end

@@ -21,6 +21,18 @@ module ShopifyTransporter
               expect(database_adapter).to receive(:connect)
             end
 
+            it 'supports writing to a nested file even if the folder structure is not created' do
+              exporter = described_class.new(database_adapter)
+              test_file_path = './cache/magento_db/test_file.csv'
+
+              in_temp_folder do
+                exporter.write_mappings(test_file_path)
+                expect(File.read(test_file_path)).to eq <<~EOS
+                  parent_id,child_id
+                  EOS
+              end
+            end
+
             it 'creates a new file' do
               File.open(@tempfile.path, 'w') do |file|
                 file << "test data"
@@ -30,7 +42,7 @@ module ShopifyTransporter
               exporter.write_mappings(@tempfile.path)
 
               expect(File.read(@tempfile.path)).to eq <<~EOS
-                product_id,associated_product_id
+                parent_id,child_id
                 EOS
             end
 
@@ -39,7 +51,7 @@ module ShopifyTransporter
               exporter.write_mappings(@tempfile.path)
 
               expect(File.read(@tempfile.path)).to eq <<~EOS
-                product_id,associated_product_id
+                parent_id,child_id
                 EOS
             end
           end
@@ -120,7 +132,7 @@ module ShopifyTransporter
 
               subject.write_mappings(@tempfile.path)
 
-              expected_file_data = "product_id,associated_product_id\n"
+              expected_file_data = "parent_id,child_id\n"
               mappings.each do |mapping|
                 expected_file_data += "#{mapping[:parent_id]},#{mapping[:child_id]}#{$INPUT_RECORD_SEPARATOR}"
               end

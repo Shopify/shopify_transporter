@@ -202,7 +202,6 @@ class TransporterTool
     @record_builder.instances.each do |_, record_hash|
       puts @record_class.new(record_hash).to_csv
     end
-    $stderr.puts JSON.pretty_generate(@record_builder.instances)
   end
 
   def config_file(config)

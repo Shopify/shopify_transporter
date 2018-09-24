@@ -16,7 +16,7 @@ module ShopifyTransporter
             def accumulate(current_product)
               if current_product['parent_id'].present?
                 @output['variants'] ||= []
-                @output['variants'] << (current_product)
+                @output['variants'] << current_product
                 @output
               end
             end

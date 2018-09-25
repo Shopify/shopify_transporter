@@ -49,7 +49,7 @@ FactoryBot.define do
     sequence(:created_at) { '2013-03-05T01:25:10-05:00' }
     sequence(:published_scope) { 'web' }
     sequence(:parent_id) { '1' }
-
+    
     initialize_with { attributes.deep_stringify_keys }
   end
 

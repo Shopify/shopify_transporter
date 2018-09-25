@@ -70,14 +70,16 @@ module ShopifyTransporter
 
         product_required_keys = [
           %w(export_configuration database host),
-          %w(export_configuration database user),
+          %w(export_configuration database port),
           %w(export_configuration database database),
+          %w(export_configuration database user),
+          %w(export_configuration database password),
         ]
 
         required_keys = base_required_keys + (@object_type == 'product' ? product_required_keys : [])
 
         required_keys.each do |keys|
-          raise InvalidConfigError, "missing required key '#{keys.last}'" unless config.dig(*keys)
+          raise InvalidConfigError, "missing required key '#{keys.join(' > ')}'" unless config.dig(*keys)
         end
       end
     end

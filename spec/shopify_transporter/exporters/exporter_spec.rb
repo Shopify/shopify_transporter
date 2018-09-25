@@ -37,10 +37,10 @@ module ShopifyTransporter
             },
             "database" => {
               "host" => 'magento.host',
+              "port" => '1234',
+              "database" => 'testdatabase',
               "user" => 'something',
               "password" => 'a_password',
-              "port" => '1234',
-              "name" => 'testdatabase',
             },
             "store_id" => 1,
           },
@@ -71,7 +71,7 @@ module ShopifyTransporter
         config_without_username = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('username') }
         config_file = tmpfile(YAML.dump(config_without_username), '.yml')
 
-        error_message = "Invalid configuration: missing required key 'username'"
+        error_message = "Invalid configuration: missing required key 'export_configuration > soap > username'"
 
         expect { Exporter.new(config_file.path, :unused) }
           .to raise_error(InvalidConfigError, error_message)
@@ -81,7 +81,7 @@ module ShopifyTransporter
         config_without_hostname = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('hostname') }
         config_file = tmpfile(YAML.dump(config_without_hostname), '.yml')
 
-        error_message = "Invalid configuration: missing required key 'hostname'"
+        error_message = "Invalid configuration: missing required key 'export_configuration > soap > hostname'"
 
         expect { Exporter.new(config_file.path, :unused) }
           .to raise_error(InvalidConfigError, error_message)
@@ -98,23 +98,46 @@ module ShopifyTransporter
       end
 
       it 'raises InvalidConfigError if config file is missing store id' do
-        config_without_store_id = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
-        config_file = tmpfile(YAML.dump(config_without_store_id), '.yml')
+        config = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
+        config_file = tmpfile(YAML.dump(config), '.yml')
 
-        error_message = "Invalid configuration: missing required key 'store_id'"
+        error_message = "Invalid configuration: missing required key 'export_configuration > store_id'"
 
         expect { Exporter.new(config_file.path, :unused) }
           .to raise_error(InvalidConfigError, error_message)
       end
 
       it 'raises InvalidConfigError if config file is missing api key' do
-        config_without_store_id = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('api_key') }
-        config_file = tmpfile(YAML.dump(config_without_store_id), '.yml')
+        config = default_config.tap { |cfg| cfg['export_configuration']['soap'].delete('api_key') }
+        config_file = tmpfile(YAML.dump(config), '.yml')
 
-        error_message = "Invalid configuration: missing required key 'api_key'"
+        error_message = "Invalid configuration: missing required key 'export_configuration > soap > api_key'"
 
         expect { Exporter.new(config_file.path, :unused) }
           .to raise_error(InvalidConfigError, error_message)
+      end
+
+      context 'when processing database configuration' do
+        %w(host port database user password).each do |key|
+          it "for products, raises an InvalidConfigError if the database key #{key} is missing." do
+            config = default_config.tap { |cfg| cfg['export_configuration']['database'].delete(key) }
+            config_file = tmpfile(YAML.dump(config), '.yml')
+
+            error_message = "Invalid configuration: missing required key 'export_configuration > database > #{key}'"
+
+            expect { Exporter.new(config_file.path, 'product') }
+              .to raise_error(InvalidConfigError, error_message)
+          end
+
+          it "for non-product objects, does not raise an InvalidConfigError if the database key #{key} is missing." do
+            config = default_config.tap { |cfg| cfg['export_configuration']['database'].delete(key) }
+            config_file = tmpfile(YAML.dump(config), '.yml')
+
+            error_message = "Invalid configuration: missing required key 'export_configuration > database > #{key}'"
+
+            expect { Exporter.new(config_file.path, 'other_object') }.not_to raise_error
+          end
+        end
       end
     end
   end

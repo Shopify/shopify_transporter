@@ -13,9 +13,9 @@ module ShopifyTransporter::Pipeline::Magento::Product
           sku: child_product['sku'],
           grams: child_product['weight'],
           price: child_product['price']
-        }.deep_stringify_keys
+        }
 
-        expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format)
+        expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format.deep_stringify_keys)
       end
 
       it 'ignores attributes that are not explicitly specified in the top-level' do
@@ -31,9 +31,9 @@ module ShopifyTransporter::Pipeline::Magento::Product
           sku: child_product['sku'],
           grams: child_product['weight'],
           price: child_product['price']
-        }.deep_stringify_keys
+        }
 
-        expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format)
+        expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format.deep_stringify_keys)
       end
 
       it 'make sure the correct product is being converted when there exist multiple simple products as variants' do
@@ -46,9 +46,9 @@ module ShopifyTransporter::Pipeline::Magento::Product
           sku: child_product['sku'],
           grams: child_product['weight'],
           price: child_product['price']
-        }.deep_stringify_keys
+        }
 
-        expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format)
+        expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format.deep_stringify_keys)
       end
     end
   end

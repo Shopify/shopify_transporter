@@ -10,7 +10,7 @@ module ShopifyTransporter
           def convert(hash, record)
             simple_product_in_magento_format = record['variants'].select do |product|
               product['product_id'] == hash['product_id']
-            end[0]
+            end.first
             accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
             accumulator.accumulate(hash)
           end

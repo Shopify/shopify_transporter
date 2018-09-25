@@ -68,7 +68,7 @@ module ShopifyTransporter
                 type: 'configurable',
                 top_level_attribute: "an_attribute",
                 attribute_key: "another_attribute",
-                images: [{ url: :img_src }, {url: :img_src2 }]
+                images: [{ url: :img_src }, { url: :img_src2 }]
               },
             ]
 

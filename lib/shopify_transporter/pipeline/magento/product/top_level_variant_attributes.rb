@@ -8,7 +8,10 @@ module ShopifyTransporter
       module Product
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
-            accumulator = TopLevelVariantAttributesAccumulator.new(record['variants'])
+            simple_product_in_magento_format = record['variants'].select do |product|
+              product['product_id'] == hash['product_id']
+            end[0]
+            accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
             accumulator.accumulate(hash)
           end
 
@@ -24,11 +27,6 @@ module ShopifyTransporter
 
             def attributes_from(input)
               map_from_key_to_val(COLUMN_MAPPING, input)
-            end
-
-            def accumulate_attributes(attributes)
-              @output.delete_if { |product| product['sku'] == attributes['sku'] }
-              @output << attributes
             end
           end
         end

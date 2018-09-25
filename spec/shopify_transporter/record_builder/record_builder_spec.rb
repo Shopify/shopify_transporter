@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'shopify_transporter/record_builder'
+require 'shopify_transporter/record_builder/record_builder'
 
 RSpec.describe ShopifyTransporter::RecordBuilder do
   let(:record_class) do
@@ -26,7 +26,7 @@ RSpec.describe ShopifyTransporter::RecordBuilder do
   subject { builder_class.new("key_name", true) }
 
   describe '#build' do
-    it "builds a new record if the record's key wasn't previosly seen (using #key_of)" do
+    it "builds a new record if the record's key wasn't previously seen (using #key_of)" do
       subject.build({'key_name' => 'key_value'}) { |record| expect(record).to eq({}) }
     end
 

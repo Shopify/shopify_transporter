@@ -9,9 +9,27 @@ module ShopifyTransporter::Pipeline::Magento::Product
         magento_product = FactoryBot.build(:magento_product)
         shopify_product = described_class.new.convert(magento_product, {})
         expected_shopify_product = {
-          sku: magento_product['sku'],
           title: magento_product['name'],
           body_html: magento_product['description'],
+          handle: magento_product['url_key'],
+          published: false,
+          published_at: '',
+          published_scope: '',
+        }
+
+        expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
+      end
+
+      it 'should handle published scope properly' do
+        magento_product = FactoryBot.build(:published_magento_product)
+        shopify_product = described_class.new.convert(magento_product, {})
+        expected_shopify_product = {
+          title: magento_product['name'],
+          body_html: magento_product['description'],
+          handle: magento_product['url_key'],
+          published: true,
+          published_at: magento_product['updated_at'],
+          published_scope: "global",
         }
 
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
@@ -26,11 +44,13 @@ module ShopifyTransporter::Pipeline::Magento::Product
         magento_product = FactoryBot.build(:magento_product, with_nonsense)
         shopify_product = described_class.new.convert(magento_product, {})
         expected_shopify_product = {
-          sku: magento_product['sku'],
           title: magento_product['name'],
           body_html: magento_product['description'],
+          handle: magento_product['url_key'],
+          published_scope: '',
+          published: false,
+          published_at: ''
         }
-
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
       end
     end

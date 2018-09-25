@@ -11,11 +11,11 @@ module ShopifyTransporter
 
             catalog_product_list_response_body = double('catalog_product_list_response_body')
             catalog_product_info_response_body = double('catalog_product_info_response_body')
+            catalog_product_attribute_media_list_response_body = double('catalog_product_attribute_media_list_response_body')
 
             expect(soap_client)
               .to receive(:call).with(:catalog_product_list, anything)
               .and_return(catalog_product_list_response_body)
-
 
             expect(catalog_product_list_response_body).to receive(:body).and_return(
               catalog_product_list_response: {
@@ -43,12 +43,32 @@ module ShopifyTransporter
               }
             )
 
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_attribute_media_list, product: 12345)
+              .and_return(catalog_product_attribute_media_list_response_body)
+
+            expect(catalog_product_attribute_media_list_response_body).to receive(:body).and_return(
+              catalog_product_attribute_media_list_response: {
+                result: {
+                  item: [
+                    {
+                      url: :img_src
+                    },
+                    {
+                      url: :img_src2
+                    }
+                  ]
+                }
+              }
+            )
+
             expected_result = [
               {
                 product_id: '12345',
                 type: 'configurable',
                 top_level_attribute: "an_attribute",
                 attribute_key: "another_attribute",
+                images: [{ url: :img_src }, { url: :img_src2 }]
               },
             ]
 
@@ -62,6 +82,10 @@ module ShopifyTransporter
 
             let(:catalog_product_list_response_body) { double('catalog_product_list_response_body') }
             let(:catalog_product_info_response_body) { double('catalog_product_info_response_body') }
+            let(:catalog_product_attribute_media_list_response_body) do
+              double('catalog_product_attribute_media_list_response_body')
+            end
+
             it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
               expect(soap_client)
                 .to receive(:call).with(:catalog_product_list, anything)
@@ -96,6 +120,26 @@ module ShopifyTransporter
                     }
                   }
               ).at_least(:once)
+
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_attribute_media_list, product: 801)
+                .and_return(catalog_product_attribute_media_list_response_body)
+
+              expect(catalog_product_attribute_media_list_response_body).to receive(:body).and_return(
+                catalog_product_attribute_media_list_response: {
+                  result: {
+                    item: [
+                      {
+                        url: :img_src
+                      },
+                      {
+                        url: :img_src2
+                      }
+                    ]
+                  }
+                }
+              )
+
               expected_result = [
                 {
                   product_id: '801',
@@ -103,6 +147,7 @@ module ShopifyTransporter
                   type: 'simple',
                   parent_id: '12345',
                   attribute_key: "another_attribute",
+                  images: [{ url: :img_src }, { url: :img_src2 }]
                 },
               ]
 
@@ -156,12 +201,32 @@ module ShopifyTransporter
                   }
               ).at_least(:once)
 
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_attribute_media_list, product: 801)
+                .and_return(catalog_product_attribute_media_list_response_body)
+
+              expect(catalog_product_attribute_media_list_response_body).to receive(:body).and_return(
+                catalog_product_attribute_media_list_response: {
+                  result: {
+                    item: [
+                      {
+                        url: :img_src
+                      },
+                      {
+                        url: :img_src2
+                      }
+                    ]
+                  }
+                }
+              )
+
               expected_result = [
                 {
                   product_id: '801',
                   type: 'simple',
                   top_level_attribute: "an_attribute",
                   another_key: "another_attribute",
+                  images: [{ url: :img_src }, { url: :img_src2 }]
                 },
               ]
 

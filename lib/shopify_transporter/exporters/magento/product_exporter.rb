@@ -17,10 +17,7 @@ module ShopifyTransporter
           $stderr.puts 'Starting export...'
           products = base_products.map do |product|
             $stderr.puts "Fetching product: #{product[:product_id]}"
-            product
-              .merge(images: images_attribute(product[:product_id]))
-              .merge(info_for(product[:product_id]))
-              .merge(tags: product_tags(product[:product_id]))
+            with_attributes(product)
           end.compact
           apply_mappings(products)
         end
@@ -63,10 +60,30 @@ module ShopifyTransporter
           product.merge(parent_id: product_mappings[product[:product_id]])
         end
 
+        def with_attributes(product)
+          product_with_base_attributes = product
+            .merge(images: images_attribute(product[:product_id]))
+            .merge(info_for(product[:product_id]))
+            .merge(tags: product_tags(product[:product_id]))
+
+          case product[:type]
+          when 'simple'
+            product_with_base_attributes.merge(inventory_quantity: inventory_quantity_for(product[:product_id]))
+          else
+            product_with_base_attributes
+          end
+        end
+
         def info_for(product_id)
           @client
             .call(:catalog_product_info, product_id: product_id)
             .body[:catalog_product_info_response][:info]
+        end
+
+        def inventory_quantity_for(product_id)
+          @client
+            .call(:catalog_inventory_stock_item_list, products: { product_id: product_id })
+            .body[:catalog_inventory_stock_item_list_response][:result][:item][:qty].to_i
         end
 
         def images_attribute(product_id)

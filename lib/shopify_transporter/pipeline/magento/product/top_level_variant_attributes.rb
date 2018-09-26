@@ -21,6 +21,7 @@ module ShopifyTransporter
               'sku' => 'sku',
               'weight' => 'grams',
               'price' => 'price',
+              'inventory_quantity' => 'inventory_qty',
             }
             def input_applies?(input)
               true unless input['parent_id'].nil?

@@ -75,7 +75,7 @@ FactoryBot.define do
     sequence(:created_at) { '2013-03-05T01:25:10-05:00' }
     sequence(:published_scope) { 'web' }
     sequence(:parent_id) { '1' }
-    
+
     initialize_with { attributes.deep_stringify_keys }
   end
 
@@ -98,6 +98,7 @@ FactoryBot.define do
     sequence(:title) { 'French Cuff Cotton Twill Oxford' }
     sequence(:body_html) { 'Button front. Long sleeves. Tapered collar, chest pocket, french cuffs.' }
     sequence(:handle) { 'french-cuff-cotton-twill-oxford' }
+    sequence(:inventory_quantity) { |n| n }
     sequence(:parent_id) { '3' }
     sequence(:price) { '222' }
     sequence(:weight) { '100' }
@@ -106,4 +107,3 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 end
-

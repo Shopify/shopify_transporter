@@ -82,6 +82,7 @@ module ShopifyTransporter
 
             let(:catalog_product_list_response_body) { double('catalog_product_list_response_body') }
             let(:catalog_product_info_response_body) { double('catalog_product_info_response_body') }
+            let(:catalog_inventory_stock_item_list_response_body) { double('catalog_inventory_stock_item_list_response_body') }
             let(:catalog_product_attribute_media_list_response_body) do
               double('catalog_product_attribute_media_list_response_body')
             end
@@ -122,6 +123,20 @@ module ShopifyTransporter
               ).at_least(:once)
 
               expect(soap_client)
+                .to receive(:call).with(:catalog_inventory_stock_item_list, {:products=>{:product_id=>"801"}})
+                .and_return(catalog_inventory_stock_item_list_response_body)
+
+              expect(catalog_inventory_stock_item_list_response_body).to receive(:body).and_return(
+                catalog_inventory_stock_item_list_response: {
+                  result: {
+                    item: {
+                      qty: 5
+                    }
+                  }
+                }
+              )
+
+              expect(soap_client)
                 .to receive(:call).with(:catalog_product_attribute_media_list, product: 801)
                 .and_return(catalog_product_attribute_media_list_response_body)
 
@@ -146,6 +161,7 @@ module ShopifyTransporter
                   top_level_attribute: "an_attribute",
                   type: 'simple',
                   parent_id: '12345',
+                  inventory_quantity: 5,
                   attribute_key: "another_attribute",
                   images: [{ url: :img_src }, { url: :img_src2 }]
                 },
@@ -220,11 +236,26 @@ module ShopifyTransporter
                 }
               )
 
+              expect(soap_client)
+                .to receive(:call).with(:catalog_inventory_stock_item_list, {:products=>{:product_id=>"801"}})
+                .and_return(catalog_inventory_stock_item_list_response_body)
+
+              expect(catalog_inventory_stock_item_list_response_body).to receive(:body).and_return(
+                catalog_inventory_stock_item_list_response: {
+                  result: {
+                    item: {
+                      qty: 5
+                    }
+                  }
+                }
+              )
+
               expected_result = [
                 {
                   product_id: '801',
                   type: 'simple',
                   top_level_attribute: "an_attribute",
+                  inventory_quantity: 5,
                   another_key: "another_attribute",
                   images: [{ url: :img_src }, { url: :img_src2 }]
                 },

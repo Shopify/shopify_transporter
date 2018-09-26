@@ -57,9 +57,7 @@ module ShopifyTransporter
             end
 
             def product_tags(input)
-              input['tags'].each_with_object([]) do |tag, array|
-                array << tag['name']
-              end.join(', ')
+              input['tags'].map { |tag| tag['name'] }.join(', ')
             end
           end
         end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
-require 'pry'
+
 module ShopifyTransporter
   module Exporters
     module Magento

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'shopify_transporter/pipeline/magento/product/top_level_variant_attributes'
-require 'pry'
+
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe TopLevelVariantAttributes, type: :helper do
     context '#convert' do

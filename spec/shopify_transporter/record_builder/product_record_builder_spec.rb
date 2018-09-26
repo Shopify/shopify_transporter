@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'shopify_transporter/record_builder/record_builder'
-require 'pry'
+
 RSpec.describe ShopifyTransporter::ProductRecordBuilder do
 
   before(:all) do

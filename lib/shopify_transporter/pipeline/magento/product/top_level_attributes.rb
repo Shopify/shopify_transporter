@@ -31,6 +31,7 @@ module ShopifyTransporter
               attributes['published_scope'] = published?(input) ? 'global' : ''
               attributes['published_at'] = published?(input) ? input['updated_at'] : ''
               attributes['images'] = append_images(input) if input['images'].present?
+              attributes['tags'] = product_tags(input) if input['tags'].present?
               attributes
             end
 
@@ -53,6 +54,12 @@ module ShopifyTransporter
               if label.is_a? String
                 label
               end
+            end
+
+            def product_tags(input)
+              input['tags'].each_with_object([]) do |tag, array|
+                array << tag['name']
+              end.join(', ')
             end
           end
         end

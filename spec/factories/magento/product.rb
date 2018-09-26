@@ -36,6 +36,23 @@ FactoryBot.define do
       end
     end
 
+    trait :with_product_tags do
+      tags do
+        [
+          {
+            "tag_id": "17",
+            "name": "white",
+            "@xsi:type": "ns1:catalogProductTagListEntity"
+          },
+          {
+            "tag_id": "18",
+            "name": "shirt",
+            "@xsi:type": "ns1:catalogProductTagListEntity"
+          }
+        ]
+      end
+    end
+
     initialize_with { attributes.deep_stringify_keys }
   end
 

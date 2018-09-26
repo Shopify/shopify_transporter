@@ -8,6 +8,7 @@ module ShopifyTransporter
       module Product
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
+            return if record['variants'].nil?
             simple_product_in_magento_format = record['variants'].select do |product|
               product['product_id'] == hash['product_id']
             end.first

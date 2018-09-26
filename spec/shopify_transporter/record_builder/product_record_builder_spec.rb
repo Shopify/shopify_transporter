@@ -22,9 +22,9 @@ RSpec.describe ShopifyTransporter::ProductRecordBuilder do
       end
     end
 
-    it "Should yield an empty record if the product has a parent id and its parent wasn't previously seen" do
+    it "Should yield an record with empry variants if the product has a parent id and its parent wasn't previously seen" do
       @builder.build({'product_id' => '3', 'parent_id' => '4'}) do |record|
-        expect(record).to eq({})
+        expect(record).to eq({"variants"=>[]})
         record['key2'] = 'val2'
       end
     end

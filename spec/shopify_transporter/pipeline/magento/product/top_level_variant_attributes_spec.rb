@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'shopify_transporter/pipeline/magento/product/top_level_variant_attributes'
-
+require 'pry'
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe TopLevelVariantAttributes, type: :helper do
     context '#convert' do
@@ -52,6 +52,14 @@ module ShopifyTransporter::Pipeline::Magento::Product
         }
 
         expect(variants_in_shopify_format).to include(expected_variants_in_shopify_format.deep_stringify_keys)
+      end
+
+      it 'should skip converting top level variants when the input is a product without parent_id' do
+        simple_product_without_parent = FactoryBot.build(:simple_magento_product)
+        simple_product_without_parent.delete("parent_id")
+        binding.pry
+        variants_in_shopify_format = described_class.new.convert(simple_product_without_parent, {})
+        expect(variants_in_shopify_format).to be_nil
       end
     end
   end

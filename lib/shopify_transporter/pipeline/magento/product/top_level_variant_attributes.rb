@@ -8,12 +8,16 @@ module ShopifyTransporter
       module Product
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
-            return if record['variants'].nil?
+            return unless input_applies?(hash)
             simple_product_in_magento_format = record['variants'].select do |product|
               product['product_id'] == hash['product_id']
             end.first
             accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
             accumulator.accumulate(hash)
+          end
+
+          def input_applies?(input)
+            true unless input['parent_id'].nil?
           end
 
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator
@@ -23,12 +27,9 @@ module ShopifyTransporter
               'price' => 'price',
               'inventory_quantity' => 'inventory_qty',
             }
-            def input_applies?(input)
-              true unless input['parent_id'].nil?
-            end
 
-            def attributes_from(input)
-              map_from_key_to_val(COLUMN_MAPPING, input)
+            def accumulate(input)
+              accumulate_attributes(map_from_key_to_val(COLUMN_MAPPING, input))
             end
           end
         end

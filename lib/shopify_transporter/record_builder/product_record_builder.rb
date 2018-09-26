@@ -26,6 +26,7 @@ module ShopifyTransporter
     def parent_record(product)
       parent_id = product['parent_id']
       record = @instances[parent_id] ||= {}
+      record['variants'] ||= []
       @last_record = record
     end
   end

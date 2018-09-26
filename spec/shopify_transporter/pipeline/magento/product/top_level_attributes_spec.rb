@@ -67,7 +67,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
               {
                 src: :src_value2,
                 position: 2,
-                alt_text: 'alt_text',
+                alt: 'alt_text',
               }
             ]
           }

@@ -95,9 +95,9 @@ module ShopifyTransporter
 
       def image_row_values
         return [] if record_hash['images'].blank?
+
         record_hash['images'].map do |image_hash|
           image = {
-            'image_attachment' => image_hash['attachment'],
             'image_src' => image_hash['src'],
             'image_position' => image_hash['position'],
             'image_alt_text' => image_hash['alt'],

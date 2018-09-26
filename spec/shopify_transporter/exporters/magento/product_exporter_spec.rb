@@ -326,6 +326,8 @@ module ShopifyTransporter
                         "@xsi:type": "ns1:catalogProductTagListEntity"
                       }
                     ]
+                  }
+                })
                 
               expect(soap_client)
                 .to receive(:call).with(:catalog_inventory_stock_item_list, {:products=>{:product_id=>"801"}})

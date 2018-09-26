@@ -41,9 +41,9 @@ module ShopifyTransporter
             def append_images(input)
               images = input['images'].map do |image|
                 {
-                  'src': image['url'],
-                  'position': image['position'],
-                  'alt_text': image_alt_text(image['label']),
+                  'src' => image['url'],
+                  'position' => image['position'],
+                  'alt' => image_alt_text(image['label']),
                 }.compact
               end
               images.sort_by { |image| image['position'] }

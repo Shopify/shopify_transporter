@@ -113,7 +113,6 @@ FactoryBot.define do
   factory :shopify_product_image, class: Hash do
     skip_create
 
-    sequence(:attachment) { |n| "attachment-#{n}" }
     sequence(:src) { |n| "src-#{n}" }
     sequence(:position) { |n| "position-#{n}" }
     sequence(:alt) { |n| "alt-#{n}" }

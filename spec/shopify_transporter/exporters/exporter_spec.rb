@@ -7,8 +7,14 @@ module ShopifyTransporter
       class SomePlatformExporter
         def initialize(_)
         end
+        def key
+          :foo
+        end
         def export
-          [{ foo: 'bar' }]
+          objects = [{ foo: 'bar' }, { baz: 'gud' }]
+          objects.each do |object|
+            yield object
+          end
         end
       end
 
@@ -54,7 +60,10 @@ module ShopifyTransporter
           .and_return(SomePlatformExporter)
 
         exporter = Exporter.new(config_file.path, :unused)
-        expect { exporter.run }.to output(JSON.pretty_generate([{ foo: 'bar' }]) + $INPUT_RECORD_SEPARATOR).to_stdout
+
+        expected_result = [{ 'foo' => 'bar' }, { 'baz' => 'gud' }]
+        output = capture(:stdout) { exporter.run }
+        expect(JSON.parse(output)).to eq(expected_result)
       end
 
       it 'raises InvalidConfigError if config file does not exist' do

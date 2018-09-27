@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
+require 'pry'
 
 module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe ProductExporter do
+        context '#key' do
+          it 'returns :product_id' do
+            expect(described_class.new.key).to eq(:product_id)
+          end
+        end
+
         context '#run'
           it 'retrieves configurable products from Magento using the SOAP API and returns the results' do
             soap_client = double("soap client")
@@ -86,30 +93,28 @@ module ShopifyTransporter
               }
             )
 
-            expected_result = [
-              {
-                product_id: '12345',
-                type: 'configurable',
-                top_level_attribute: "an_attribute",
-                attribute_key: "another_attribute",
-                images: [{ url: :img_src }, { url: :img_src2 }],
-                tags: [
-                  {
-                    "tag_id": "17",
-                    "name": "white",
-                    "@xsi:type": "ns1:catalogProductTagListEntity"
-                  },
-                  {
-                    "tag_id": "18",
-                    "name": "shirt",
-                    "@xsi:type": "ns1:catalogProductTagListEntity"
-                  }
-                ]
-              },
-            ]
+            expected_result = {
+              product_id: '12345',
+              type: 'configurable',
+              top_level_attribute: "an_attribute",
+              attribute_key: "another_attribute",
+              images: [{ url:  :img_src }, { url:  :img_src2 }],
+              tags: [
+                {
+                  tag_id: '17',
+                  name: 'white',
+                  '@xsi:type': 'ns1:catalogProductTagListEntity'
+                },
+                {
+                  tag_id: '18',
+                  name: 'shirt',
+                  '@xsi:type': 'ns1:catalogProductTagListEntity'
+                }
+              ]
+            }
 
             exporter = described_class.new(soap_client: soap_client)
-            expect(exporter.export).to eq(expected_result)
+            expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
           end
 
           context '#parent_id' do
@@ -214,29 +219,27 @@ module ShopifyTransporter
                   }
                 }
               )
-              expected_result = [
-                {
-                  product_id: '801',
-                  top_level_attribute: "an_attribute",
-                  type: 'simple',
-                  parent_id: '12345',
-                  inventory_quantity: 5,
-                  attribute_key: "another_attribute",
-                  images: [{ url: :img_src }, { url: :img_src2 }],
-                  tags: [
-                    {
-                      "tag_id": "17",
-                      "name": "white",
-                      "@xsi:type": "ns1:catalogProductTagListEntity"
-                    },
-                    {
-                      "tag_id": "18",
-                      "name": "shirt",
-                      "@xsi:type": "ns1:catalogProductTagListEntity"
-                    }
-                  ]
-                },
-              ]
+              expected_result = {
+                product_id: '801',
+                top_level_attribute: "an_attribute",
+                type: 'simple',
+                parent_id: '12345',
+                inventory_quantity: 5,
+                attribute_key: "another_attribute",
+                images: [{ url:  :img_src }, { url:  :img_src2 }],
+                tags: [
+                  {
+                    tag_id: "17",
+                    name: "white",
+                    "@xsi:type": "ns1:catalogProductTagListEntity"
+                  },
+                  {
+                    tag_id: "18",
+                    name: "shirt",
+                    "@xsi:type": "ns1:catalogProductTagListEntity"
+                  }
+                ]
+              }
 
               mappings = <<~EOS
                 product_id,associated_product_id
@@ -250,7 +253,7 @@ module ShopifyTransporter
               in_temp_folder do
                 File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
                 exporter = described_class.new(soap_client: soap_client, database_adapter: nil)
-                expect(exporter.export).to eq(expected_result)
+                expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
               end
             end
 
@@ -343,28 +346,26 @@ module ShopifyTransporter
                 }
               )
 
-              expected_result = [
-                {
-                  product_id: '801',
-                  type: 'simple',
-                  top_level_attribute: "an_attribute",
-                  inventory_quantity: 5,
-                  another_key: "another_attribute",
-                  images: [{ url: :img_src }, { url: :img_src2 }],
-                  tags: [
-                    {
-                      "tag_id": "17",
-                      "name": "white",
-                      "@xsi:type": "ns1:catalogProductTagListEntity"
-                    },
-                    {
-                      "tag_id": "18",
-                      "name": "shirt",
-                      "@xsi:type": "ns1:catalogProductTagListEntity"
-                    }
-                  ]
-                },
-              ]
+              expected_result = {
+                product_id: '801',
+                type: 'simple',
+                top_level_attribute: "an_attribute",
+                inventory_quantity: 5,
+                another_key: "another_attribute",
+                images: [{ url:  :img_src }, { url:  :img_src2 }],
+                tags: [
+                  {
+                    tag_id: "17",
+                    name: "white",
+                    "@xsi:type": "ns1:catalogProductTagListEntity"
+                  },
+                  {
+                    tag_id: "18",
+                    name: "shirt",
+                    "@xsi:type": "ns1:catalogProductTagListEntity"
+                  }
+                ]
+              }
 
               mappings = <<~EOS
                 product_id,associated_product_id
@@ -378,7 +379,7 @@ module ShopifyTransporter
               in_temp_folder do
                 File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
                 exporter = described_class.new(soap_client: soap_client, database_adapter: nil)
-                expect(exporter.export).to eq(expected_result)
+                expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
               end
             end
           end

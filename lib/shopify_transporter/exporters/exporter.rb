@@ -18,19 +18,35 @@ module ShopifyTransporter
       end
 
       def run
-        data = Magento::MagentoExporter
-          .for(type: object_type)
-          .new(
-            soap_client: soap_client,
-            database_adapter: database_adapter
-          )
-          .export
-        puts JSON.pretty_generate(data) + $INPUT_RECORD_SEPARATOR
+        print_exported_objects
       end
 
       private
 
       attr_reader :config, :object_type
+
+      def print_exported_objects
+        $stderr.puts 'Starting export...'
+        puts '['
+        first = true
+        object_exporter.export do |object|
+          puts ',' unless first
+          first = false
+          $stderr.puts "Fetching #{object_type}: #{object[object_exporter.key]}..."
+          print '  ' + JSON.pretty_generate(object, object_nl: "\n  ")
+        end
+      ensure
+        print "\n]"
+      end
+
+      def object_exporter
+        @exporter ||= Magento::MagentoExporter
+          .for(type: object_type)
+          .new(
+            soap_client: soap_client,
+            database_adapter: database_adapter
+          )
+      end
 
       def soap_client
         Magento::Soap.new(

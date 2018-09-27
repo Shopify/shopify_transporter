@@ -4,6 +4,12 @@ module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe CustomerExporter do
+        context '#key' do
+          it 'returns :customer_id' do
+            expect(described_class.new.key).to eq(:customer_id)
+          end
+        end
+
         context '#run' do
           it 'retrieves customers from Magento using the SOAP API and returns the results' do
             soap_client = double("soap client")
@@ -44,24 +50,22 @@ module ShopifyTransporter
               },
             ).at_least(:once)
 
-            expected_result = [
-              {
-                customer_id: '654321',
-                top_level_attribute: "an_attribute",
-                address_list: {
-                  customer_address_list_response: {
-                    result: {
-                      item: {
-                        customer_address_attribute: "another_attribute",
-                      }
+            expected_result =  {
+              customer_id: '654321',
+              top_level_attribute: "an_attribute",
+              address_list: {
+                customer_address_list_response: {
+                  result: {
+                    item: {
+                      customer_address_attribute: "another_attribute",
                     }
-                  },
+                  }
                 },
               },
-            ]
+            }
 
             exporter = described_class.new(soap_client: soap_client)
-            expect(exporter.export).to eq(expected_result)
+            expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
           end
         end
       end

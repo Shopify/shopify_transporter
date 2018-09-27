@@ -30,6 +30,17 @@ module ShopifyTransporter
 
             def accumulate(input)
               accumulate_attributes(map_from_key_to_val(COLUMN_MAPPING, input))
+              accumulate_attributes(variant_options(input))
+            end
+
+            private
+
+            def variant_options(input)
+              {
+                'option1' => input['option1_value'],
+                'option2' => input['option2_value'],
+                'option3' => input['option3_value'],
+              }.compact
             end
           end
         end

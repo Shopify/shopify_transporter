@@ -4,9 +4,8 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class CustomerExporter
-        def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
+        def initialize(soap_client: nil, database_adapter: nil)
           @client = soap_client
-          @store_id = store_id
           @database_adapter = database_adapter
         end
 
@@ -21,23 +20,12 @@ module ShopifyTransporter
         private
 
         def base_customers
-          result = @client.call(:customer_customer_list, filters: filters).body
+          result = @client.call(:customer_customer_list, filters: nil).body
           result[:customer_customer_list_response][:store_view][:item] || []
         end
 
         def customer_address_list(customer_id)
           @client.call(:customer_address_list, customer_id: customer_id).body
-        end
-
-        def filters
-          {
-            filter: {
-              item: {
-                key: 'store_id',
-                value: @store_id,
-              },
-            },
-          }
         end
       end
     end

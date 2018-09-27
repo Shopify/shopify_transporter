@@ -60,7 +60,7 @@ module ShopifyTransporter
               },
             ]
 
-            exporter = described_class.new(store_id: 1, soap_client: soap_client)
+            exporter = described_class.new(soap_client: soap_client)
             expect(exporter.export).to eq(expected_result)
           end
         end

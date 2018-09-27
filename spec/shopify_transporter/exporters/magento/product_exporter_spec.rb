@@ -108,7 +108,7 @@ module ShopifyTransporter
               },
             ]
 
-            exporter = described_class.new(store_id: 1, soap_client: soap_client)
+            exporter = described_class.new(soap_client: soap_client)
             expect(exporter.export).to eq(expected_result)
           end
 
@@ -249,7 +249,7 @@ module ShopifyTransporter
 
               in_temp_folder do
                 File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
-                exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
+                exporter = described_class.new(soap_client: soap_client, database_adapter: nil)
                 expect(exporter.export).to eq(expected_result)
               end
             end
@@ -328,7 +328,7 @@ module ShopifyTransporter
                     ]
                   }
                 })
-                
+
               expect(soap_client)
                 .to receive(:call).with(:catalog_inventory_stock_item_list, {:products=>{:product_id=>"801"}})
                 .and_return(catalog_inventory_stock_item_list_response_body)
@@ -377,7 +377,7 @@ module ShopifyTransporter
 
               in_temp_folder do
                 File.open('magento_product_mappings.csv', 'w') { |file| file.write(mappings) }
-                exporter = described_class.new(store_id: 1, soap_client: soap_client, database_adapter: nil)
+                exporter = described_class.new(soap_client: soap_client, database_adapter: nil)
                 expect(exporter.export).to eq(expected_result)
               end
             end

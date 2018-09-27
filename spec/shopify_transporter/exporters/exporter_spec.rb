@@ -42,7 +42,6 @@ module ShopifyTransporter
               "user" => 'something',
               "password" => 'a_password',
             },
-            "store_id" => 1,
           },
         }
       end
@@ -92,16 +91,6 @@ module ShopifyTransporter
         config_file = tmpfile(YAML.dump(config_without_export_configuration), '.yml')
 
         error_message = "Invalid configuration: missing required key 'export_configuration'"
-
-        expect { Exporter.new(config_file.path, :unused) }
-          .to raise_error(InvalidConfigError, error_message)
-      end
-
-      it 'raises InvalidConfigError if config file is missing store id' do
-        config = default_config.tap { |cfg| cfg['export_configuration'].delete('store_id') }
-        config_file = tmpfile(YAML.dump(config), '.yml')
-
-        error_message = "Invalid configuration: missing required key 'export_configuration > store_id'"
 
         expect { Exporter.new(config_file.path, :unused) }
           .to raise_error(InvalidConfigError, error_message)

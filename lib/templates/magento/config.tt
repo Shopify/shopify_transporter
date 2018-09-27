@@ -15,9 +15,28 @@ object_types:
             - website
             - group
             - free_trial_start_at
+  product:
+    record_key: product_id 
+    pipeline_stages:
+      - TopLevelAttributes
+      - VariantAttributes
+      - TopLevelVariantAttributes
   order:
     record_key: increment_id
     pipeline_stages:
       - TopLevelAttributes
       - LineItems
       - AddressesAttribute
+
+export_configuration:
+  soap:
+    hostname:
+    username:
+    api_key:
+  database:
+    host:
+    port: 3306
+    user:
+    password:
+    database:
+  store_id:

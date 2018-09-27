@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'shopify_transporter/pipeline/magento/product/variant_image'
-
+require 'pry'
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe VariantImage, type: :helper do
     context '#convert' do

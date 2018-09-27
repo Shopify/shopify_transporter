@@ -30,8 +30,8 @@ module ShopifyTransporter
               attributes['published'] = published?(input)
               attributes['published_scope'] = published?(input) ? 'global' : ''
               attributes['published_at'] = published?(input) ? input['updated_at'] : ''
+              append_images_to_current_record!(input) if input['images'].present?
               attributes['tags'] = product_tags(input) if input['tags'].present?
-              append_images(input) if input['images'].present?
               attributes
             end
 
@@ -50,7 +50,7 @@ module ShopifyTransporter
               images.sort_by { |image| image['position'] }
             end
 
-            def append_images(input)
+            def append_images_to_current_record!(input)
               images = construct_images(input)
               if @output['images'].present?
                 @output['images'].concat(images)

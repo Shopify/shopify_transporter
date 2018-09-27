@@ -53,6 +53,12 @@ FactoryBot.define do
       end
     end
 
+    trait :with_product_options do
+      option1_name 'Color'
+      option2_name 'Size'
+      option3_name 'Style'
+    end
+
     initialize_with { attributes.deep_stringify_keys }
   end
 

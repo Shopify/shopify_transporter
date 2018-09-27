@@ -64,6 +64,7 @@ module ShopifyTransporter
           product_with_base_attributes = product
             .merge(images: images_attribute(product[:product_id]))
             .merge(info_for(product[:product_id]))
+            .merge(tags: product_tags(product[:product_id]))
 
           case product[:type]
           when 'simple'
@@ -89,6 +90,12 @@ module ShopifyTransporter
           @client
             .call(:catalog_product_attribute_media_list, product: product_id.to_i)
             .body[:catalog_product_attribute_media_list_response][:result][:item]
+        end
+
+        def product_tags(product_id)
+          @client
+            .call(:catalog_product_tag_list, product_id: product_id.to_i)
+            .body[:catalog_product_tag_list_response][:result][:item]
         end
       end
     end

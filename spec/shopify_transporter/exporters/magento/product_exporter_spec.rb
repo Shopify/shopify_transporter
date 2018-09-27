@@ -12,6 +12,7 @@ module ShopifyTransporter
             catalog_product_list_response_body = double('catalog_product_list_response_body')
             catalog_product_info_response_body = double('catalog_product_info_response_body')
             catalog_product_attribute_media_list_response_body = double('catalog_product_attribute_media_list_response_body')
+            catalog_product_tag_list_response_body = double('catalog_product_tag_list_response_body')
 
             expect(soap_client)
               .to receive(:call).with(:catalog_product_list, anything)
@@ -62,13 +63,48 @@ module ShopifyTransporter
               }
             )
 
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_tag_list, product_id: 12345)
+                    .and_return(catalog_product_tag_list_response_body)
+
+            expect(catalog_product_tag_list_response_body).to receive(:body).and_return(
+              catalog_product_tag_list_response: {
+                result: {
+                  item: [
+                    {
+                      "tag_id": "17",
+                      "name": "white",
+                      "@xsi:type": "ns1:catalogProductTagListEntity"
+                    },
+                    {
+                      "tag_id": "18",
+                      "name": "shirt",
+                      "@xsi:type": "ns1:catalogProductTagListEntity"
+                    }
+                  ]
+                }
+              }
+            )
+
             expected_result = [
               {
                 product_id: '12345',
                 type: 'configurable',
                 top_level_attribute: "an_attribute",
                 attribute_key: "another_attribute",
-                images: [{ url: :img_src }, { url: :img_src2 }]
+                images: [{ url: :img_src }, { url: :img_src2 }],
+                tags: [
+                  {
+                    "tag_id": "17",
+                    "name": "white",
+                    "@xsi:type": "ns1:catalogProductTagListEntity"
+                  },
+                  {
+                    "tag_id": "18",
+                    "name": "shirt",
+                    "@xsi:type": "ns1:catalogProductTagListEntity"
+                  }
+                ]
               },
             ]
 
@@ -86,6 +122,7 @@ module ShopifyTransporter
             let(:catalog_product_attribute_media_list_response_body) do
               double('catalog_product_attribute_media_list_response_body')
             end
+            let(:catalog_product_tag_list_response_body) { double('catalog_product_tag_list_response_body') }
 
             it 'retrieves simple products from Magento using the SOAP API and injects parent_id' do
               expect(soap_client)
@@ -155,6 +192,28 @@ module ShopifyTransporter
                 }
               )
 
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_tag_list, product_id: 801)
+                      .and_return(catalog_product_tag_list_response_body)
+
+              expect(catalog_product_tag_list_response_body).to receive(:body).and_return(
+                catalog_product_tag_list_response: {
+                  result: {
+                    item: [
+                      {
+                        "tag_id": "17",
+                        "name": "white",
+                        "@xsi:type": "ns1:catalogProductTagListEntity"
+                      },
+                      {
+                        "tag_id": "18",
+                        "name": "shirt",
+                        "@xsi:type": "ns1:catalogProductTagListEntity"
+                      }
+                    ]
+                  }
+                }
+              )
               expected_result = [
                 {
                   product_id: '801',
@@ -163,7 +222,19 @@ module ShopifyTransporter
                   parent_id: '12345',
                   inventory_quantity: 5,
                   attribute_key: "another_attribute",
-                  images: [{ url: :img_src }, { url: :img_src2 }]
+                  images: [{ url: :img_src }, { url: :img_src2 }],
+                  tags: [
+                    {
+                      "tag_id": "17",
+                      "name": "white",
+                      "@xsi:type": "ns1:catalogProductTagListEntity"
+                    },
+                    {
+                      "tag_id": "18",
+                      "name": "shirt",
+                      "@xsi:type": "ns1:catalogProductTagListEntity"
+                    }
+                  ]
                 },
               ]
 
@@ -237,6 +308,28 @@ module ShopifyTransporter
               )
 
               expect(soap_client)
+                .to receive(:call).with(:catalog_product_tag_list, product_id: 801)
+                      .and_return(catalog_product_tag_list_response_body)
+
+              expect(catalog_product_tag_list_response_body).to receive(:body).and_return(
+                catalog_product_tag_list_response: {
+                  result: {
+                    item: [
+                      {
+                        "tag_id": "17",
+                        "name": "white",
+                        "@xsi:type": "ns1:catalogProductTagListEntity"
+                      },
+                      {
+                        "tag_id": "18",
+                        "name": "shirt",
+                        "@xsi:type": "ns1:catalogProductTagListEntity"
+                      }
+                    ]
+                  }
+                })
+                
+              expect(soap_client)
                 .to receive(:call).with(:catalog_inventory_stock_item_list, {:products=>{:product_id=>"801"}})
                 .and_return(catalog_inventory_stock_item_list_response_body)
 
@@ -257,7 +350,19 @@ module ShopifyTransporter
                   top_level_attribute: "an_attribute",
                   inventory_quantity: 5,
                   another_key: "another_attribute",
-                  images: [{ url: :img_src }, { url: :img_src2 }]
+                  images: [{ url: :img_src }, { url: :img_src2 }],
+                  tags: [
+                    {
+                      "tag_id": "17",
+                      "name": "white",
+                      "@xsi:type": "ns1:catalogProductTagListEntity"
+                    },
+                    {
+                      "tag_id": "18",
+                      "name": "shirt",
+                      "@xsi:type": "ns1:catalogProductTagListEntity"
+                    }
+                  ]
                 },
               ]
 

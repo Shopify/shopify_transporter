@@ -43,6 +43,15 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(shopify_product.deep_stringify_keys).to_not include(with_nonsense.deep_stringify_keys)
       end
 
+      it 'should handle product tags conversion' do
+        magento_product = FactoryBot.build(:magento_product, :with_product_tags)
+        shopify_product = described_class.new.convert(magento_product, {})
+        expected_product_tag_info = {
+          tags: 'white, shirt'
+        }
+        expect(shopify_product.deep_stringify_keys).to include(expected_product_tag_info.deep_stringify_keys)
+      end
+
       context '#images' do
         it 'handles images with no labels' do
           magento_product = FactoryBot.build(:magento_product, :with_no_label_image)

@@ -6,8 +6,7 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class ProductExporter
-        def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
-          @store_id = store_id
+        def initialize(soap_client: nil, database_adapter: nil)
           @client = soap_client
           @database_adapter = database_adapter
           @intermediate_file_name = 'magento_product_mappings.csv'

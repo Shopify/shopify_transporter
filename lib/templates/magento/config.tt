@@ -16,7 +16,7 @@ object_types:
             - group
             - free_trial_start_at
   product:
-    record_key: product_id 
+    record_key: product_id
     pipeline_stages:
       - TopLevelAttributes
       - VariantAttributes
@@ -39,4 +39,3 @@ export_configuration:
     user:
     password:
     database:
-  store_id:

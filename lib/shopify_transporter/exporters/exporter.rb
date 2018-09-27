@@ -21,7 +21,6 @@ module ShopifyTransporter
         data = Magento::MagentoExporter
           .for(type: object_type)
           .new(
-            store_id: config['export_configuration']['store_id'],
             soap_client: soap_client,
             database_adapter: database_adapter
           )
@@ -65,7 +64,6 @@ module ShopifyTransporter
           %w(export_configuration soap hostname),
           %w(export_configuration soap username),
           %w(export_configuration soap api_key),
-          %w(export_configuration store_id),
         ]
 
         product_required_keys = [

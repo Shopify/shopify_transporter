@@ -4,9 +4,8 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class OrderExporter
-        def initialize(store_id: nil, soap_client: nil, database_adapter: nil)
+        def initialize(soap_client: nil, database_adapter: nil)
           @client = soap_client
-          @store_id = store_id
           @database_adapter = database_adapter
         end
 
@@ -21,7 +20,7 @@ module ShopifyTransporter
         private
 
         def base_orders
-          result = @client.call(:sales_order_list, filters: filters).body
+          result = @client.call(:sales_order_list, filters: nil).body
           result[:sales_order_list_response][:result][:item] || []
         end
 
@@ -29,17 +28,6 @@ module ShopifyTransporter
           @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
             .body[:sales_order_info_response]
-        end
-
-        def filters
-          {
-            filter: {
-              item: {
-                key: 'store_id',
-                value: @store_id,
-              },
-            },
-          }
         end
       end
     end

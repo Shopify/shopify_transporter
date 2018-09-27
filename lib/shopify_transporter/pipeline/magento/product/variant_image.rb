@@ -11,22 +11,20 @@ module ShopifyTransporter
             return unless input_applied?(hash)
             accumulate(hash, record)
             add_variant_img_to_parent_image_array(record, hash)
+            record
           end
 
           def input_applied?(input)
             input['images'].present? && input['parent_id'].present?
           end
 
-
           def accumulate(input, record)
             current_product = record['variants'].select do |variant|
               variant['product_id'] == input['product_id']
             end.first
             current_product.merge!(
-              {
-                'variant_image': {
-                  'src': variant_image_url(input)
-                }
+              'variant_image' => {
+                'src' => variant_image_url(input),
               }
             )
           end
@@ -39,7 +37,7 @@ module ShopifyTransporter
           def add_variant_img_to_parent_image_array(record, input)
             record['images'] ||= []
             record['images'] << {
-              'src': variant_image_url(input)
+              'src' => variant_image_url(input),
             }
           end
         end

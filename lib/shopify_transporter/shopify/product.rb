@@ -75,7 +75,7 @@ module ShopifyTransporter
           variant = variant_hash.slice(*VARIANT_ATTRIBUTES)
           variant.transform_keys! { |k| "#{VARIANT_PREFIX}#{k}" }
           variant.merge!(variant_option_hash(variant_hash))
-          variant['variant_image'] = variant_hash[:variant_image] && variant_hash[:variant_image][:src]
+          variant['variant_image'] = variant_hash['variant_image'] && variant_hash['variant_image']['src']
           row_values_from(variant)
         end
       end

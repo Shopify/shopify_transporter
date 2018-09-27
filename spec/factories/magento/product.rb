@@ -133,7 +133,7 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 
-  factory :advanced_configurable_product, class: Hash do
+  factory :advanced_magento_configurable_product, class: Hash do
     skip_create
 
     sequence(:product_id) { '3' }
@@ -145,7 +145,7 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 
-  factory :advanced_simple_product, class: Hash do
+  factory :advanced_magento_simple_product, class: Hash do
     skip_create
 
     sequence(:product_id) { |n| n }

@@ -89,13 +89,8 @@ module ShopifyTransporter
         end
 
         def info_for(product)
-          additional_attributes = if product[:parent_id]
-            @product_options.lowercase_option_names(product[:parent_id])
-          end
-
-          attributes = if additional_attributes
-            { 'additional_attributes' => { item: additional_attributes } }
-          end
+          additional_attributes = @product_options.lowercase_option_names(product[:parent_id]) if product[:parent_id]
+          attributes = { 'additional_attributes' => { item: additional_attributes } } if additional_attributes
 
           @client
             .call(

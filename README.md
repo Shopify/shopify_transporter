@@ -2,9 +2,11 @@
 
 `shopify_transporter` is a command-line tool that offers capabilities to extract and convert data from third-party platforms into a Shopify-friendly format.
 
+Shopify Transporter offers built-in support for migrations from Magento v1.x, and offers support for you to write your own transformations for other platforms.
+
 This format can then be imported into Shopify via the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app).
 
-Note: the Transporter app is available to Shopify Plus plans only.
+*Note: the Transporter app is available to Shopify Plus plans only.*
 
 ## Submitting Issues
 
@@ -20,7 +22,7 @@ When filing an issue, please ensure that:
 ## Installation
 
 ### Requirements:
-1. A Ruby version of 2.4.0 or higher
+1. Ruby 2.4.0 or higher
 2. You are able to install Ruby gems. Please visit [the Bundler website](https://bundler.io/) to troubleshoot issues with installing gems.
 
 We test and support the gem for Mac OS environments. While not officially supported, the gem may work on other operating systems provided they meet the above requirements.
@@ -46,12 +48,20 @@ To view the usage and help for the `shopify_transporter` run the following comma
 $ shopify_transporter -h
 
 Commands:
-  shopify_transporter convert FILE_NAMES --object=OBJECT file1.csv file2.csv  # Converts objects into a Shopify-format. (accepts a list of space-separated ...
-  shopify_transporter export --object=OBJECT                                  # Exports objects from a third-party platform into a format compatible for co...
-  shopify_transporter generate STAGE_NAME --object=OBJECT                     # Generate a custom pipeline stage for the object
-  shopify_transporter help [COMMAND]                                          # Describe available commands or one specific command
-  shopify_transporter new PROJECTNAME --platform=PLATFORM                     # Generate a project for the platform
+ shopify_transporter convert FILE_NAMES --object=OBJECT file1.csv file2.csv  # Converts objects into a Shopify-format. (accepts a list of space-separated ...
+ shopify_transporter export --object=OBJECT                                  # Exports objects from a third-party platform into a format compatible for co...
+ shopify_transporter generate STAGE_NAME --object=OBJECT                     # Generate a custom pipeline stage for the object
+ shopify_transporter help [COMMAND]                                          # Describe available commands or one specific command
+ shopify_transporter new PROJECTNAME --platform=PLATFORM                     # Generate a project for the platform
 ```
+
+A typical approach for migrating a store from a third-party platform onto Shopify using the Transporter suite of tools might be:
+
+Create a conversion project for that store
+Set up the `config.yml` file
+Use the `export` command to download data from the source store
+Use the `convert` command to transform that data into a Shopify-formatted CSV file
+Use the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app) to import the Shopify-formatted CSV into a Shopify store
 
 ### Create a conversion project
 
@@ -60,9 +70,9 @@ To create it, use the `new` sub-command:
 
 ```
 $ shopify_transporter new example-magento-conversion --platform=magento
-      create  example_magento_migration/Gemfile
-      create  example_magento_migration/config.yml
-      create  example_magento_migration/lib/magento/custom_pipeline_stages
+     create  example_magento_migration/Gemfile
+     create  example_magento_migration/config.yml
+     create  example_magento_migration/lib/magento/custom_pipeline_stages
 ```
 
 The `new` sub-command creates a project folder with the following:
@@ -88,6 +98,33 @@ pipeline stages:
 $ bundle install
 ```
 
+### Configuration file (_config.yml_)
+
+The configuration file is generated when you create your conversion project. This file is specific to the
+third-party platform that you are converting to Shopify.
+
+Here's an example of a _config.yml_ file for converting customers from Magento:
+
+```
+platform_type: Magento
+object_types:
+ customer:
+   record_key: email
+   pipeline_stages:
+     - TopLevelAttributes
+     - AddressesAttribute
+     - Metafields:
+       type: all_platforms
+       params:
+         # Specify a custom namespace for your metafields with metafield_namespace.
+         # Uses migrated_data by default.
+         # metafield_namespace: migrated_data
+         metafields:
+           - website
+           - group
+           - free_trial_start_at
+```
+
 ### Export records from the third-party platform
 
 Run `shopify_transporter export` in order to export data from your third-party platform. The following command executes the built-in Magento customer exporter:
@@ -96,7 +133,38 @@ Run `shopify_transporter export` in order to export data from your third-party p
 shopify_transporter export --config=config.yml --object=customer > magento_customers.json
 ```
 
-In this example, the exported customer objects are saved to *magento_customers.json*. If errors occur during the conversion, then they appear in your terminal.
+In this example, the exported customer objects are saved to *magento_customers.json*.
+
+In order to export data, API credentials must be provided in `config.yml`. For example, to use the built-in Magento exporters, you must enter the following fields:
+
+```
+export_configuration:
+  soap:
+    hostname: your-magento-host.com
+    username: your-soap-username
+    api_key: your-soap-api-key
+```
+
+#### Exporting products from Magento 1.x
+
+To export full product data from Magento 1.x, Shopify Transporter requires a connection to the Magento database in addition to the SOAP API credentials. Here’s an example snippet for exporting products:
+```
+export_configuration:
+  soap:
+    hostname: your-magento-host.com
+    username: your-soap-username
+    api_key: your-soap-api-key
+  database:
+    host: 123.456.88.99
+    port: 3306
+    user: root
+    password: “”
+    database: magento_database_name
+```
+
+The `export` command will open connections to the Magento database as well as the Magento SOAP API.
+
+During the export process, data will be cached in a generated `cache/` directory. If the exported data seems out of date, you may need to wipe this folder.
 
 ### Convert records from the third-party platform to Shopify
 
@@ -108,42 +176,17 @@ JSON file that contains customers (*magento_customers.json*) from Magento to Sho
 shopify_transporter convert --config=config.yml --object=customer magento_customers.json > shopify_customers.csv
 ```
 
-In this example, the converted customer objects are saved to *shopify_customers.csv*. Again, if errors occur during the conversion, they will appear in your terminal.
+In this example, the converted customer objects are saved to *shopify_customers.csv*. If errors occur during the conversion, they will appear in your terminal.
 
 ### Convert multiple files
 
-To convert multiple files to Shopify, separate the file names with a space:
+To convert multiple files to Shopify’s format, separate the file names with a space:
 
 ```
 shopify_transporter convert --config=config.yml --object=customer magento_customers_1.json magento_customers_2.json ...
 ```
 
-### Configuration file (_config.yml_)
-
-The configuraton file is generated when you create your conversion project. This file is specific to the
-third-party platform that you are converting to Shopify.
-
-Here's an example of a _config.yml_ file for converting customers from Magento:
-
-```
-platform_type: Magento
-object_types:
-  customer:
-    record_key: email
-    pipeline_stages:
-      - TopLevelAttributes
-      - AddressesAttribute
-      - Metafields:
-        type: all_platforms
-        params:
-          # Specify a custom namespace for your metafields with metafield_namespace.
-          # Uses migrated_data by default.
-          # metafield_namespace: migrated_data
-          metafields:
-            - website
-            - group
-            - free_trial_start_at
-```
+## Advanced
 
 ### record_key
 
@@ -154,9 +197,9 @@ customers is the customer's email address.
 ```
 platform_type: Magento
 object_types:
-  customer:
-    record_key: email
-    ...
+ customer:
+   record_key: email
+   ...
 ```
 
 When you run `shopify_transporter` with the `convert` command, the input (third-party platform) files are
@@ -174,11 +217,11 @@ Shopify: TopLevelAttributes and AddressAttributes.
 ```
 platform_type: Magento
 object_types:
-  customer:
-    record_key: email
-    pipeline_stages:
-      - TopLevelAttributes
-      - AddressesAttribute
+ customer:
+   record_key: email
+   pipeline_stages:
+     - TopLevelAttributes
+     - AddressesAttribute
 ```
 
 Each pipeline stage's _convert_ method receives the row currently being processed, as well as the
@@ -202,38 +245,11 @@ consist of:
 
 ```
 {
-   'first_name' => 'John',
+  'first_name' => 'John',
 }
 ```
 
 Existing pipeline stages and the attributes are populated below.
-
-### Magento v1.x customer
-
-### AddressesAttribute
-
-Addresses are built from the `shipping_` and `billing_` prefixed fields.  The Shopify object's `addresses`
-attribute is an array that consists of the `shipping_` prefixed attributes as the first address, and
-the `billing_` prefixed attributes as the second.
-
-```
-{
-   'addresses': [
-      {
-        'first_name': ...,
-        'last_name': ...,
-        'address1': ...,
-        'address2': ...,
-        'city': ...,
-        'province': ...,
-        'country_code': ...,
-        'zip': ...,
-        'company': ...,
-        'phone': ...,
-      },
-   ]
-}
-```
 
 ### Metafields
 

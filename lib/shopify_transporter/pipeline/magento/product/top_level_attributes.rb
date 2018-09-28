@@ -8,8 +8,24 @@ module ShopifyTransporter
       module Product
         class TopLevelAttributes < Pipeline::Stage
           def convert(hash, record)
+            warn_if_too_many_options(hash)
             accumulator = TopLevelAttributesAccumulator.new(record)
             accumulator.accumulate(hash)
+          end
+
+          private
+
+          MAX_OPTION_COUNT = 3
+
+          def too_many_options?(input)
+            input["option#{MAX_OPTION_COUNT + 1}_name"].present?
+          end
+
+          def warn_if_too_many_options(input)
+            if too_many_options?(input)
+              $stderr.puts "Warning: Product #{input['product_id']} has too many options."\
+              " Only the first #{MAX_OPTION_COUNT} options will be converted."
+            end
           end
 
           class TopLevelAttributesAccumulator < Shopify::AttributesAccumulator

@@ -1,11 +1,8 @@
-# Transporter Tools
+# Shopify Transporter
 
-The Transporter tool helps converts data from a third-party platform format into a format that can
-be imported into Shopify via the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app).
+`shopify_transporter` is a command-line tool that offers capabilities to extract and convert data from third-party platforms into a Shopify-friendly format.
 
-The conversions are currently limited to JSON structured data that has been exported from Magento 1.x via its
-SOAP API.  More details about the exact structure of the JSON data, and additional scripts for procuding such
-data, will be made available in the near future.
+This format can then be imported into Shopify via the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app).
 
 Note: the Transporter app is available to Shopify Plus plans only.
 
@@ -19,7 +16,6 @@ When filing an issue, please ensure that:
 - The issue is not already covered in another open issue
 - The issue does not contain any confidential or personally identifiable information
 - The issue is specifically regarding the `shopify_transporter` gem and not related to the Transporter App.
-
 
 ## Installation
 
@@ -50,10 +46,11 @@ To view the usage and help for the `shopify_transporter` run the following comma
 $ shopify_transporter -h
 
 Commands:
-  shopify_transporter convert --config=CONFIG --object=OBJECT file1.csv file2.csv ... # Converts your files into shopify formatted files.
-  shopify_transporter generate STAGE_NAME --object=OBJECT                             # Generates a new pipeline stage for the specified object type
-  shopify_transporter help [COMMAND]                                                  # Describe available commands or one specific command
-  shopify_transporter new PROJECTNAME --platform=PLATFORM                             # Generates a new project structure for a platform
+  shopify_transporter convert FILE_NAMES --object=OBJECT file1.csv file2.csv  # Converts objects into a Shopify-format. (accepts a list of space-separated ...
+  shopify_transporter export --object=OBJECT                                  # Exports objects from a third-party platform into a format compatible for co...
+  shopify_transporter generate STAGE_NAME --object=OBJECT                     # Generate a custom pipeline stage for the object
+  shopify_transporter help [COMMAND]                                          # Describe available commands or one specific command
+  shopify_transporter new PROJECTNAME --platform=PLATFORM                     # Generate a project for the platform
 ```
 
 ### Create a conversion project
@@ -91,6 +88,15 @@ pipeline stages:
 $ bundle install
 ```
 
+### Export records from the third-party platform
+
+Run `shopify_transporter export` in order to export data from your third-party platform. The following command executes the built-in Magento customer exporter:
+
+```
+shopify_transporter export --config=config.yml --object=customer > magento_customers.json
+```
+
+In this example, the exported customer objects are saved to *magento_customers.json*. If errors occur during the conversion, then they appear in your terminal.
 
 ### Convert records from the third-party platform to Shopify
 
@@ -102,8 +108,7 @@ JSON file that contains customers (*magento_customers.json*) from Magento to Sho
 shopify_transporter convert --config=config.yml --object=customer magento_customers.json > shopify_customers.csv
 ```
 
-In this example, the converted customer objects are saved to *shopify_customers.csv*. If errors occur during
-the conversion, then they appear in your terminal.
+In this example, the converted customer objects are saved to *shopify_customers.csv*. Again, if errors occur during the conversion, they will appear in your terminal.
 
 ### Convert multiple files
 
@@ -258,7 +263,7 @@ A file named `your_custom_stage.rb` is added to the `lib/magento/custom_pipeline
 
 ## Limitations
 
-The `convert` command currently only converts customer and order JSON objects that have been exported by SOAP API
+The `convert` command currently only converts customer, product, and order JSON objects that have been exported by SOAP API
 from Magento 1.x.
 
 ## Contributing

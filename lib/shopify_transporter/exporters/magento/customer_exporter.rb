@@ -9,15 +9,21 @@ module ShopifyTransporter
           @database_adapter = database_adapter
         end
 
+        def key
+          :customer_id
+        end
+
         def export
-          $stderr.puts 'Starting export...'
-          base_customers.map do |customer|
-            $stderr.puts "Fetching customer: #{customer[:customer_id]}..."
-            customer.merge(address_list: customer_address_list(customer[:customer_id]))
-          end.compact
+          base_customers.each do |customer|
+            yield with_attributes(customer)
+          end
         end
 
         private
+
+        def with_attributes(base_customer)
+          base_customer.merge(address_list: customer_address_list(base_customer[:customer_id]))
+        end
 
         def base_customers
           result = @client.call(:customer_customer_list, filters: nil).body

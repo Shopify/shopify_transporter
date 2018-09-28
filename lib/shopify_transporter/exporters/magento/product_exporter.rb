@@ -12,13 +12,14 @@ module ShopifyTransporter
           @intermediate_file_name = 'magento_product_mappings.csv'
         end
 
+        def key
+          :product_id
+        end
+
         def export
-          $stderr.puts 'Starting export...'
-          products = base_products.map do |product|
-            $stderr.puts "Fetching product: #{product[:product_id]}"
-            with_attributes(product)
-          end.compact
-          apply_mappings(products)
+          apply_mappings(base_products).each do |product|
+            yield with_attributes(product)
+          end
         end
 
         private

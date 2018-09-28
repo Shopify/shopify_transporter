@@ -9,15 +9,21 @@ module ShopifyTransporter
           @database_adapter = database_adapter
         end
 
+        def key
+          :increment_id
+        end
+
         def export
-          $stderr.puts 'Starting export...'
-          base_orders.map do |order|
-            $stderr.puts "Fetching order: #{order[:increment_id]}..."
-            order.merge(items: info_for(order[:increment_id]))
-          end.compact
+          base_orders.each do |order|
+            yield with_attributes(order)
+          end
         end
 
         private
+
+        def with_attributes(base_order)
+          base_order.merge(items: info_for(base_order[:increment_id]))
+        end
 
         def base_orders
           result = @client.call(:sales_order_list, filters: nil).body

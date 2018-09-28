@@ -10,7 +10,7 @@ module ShopifyTransporter
 
         def initialize(database_adapter)
           @database_adapter = database_adapter
-          create_cache_dir_if_needed
+          FileUtils.mkdir_p(DB_CACHE_FOLDER)
         end
 
         def export_table(table_name, index_column)
@@ -50,10 +50,6 @@ module ShopifyTransporter
               file << data.to_csv
             end
           end
-        end
-
-        def create_cache_dir_if_needed
-          FileUtils.mkdir_p(DB_CACHE_FOLDER) unless Dir.exist?(DB_CACHE_FOLDER)
         end
 
         def in_batches(table, index_key)

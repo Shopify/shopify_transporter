@@ -2,9 +2,9 @@
 
 `shopify_transporter` is a command-line tool that offers capabilities to extract and convert data from third-party platforms into a Shopify-friendly format.
 
-Shopify Transporter offers built-in support for migrations from Magento v1.x, and offers support for you to write your own transformations for other platforms.
-
 This format can then be imported into Shopify via the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app).
+
+`shopify_transporter` offers built-in support for migrations from Magento (version 1), as well as providing support for you to write your own transformations for other platforms.
 
 *Note: the Transporter app is available to Shopify Plus plans only.*
 
@@ -25,7 +25,7 @@ When filing an issue, please ensure that:
 1. Ruby 2.4.0 or higher
 2. You are able to install Ruby gems. Please visit [the Bundler website](https://bundler.io/) to troubleshoot issues with installing gems.
 
-We test and support the gem for Mac OS environments. While not officially supported, the gem may work on other operating systems provided they meet the above requirements.
+We test and support the gem for MacOS environments. While not officially supported, the gem may work on other operating systems provided they meet the above requirements.
 
 ### Installing the Transporter tool gem from rubygems:
 
@@ -40,7 +40,7 @@ After you install the gem, you should find the executable `shopify_transporter` 
 $ which shopify_transporter
 /usr/local/bin/shopify_transporter
 ```
-## Help and usage
+## Help
 
 To view the usage and help for the `shopify_transporter` run the following command:
 
@@ -48,24 +48,25 @@ To view the usage and help for the `shopify_transporter` run the following comma
 $ shopify_transporter -h
 
 Commands:
- shopify_transporter convert FILE_NAMES --object=OBJECT file1.csv file2.csv  # Converts objects into a Shopify-format. (accepts a list of space-separated ...
- shopify_transporter export --object=OBJECT                                  # Exports objects from a third-party platform into a format compatible for co...
- shopify_transporter generate STAGE_NAME --object=OBJECT                     # Generate a custom pipeline stage for the object
- shopify_transporter help [COMMAND]                                          # Describe available commands or one specific command
- shopify_transporter new PROJECTNAME --platform=PLATFORM                     # Generate a project for the platform
+  shopify_transporter convert FILE_NAMES --object=OBJECT   # Converts objects into a Shopify-format. (accepts a list of space-separated files).
+  shopify_transporter export --object=OBJECT               # Exports objects from a third-party platform into a format compatible for conversion.
+  shopify_transporter generate STAGE_NAME --object=OBJECT  # Generate a custom pipeline stage for the object
+  shopify_transporter new PROJECTNAME --platform=PLATFORM  # Generate a project for the platform
 ```
+
+## Basic usage
 
 A typical approach for migrating a store from a third-party platform onto Shopify using the Transporter suite of tools might be:
 
-Create a conversion project for that store
-Set up the `config.yml` file
-Use the `export` command to download data from the source store
-Use the `convert` command to transform that data into a Shopify-formatted CSV file
-Use the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app) to import the Shopify-formatted CSV into a Shopify store
+  1. Create a new project for that store
+  2. Set up the `config.yml` file
+  3. Use the `export` command to download data from the source store
+  4. Use the `convert` command to transform the exported data into a Shopify-formatted CSV file
+  5. Use the [Transporter app](https://help.shopify.com/manual/migrating-to-shopify/transporter-app) to import the Shopify-formatted CSV into a Shopify store
 
-### Create a conversion project
+### Create a new project
 
-It's convenient to create a conversion project for each store that you want to migrate to Shopify.
+It's convenient to create a new project for each store that you want to migrate to Shopify.
 To create it, use the `new` sub-command:
 
 ```
@@ -77,7 +78,7 @@ $ shopify_transporter new example-magento-conversion --platform=magento
 
 The `new` sub-command creates a project folder with the following:
 
-* a `Gemfile` that references the `shopify_transporter` gem. This Gemfile allows custom pipeline stages
+* a `Gemfile` that references the `shopify_transporter` gem. This allows custom pipeline stages
 to refer to the base classes that are defined in the `shopify_transporter` gem.
 
 * a configuration file (`config.yml`) that provides the configuration required for each pipeline stage
@@ -130,7 +131,7 @@ object_types:
 Run `shopify_transporter export` in order to export data from your third-party platform. The following command executes the built-in Magento customer exporter:
 
 ```
-shopify_transporter export --config=config.yml --object=customer > magento_customers.json
+shopify_transporter export --object=customer > magento_customers.json
 ```
 
 In this example, the exported customer objects are saved to *magento_customers.json*.
@@ -178,7 +179,7 @@ shopify_transporter convert --config=config.yml --object=customer magento_custom
 
 In this example, the converted customer objects are saved to *shopify_customers.csv*. If errors occur during the conversion, they will appear in your terminal.
 
-### Convert multiple files
+#### Convert multiple files
 
 To convert multiple files to Shopify’s format, separate the file names with a space:
 
@@ -186,7 +187,7 @@ To convert multiple files to Shopify’s format, separate the file names with a 
 shopify_transporter convert --config=config.yml --object=customer magento_customers_1.json magento_customers_2.json ...
 ```
 
-## Advanced
+## Advanced usage
 
 ### record_key
 
@@ -250,10 +251,6 @@ consist of:
 ```
 
 Existing pipeline stages and the attributes are populated below.
-
-### Metafields
-
-See the metafields section in the All Platforms section below.
 
 ### All Platforms
 

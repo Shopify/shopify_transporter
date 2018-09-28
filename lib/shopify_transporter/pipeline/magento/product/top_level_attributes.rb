@@ -15,16 +15,16 @@ module ShopifyTransporter
 
           private
 
-          MAX_NUM_OF_OPTIONS_ACCEPTED = 3
+          MAX_OPTION_COUNT = 3
 
           def too_many_options?(input)
-            input["option#{MAX_NUM_OF_OPTIONS_ACCEPTED + 1}_name"].present?
+            input["option#{MAX_OPTION_COUNT + 1}_name"].present?
           end
 
           def warn_if_too_many_options(input)
             if too_many_options?(input)
               $stderr.puts "Warning: Product #{input['product_id']} has too many options."\
-              " Only the first #{MAX_NUM_OF_OPTIONS_ACCEPTED} options will be converted."
+              " Only the first #{MAX_OPTION_COUNT} options will be converted."
             end
           end
 

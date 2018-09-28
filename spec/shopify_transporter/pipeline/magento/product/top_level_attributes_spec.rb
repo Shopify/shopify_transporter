@@ -92,6 +92,29 @@ module ShopifyTransporter::Pipeline::Magento::Product
           expect(shopify_product.deep_stringify_keys).to include(expected_option_data.deep_stringify_keys)
         end
 
+        it 'ignore the rest of options when there are more than three options' do
+          magento_product = FactoryBot.build(:magento_product)
+          magento_product['option1_name'] = 'option1'
+          magento_product['option2_name'] = 'option2'
+          magento_product['option3_name'] = 'option3'
+          magento_product['option4_name'] = 'option4'
+          shopify_product = described_class.new.convert(magento_product, {})
+          expected_option_data = {
+            options: [
+              {
+                'name': 'option1',
+              },
+              {
+                'name': 'option2',
+              },
+              {
+                'name': 'option3',
+              },
+            ],
+          }
+          expect(shopify_product.deep_stringify_keys).to include(expected_option_data.deep_stringify_keys)
+        end
+
         it 'does not extract product options when there are no options' do
           magento_product = FactoryBot.build(:magento_product)
           shopify_product = described_class.new.convert(magento_product, {})

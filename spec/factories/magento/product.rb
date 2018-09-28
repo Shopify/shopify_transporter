@@ -79,6 +79,26 @@ FactoryBot.define do
     sequence(:created_at) { '2013-03-05T01:25:10-05:00' }
     sequence(:published_scope) { 'web' }
 
+    trait :with_img do
+      images do
+        [
+          {
+            "position": "1",
+            "src": "parent_img_position_1",
+          },
+          {
+            "position": "2",
+            "src": "parent_img_position_2",
+          },
+          {
+            "position": "4",
+            "src": "parent_img_position_4",
+          }
+        ]
+
+      end
+    end
+
     initialize_with { attributes.deep_stringify_keys }
   end
 
@@ -92,6 +112,23 @@ FactoryBot.define do
     sequence(:created_at) { '2013-03-05T01:25:10-05:00' }
     sequence(:published_scope) { 'web' }
     sequence(:parent_id) { '1' }
+
+    trait :with_img do
+      images do
+        [
+          {
+            "file": "/m/s/msj000a_1.jpg",
+            "position": "2",
+            "url": "child_img_position_2",
+          },
+          {
+            "file": "/m/s/msj000c_1.jpg",
+            "position": "4",
+            "url": "child_img_position_4",
+          }
+        ]
+      end
+    end
 
     initialize_with { attributes.deep_stringify_keys }
   end

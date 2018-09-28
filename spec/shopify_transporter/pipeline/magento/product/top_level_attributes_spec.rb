@@ -83,6 +83,57 @@ module ShopifyTransporter::Pipeline::Magento::Product
 
           expect(shopify_product.deep_stringify_keys).to include(expected_shopify_product_image.deep_stringify_keys)
         end
+
+        it 'Merge the parent image with the existing image arrays if child products get processed before parent product does' do
+          record = {
+            'images' => [
+              {
+                'src' => 'example_child_image_1'
+              },
+              {
+                'src' => 'example_child_image_2'
+              }
+            ]
+          }
+          parent_product = FactoryBot.build(:configurable_magento_product, 'images' => [
+            {
+              'position' => '1',
+              'url' => 'parent_img_position_1',
+            },
+            {
+              'position' => '2',
+              'url' => 'parent_img_position_2',
+            },
+            {
+              'position' => '4',
+              'url'=> 'parent_img_position_4',
+            }
+          ])
+          shopify_product = described_class.new.convert(parent_product, record)
+
+          expected_image_response = [
+            {
+              'src' => 'example_child_image_1'
+            },
+            {
+              'src' => 'example_child_image_2'
+            },
+            {
+              'position' => '1',
+              'src' => 'parent_img_position_1',
+            },
+            {
+              'position'=> '2',
+              'src' => 'parent_img_position_2',
+            },
+            {
+              'position' => '4',
+              'src' => 'parent_img_position_4',
+            }
+          ]
+          expect(shopify_product['images']).to eq (expected_image_response)
+
+        end
       end
     end
   end

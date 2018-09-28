@@ -32,6 +32,7 @@ module ShopifyTransporter
               attributes['published_at'] = published?(input) ? input['updated_at'] : ''
               append_images_to_current_record!(input) if input['images'].present?
               attributes['tags'] = product_tags(input) if input['tags'].present?
+              attributes['options'] = product_options(input) if input['option1_name'].present?
               attributes
             end
 
@@ -56,6 +57,12 @@ module ShopifyTransporter
                 @output['images'].concat(images)
               else
                 @output['images'] = images
+              end
+            end
+
+            def product_options(input)
+              %w(option1_name option2_name option3_name).map do |option_name|
+                { 'name' => input[option_name] }
               end
             end
 

@@ -52,6 +52,56 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(shopify_product.deep_stringify_keys).to include(expected_product_tag_info.deep_stringify_keys)
       end
 
+      describe 'product options' do
+        it 'extracts product options when there are three options' do
+          magento_product = FactoryBot.build(:magento_product, :with_product_options)
+          shopify_product = described_class.new.convert(magento_product, {})
+          expected_option_data = {
+            options: [
+              {
+                'name': 'Color',
+              },
+              {
+                'name': 'Size',
+              },
+              {
+                'name': 'Style',
+              },
+            ],
+          }
+          expect(shopify_product.deep_stringify_keys).to include(expected_option_data.deep_stringify_keys)
+        end
+
+        it 'extracts product options when there are less than three options' do
+          magento_product = FactoryBot.build(:magento_product)
+          magento_product['option1_name'] = 'Color'
+          shopify_product = described_class.new.convert(magento_product, {})
+          expected_option_data = {
+            options: [
+              {
+                'name': 'Color',
+              },
+              {
+                'name': nil,
+              },
+              {
+                'name': nil,
+              },
+            ],
+          }
+          expect(shopify_product.deep_stringify_keys).to include(expected_option_data.deep_stringify_keys)
+        end
+
+        it 'does not extract product options when there are no options' do
+          magento_product = FactoryBot.build(:magento_product)
+          shopify_product = described_class.new.convert(magento_product, {})
+
+          expect(shopify_product.keys).not_to include('options')
+        end
+      end
+
+
+
       context '#images' do
         it 'handles images with no labels' do
           magento_product = FactoryBot.build(:magento_product, :with_no_label_image)

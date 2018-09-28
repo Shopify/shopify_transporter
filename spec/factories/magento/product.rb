@@ -53,6 +53,12 @@ FactoryBot.define do
       end
     end
 
+    trait :with_product_options do
+      option1_name 'Color'
+      option2_name 'Size'
+      option3_name 'Style'
+    end
+
     initialize_with { attributes.deep_stringify_keys }
   end
 
@@ -133,7 +139,7 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 
-  factory :advanced_configurable_product, class: Hash do
+  factory :advanced_magento_configurable_product, class: Hash do
     skip_create
 
     sequence(:product_id) { '3' }
@@ -145,7 +151,7 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 
-  factory :advanced_simple_product, class: Hash do
+  factory :advanced_magento_simple_product, class: Hash do
     skip_create
 
     sequence(:product_id) { |n| n }

@@ -21,6 +21,7 @@ object_types:
       - TopLevelAttributes
       - VariantAttributes
       - TopLevelVariantAttributes
+      - VariantImage
   order:
     record_key: increment_id
     pipeline_stages:

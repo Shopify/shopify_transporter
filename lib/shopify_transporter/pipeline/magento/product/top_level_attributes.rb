@@ -7,19 +7,25 @@ module ShopifyTransporter
     module Magento
       module Product
         class TopLevelAttributes < Pipeline::Stage
-          MAX_NUM_OF_OPTIONS_ACCEPTED = 3
-
           def convert(hash, record)
-            if has_too_many_options?(hash)
-              $stderr.puts "Warning: Product #{hash['product_id']} has too many options."\
-              " Only the first #{MAX_NUM_OF_OPTIONS_ACCEPTED} options will be converted."
-            end
+            warn_if_too_many_options(hash)
             accumulator = TopLevelAttributesAccumulator.new(record)
             accumulator.accumulate(hash)
           end
 
-          def has_too_many_options?(input)
+          private
+
+          MAX_NUM_OF_OPTIONS_ACCEPTED = 3
+
+          def too_many_options?(input)
             input["option#{MAX_NUM_OF_OPTIONS_ACCEPTED + 1}_name"].present?
+          end
+
+          def warn_if_too_many_options(input)
+            if too_many_options?(input)
+              $stderr.puts "Warning: Product #{input['product_id']} has too many options."\
+              " Only the first #{MAX_NUM_OF_OPTIONS_ACCEPTED} options will be converted."
+            end
           end
 
           class TopLevelAttributesAccumulator < Shopify::AttributesAccumulator

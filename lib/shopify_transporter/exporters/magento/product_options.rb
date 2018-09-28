@@ -17,14 +17,14 @@ module ShopifyTransporter
           end
         end
 
-        def option_names_for_soap(parent_product_id)
+        def lowercase_option_names(parent_product_id)
           option_names(parent_product_id).map(&:downcase)
         end
 
         def shopify_variant_options(simple_product)
           return {} unless simple_product_has_required_option_keys(simple_product)
 
-          parent_product_options = option_names_for_soap(simple_product[:parent_id])
+          parent_product_options = lowercase_option_names(simple_product[:parent_id])
           variant_attributes = simple_product[:additional_attributes][:item]
           parent_product_options.each_with_index.with_object({}) do |(option_name, index), obj|
             option_value_id = fetch_option_value_id(option_name, variant_attributes)

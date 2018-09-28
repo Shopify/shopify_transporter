@@ -126,12 +126,12 @@ module ShopifyTransporter
         end
 
         describe 'product options' do
-          it '#option_names_for_soap returns option names in lower case' do
-            expect(product_options.option_names_for_soap('402')).to eq(%w(color size))
+          it '#lowercase_option_names returns option names in lower case' do
+            expect(product_options.lowercase_option_names('402')).to eq(%w(color size))
           end
 
-          it '#option_names_for_soap returns an empty array if the options were not found' do
-            expect(product_options.option_names_for_soap('1999')).to eq([])
+          it '#lowercase_option_names returns an empty array if the options were not found' do
+            expect(product_options.lowercase_option_names('1999')).to eq([])
           end
 
           it '#shopify_option_names returns options in the shopify format based on product id' do

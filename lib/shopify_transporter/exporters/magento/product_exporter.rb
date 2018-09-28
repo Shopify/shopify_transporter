@@ -90,7 +90,7 @@ module ShopifyTransporter
 
         def info_for(product)
           additional_attributes = if product[:parent_id]
-            @product_options.option_names_for_soap(product[:parent_id])
+            @product_options.lowercase_option_names(product[:parent_id])
           end
 
           attributes = if additional_attributes

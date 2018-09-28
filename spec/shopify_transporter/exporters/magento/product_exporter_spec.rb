@@ -169,7 +169,7 @@ module ShopifyTransporter
             def stub_options_to_return_nothing
               allow(ProductOptions).to receive(:new).and_return(mock_product_options)
               allow(mock_product_options).to receive(:shopify_option_names).and_return({})
-              allow(mock_product_options).to receive(:option_names_for_soap).and_return([])
+              allow(mock_product_options).to receive(:lowercase_option_names).and_return([])
               allow(mock_product_options).to receive(:shopify_variant_options).and_return({})
             end
 
@@ -564,7 +564,7 @@ module ShopifyTransporter
                   }
                 ])
 
-                expect(mock_product_options).to receive(:option_names_for_soap).with('801').and_return(
+                expect(mock_product_options).to receive(:lowercase_option_names).with('801').and_return(
                   ['color', 'size']
                 )
 

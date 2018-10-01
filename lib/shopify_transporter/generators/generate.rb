@@ -4,7 +4,7 @@ require_relative './base_group.rb'
 module ShopifyTransporter
   class Generate < BaseGroup
     class_option :object, type: :string, required: :true,
-      enum: %w(customer order), aliases: '-O',
+      enum: %w(customer order product), aliases: '-O',
       desc: 'The object to add to the pipeline stage'
 
     def object_type

@@ -29,7 +29,7 @@ module ShopifyTransporter
             variant_grams variant_inventory_tracker variant_inventory_qty variant_inventory_policy
             variant_fulfillment_service variant_price variant_compare_at_price variant_requires_shipping
             variant_taxable variant_barcode image_attachment image_src image_position image_alt_text
-            variant_image variant_weight_unit variant_tax_code
+            variant_image variant_weight variant_weight_unit variant_tax_code
           )
         )
       end
@@ -149,7 +149,7 @@ module ShopifyTransporter
           taxable barcode
         )
         variant_values_set3 = %w(
-          weight_unit tax_code
+          weight weight_unit tax_code
         )
         [
           *hash['handle'],
@@ -169,7 +169,7 @@ module ShopifyTransporter
           hash['handle'],
           *nil_array_for_row('handle', 'image_attachment'),
           *image_hash.values_at('attachment', 'src', 'position', 'alt'),
-          *nil_array(3),
+          *nil_array(4),
         ].to_csv
       end
 

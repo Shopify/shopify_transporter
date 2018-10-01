@@ -26,6 +26,7 @@ module ShopifyTransporter
 
           parent_product_options = lowercase_option_names(simple_product[:parent_id])
           variant_attributes = simple_product[:additional_attributes][:item]
+          variant_attributes = [variant_attributes] unless variant_attributes.is_a?(Array)
           parent_product_options.each_with_index.with_object({}) do |(option_name, index), obj|
             option_value_id = fetch_option_value_id(option_name, variant_attributes)
 

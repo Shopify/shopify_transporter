@@ -18,7 +18,7 @@ module ShopifyTransporter
       VARIANT_ATTRIBUTES = %w(
         sku grams inventory_tracker inventory_qty inventory_policy
         fulfillment_service price compare_at_price requires_shipping
-        taxable barcode weight_unit tax_code
+        taxable barcode weight weight_unit tax_code
       ).freeze
 
       class << self
@@ -33,7 +33,8 @@ module ShopifyTransporter
             'Metafield Value Type', 'Variant Grams', 'Variant Inventory Tracker', 'Variant Inventory Qty',
             'Variant Inventory Policy', 'Variant Fulfillment Service', 'Variant Price', 'Variant Compare At Price',
             'Variant Requires Shipping', 'Variant Taxable', 'Variant Barcode', 'Image Attachment', 'Image Src',
-            'Image Position', 'Image Alt Text', 'Variant Image', 'Variant Weight Unit', 'Variant Tax Code'
+            'Image Position', 'Image Alt Text', 'Variant Image', 'Variant Weight', 'Variant Weight Unit',
+            'Variant Tax Code'
           ].to_csv
         end
 

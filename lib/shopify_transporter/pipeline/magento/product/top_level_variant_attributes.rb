@@ -23,7 +23,7 @@ module ShopifyTransporter
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator
             COLUMN_MAPPING = {
               'sku' => 'sku',
-              'weight' => 'grams',
+              'weight' => 'weight',
               'price' => 'price',
               'inventory_quantity' => 'inventory_qty',
             }

@@ -21,7 +21,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
             {
               product_id: child_product['product_id'],
               sku: child_product['sku'],
-              grams: child_product['weight'],
+              weight: child_product['weight'],
               price: child_product['price'],
               inventory_qty: child_product['inventory_quantity'],
             }
@@ -52,7 +52,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
             {
               product_id: child_product['product_id'],
               sku: child_product['sku'],
-              grams: child_product['weight'],
+              weight: child_product['weight'],
               price: child_product['price'],
               inventory_qty: child_product['inventory_quantity'],
             }
@@ -82,7 +82,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
             {
               product_id: child_product['product_id'],
               sku: child_product['sku'],
-              grams: child_product['weight'],
+              weight: child_product['weight'],
               price: child_product['price'],
               inventory_qty: child_product['inventory_quantity'],
             },

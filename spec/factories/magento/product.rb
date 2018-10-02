@@ -35,6 +35,16 @@ FactoryBot.define do
         ]
       end
     end
+    trait :with_singular_image do
+      images do
+        {
+          "file": "/c/s/csv.png",
+          "position": 1,
+          "url": "https://magento-sandbox.myshopify.io/media/catalog/product/c/s/csv.png",
+          "label": 'alt_text'
+        }
+      end
+    end
 
     trait :with_product_tags do
       tags do

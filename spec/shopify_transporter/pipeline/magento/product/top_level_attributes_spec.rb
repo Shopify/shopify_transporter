@@ -157,6 +157,21 @@ module ShopifyTransporter::Pipeline::Magento::Product
           expect(shopify_product.deep_stringify_keys).to include(expected_shopify_product_image.deep_stringify_keys)
         end
 
+        it 'should handle product with only one image' do
+          magento_product = FactoryBot.build(:magento_product, :with_singular_image)
+          shopify_product = described_class.new.convert(magento_product, {})
+          expected_shopify_product_image =
+            [
+              {
+                src: 'https://magento-sandbox.myshopify.io/media/catalog/product/c/s/csv.png',
+                position: 1,
+                alt: 'alt_text',
+              }.deep_stringify_keys
+            ]
+
+          expect(shopify_product['images']).to eq(expected_shopify_product_image)
+        end
+
         it 'Merge the parent image with the existing image arrays if child products get processed before parent product does' do
           record = {
             'images' => [

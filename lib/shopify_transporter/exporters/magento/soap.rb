@@ -33,10 +33,14 @@ module ShopifyTransporter
 
               $stderr.puts "Processing batch: #{current_id}..#{end_of_range}"
 
-              enumerator << call(
-                method,
-                params.merge(batching_filter(current_id, end_of_range, batch_index_column)),
-              )
+              begin
+                enumerator << call(
+                  method,
+                  params.merge(batching_filter(current_id, end_of_range, batch_index_column)),
+                )
+              rescue Savon::Error
+                $stderr.puts "Skipping batch: #{current_id}..#{end_of_range} after #{MAX_RETRIES} retries because of an error."
+              end
 
               current_id += batch_size
             end

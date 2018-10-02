@@ -72,6 +72,30 @@ module ShopifyTransporter
 
             Soap.new(init_params).call(:test_call, {})
           end
+
+          it 'retries soap calls up to 4 times with a delay when there is a savon error' do
+            mock_client = spy('mock_client')
+            stub_client_call(mock_client)
+            stub_login_call(mock_client)
+
+            soap_instance = Soap.new(init_params)
+
+            retries = 0
+            expect(mock_client).to receive(:call).with(
+              :test_call,
+              message: {
+                session_id: '123',
+              },
+            ) do |args|
+              if retries < 4
+                expect(soap_instance).to receive(:sleep).with(described_class::RETRY_SLEEP_TIME * (retries + 1))
+                retries += 1
+                raise Savon::Error, 'Soap call failed.'
+              end
+            end.exactly(described_class::MAX_RETRIES + 1).times
+
+            soap_instance.call(:test_call, {})
+          end
         end
 
         describe '#call_in_batches' do

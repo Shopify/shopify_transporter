@@ -27,19 +27,21 @@ module ShopifyTransporter
             catalog_product_tag_list_response_body = double('catalog_product_tag_list_response_body')
 
             expect(soap_client)
-              .to receive(:call).with(:catalog_product_list, anything)
-              .and_return(catalog_product_list_response_body)
+              .to receive(:call_in_batches)
+              .with(
+                method: :catalog_product_list,
+                batch_index_column: 'product_id',
+              )
+              .and_return([catalog_product_list_response_body])
 
             expect(catalog_product_list_response_body).to receive(:body).and_return(
               catalog_product_list_response: {
                 store_view: {
-                  item: [
-                    {
-                      product_id: '12345',
-                      type: 'configurable',
-                      top_level_attribute: 'an_attribute',
-                    },
-                  ],
+                  item: {
+                    product_id: '12345',
+                    type: 'configurable',
+                    top_level_attribute: 'an_attribute',
+                  },
                 },
               },
             )
@@ -125,6 +127,105 @@ module ShopifyTransporter
             expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
           end
 
+          it 'works when multiple products are returned by the soap call' do
+            soap_client = double('soap client')
+
+            catalog_product_list_response_body = double('catalog_product_list_response_body')
+            catalog_product_info_response_body = double('catalog_product_info_response_body')
+            catalog_product_attribute_media_list_response_body = double('catalog_product_attribute_media_list_response_body')
+            catalog_product_tag_list_response_body = double('catalog_product_tag_list_response_body')
+
+            expect(soap_client)
+              .to receive(:call_in_batches)
+              .with(
+                method: :catalog_product_list,
+                batch_index_column: 'product_id',
+              )
+              .and_return([catalog_product_list_response_body])
+
+            expect(catalog_product_list_response_body).to receive(:body).and_return(
+              catalog_product_list_response: {
+                store_view: {
+                  item: [
+                    {
+                      product_id: '10',
+                      type: 'configurable',
+                      top_level_attribute: 'product1',
+                    },
+                    {
+                      product_id: '11',
+                      type: 'configurable',
+                      top_level_attribute: 'product2',
+                    },
+                  ]
+                },
+              },
+            )
+
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_info, product_id: '10', attributes: nil)
+              .and_return(catalog_product_info_response_body)
+
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_info, product_id: '11', attributes: nil)
+              .and_return(catalog_product_info_response_body)
+
+            allow(catalog_product_info_response_body).to receive(:body).and_return(
+              catalog_product_info_response: {
+                info: {
+                  "another_key": "another_attribute"
+                }
+              }
+            )
+
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_attribute_media_list, product: 10)
+              .and_return(catalog_product_attribute_media_list_response_body)
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_attribute_media_list, product: 11)
+              .and_return(catalog_product_attribute_media_list_response_body)
+
+            allow(catalog_product_attribute_media_list_response_body).to receive(:body).and_return(
+              catalog_product_attribute_media_list_response: { result: { item: [] } }
+            )
+
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_tag_list, product_id: 10)
+                    .and_return(catalog_product_tag_list_response_body)
+            expect(soap_client)
+              .to receive(:call).with(:catalog_product_tag_list, product_id: 11)
+                    .and_return(catalog_product_tag_list_response_body)
+
+            allow(catalog_product_tag_list_response_body).to receive(:body).and_return(
+              catalog_product_tag_list_response: { result: { item: [ ] } }
+            )
+
+            expect(ProductOptions).to receive(:new).and_return(mock_product_options)
+            expect(mock_product_options).to receive(:shopify_option_names).and_return({}).twice
+
+            expected_result = [
+              {
+                product_id: '10',
+                type: 'configurable',
+                top_level_attribute: 'product1',
+                images: [],
+                another_key: 'another_attribute',
+                tags: []
+              },
+              {
+                product_id: '11',
+                type: 'configurable',
+                top_level_attribute: 'product2',
+                images: [],
+                another_key: 'another_attribute',
+                tags: []
+              },
+            ]
+
+            exporter = described_class.new(soap_client: soap_client)
+            expect { |block| exporter.export(&block) }.to yield_successive_args(*expected_result)
+          end
+
           describe 'simple products' do
             let(:soap_client) { double('soap client') }
 
@@ -140,19 +241,21 @@ module ShopifyTransporter
               stub_options_to_return_nothing
 
               expect(soap_client)
-                .to receive(:call).with(:catalog_product_list, anything)
-                .and_return(catalog_product_list_response_body)
+                .to receive(:call_in_batches)
+                .with(
+                  method: :catalog_product_list,
+                  batch_index_column: 'product_id',
+                )
+                .and_return([catalog_product_list_response_body])
 
               expect(catalog_product_list_response_body).to receive(:body).and_return(
                 catalog_product_list_response: {
                   store_view: {
-                    item: [
-                      {
-                        product_id: '801',
-                        type: 'simple',
-                        top_level_attribute: "an_attribute",
-                      },
-                    ],
+                    item: {
+                      product_id: '801',
+                      type: 'simple',
+                      top_level_attribute: "an_attribute",
+                    },
                   },
                 }
               ).at_least(:once)
@@ -423,8 +526,12 @@ module ShopifyTransporter
 
             it 'only calls the database exporter once' do
               expect(soap_client)
-                .to receive(:call).with(:catalog_product_list, anything)
-                .and_return(catalog_product_list_response_body)
+                .to receive(:call_in_batches)
+                .with(
+                  method: :catalog_product_list,
+                  batch_index_column: 'product_id',
+                )
+                .and_return([catalog_product_list_response_body])
 
               allow(catalog_product_list_response_body).to receive(:body).and_return(
                 catalog_product_list_response: {
@@ -498,8 +605,12 @@ module ShopifyTransporter
             describe 'processing options' do
               before :each do
                 allow(soap_client)
-                  .to receive(:call).with(:catalog_product_list, anything)
-                  .and_return(catalog_product_list_response_body)
+                  .to receive(:call_in_batches)
+                  .with(
+                    method: :catalog_product_list,
+                    batch_index_column: 'product_id',
+                  )
+                  .and_return([catalog_product_list_response_body])
 
                 allow(soap_client)
                   .to receive(:call).with(:catalog_product_attribute_media_list, anything)
@@ -532,12 +643,10 @@ module ShopifyTransporter
                 expect(catalog_product_list_response_body).to receive(:body).and_return(
                   catalog_product_list_response: {
                     store_view: {
-                      item: [
-                        {
-                          product_id: '801',
-                          type: 'configurable',
-                        },
-                      ],
+                      item: {
+                        product_id: '801',
+                        type: 'configurable',
+                      },
                     },
                   }
                 ).at_least(:once)
@@ -599,12 +708,10 @@ module ShopifyTransporter
                 expect(catalog_product_list_response_body).to receive(:body).and_return(
                   catalog_product_list_response: {
                     store_view: {
-                      item: [
-                        {
-                          product_id: '802',
-                          type: 'simple',
-                        },
-                      ],
+                      item: {
+                        product_id: '802',
+                        type: 'simple',
+                      },
                     },
                   }
                 ).at_least(:once)
@@ -679,12 +786,10 @@ module ShopifyTransporter
                 expect(catalog_product_list_response_body).to receive(:body).and_return(
                   catalog_product_list_response: {
                     store_view: {
-                      item: [
-                        {
-                          product_id: '802',
-                          type: 'simple',
-                        },
-                      ],
+                      item: {
+                        product_id: '802',
+                        type: 'simple',
+                      },
                     },
                   }
                 ).at_least(:once)

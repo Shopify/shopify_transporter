@@ -11,8 +11,9 @@ module ShopifyTransporter
     end
 
     class Exporter
-      def initialize(config_filename, object_type)
+      def initialize(config_filename, object_type, batch_config)
         @object_type = object_type
+        @batch_config = batch_config
 
         load_config(config_filename)
       end
@@ -53,6 +54,7 @@ module ShopifyTransporter
           hostname: config['extract_configuration']['soap']['hostname'],
           username: config['extract_configuration']['soap']['username'],
           api_key: config['extract_configuration']['soap']['api_key'],
+          batch_config: @batch_config
         )
       end
 

@@ -56,13 +56,18 @@ module ShopifyTransporter
               input['visibility'].present? && input['visibility'].to_i != 1
             end
 
+            def apply_image_column_mapping(input_image)
+              {
+                'src' => input_image['url'],
+                'position' => input_image['position'],
+                'alt' => image_alt_text(input_image['label']),
+              }
+            end
+
             def construct_images(input)
+              return [apply_image_column_mapping(input['images'])] if input['images'].is_a?(Hash)
               images = input['images'].map do |image|
-                {
-                  'src' => image['url'],
-                  'position' => image['position'],
-                  'alt' => image_alt_text(image['label']),
-                }.compact
+                apply_image_column_mapping(image).compact
               end
               images.sort_by { |image| image['position'] }
             end
@@ -89,6 +94,7 @@ module ShopifyTransporter
             end
 
             def product_tags(input)
+              return input['tags']['name'] if input['tags'].is_a?(Hash)
               input['tags'].map { |tag| tag['name'] }.join(', ')
             end
           end

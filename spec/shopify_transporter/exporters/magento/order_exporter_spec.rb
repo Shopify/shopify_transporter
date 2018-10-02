@@ -6,12 +6,12 @@ module ShopifyTransporter
     module Magento
       RSpec.describe OrderExporter do
         context '#key' do
-          it 'returns :increment_id' do
-            expect(described_class.new.key).to eq(:increment_id)
+          it 'returns :order_id' do
+            expect(described_class.new.key).to eq(:order_id)
           end
         end
 
-        context '#run' do
+        describe '#export' do
           it 'retrieves orders from Magento using the SOAP API and returns the results' do
             soap_client = double("soap client")
 
@@ -19,19 +19,21 @@ module ShopifyTransporter
             sales_order_info_response_body = double('sales_order_info_response_body')
 
             expect(soap_client)
-              .to receive(:call).with(:sales_order_list, anything)
-              .and_return(sales_order_list_response_body)
+              .to receive(:call_in_batches)
+              .with(
+                method: :sales_order_list,
+                batch_index_column: 'order_id',
+              )
+              .and_return([sales_order_list_response_body])
               .at_least(:once)
 
             expect(sales_order_list_response_body).to receive(:body).and_return(
               sales_order_list_response: {
                 result: {
-                  item: [
-                    {
-                      increment_id: '12345',
-                      top_level_attribute: "an_attribute",
-                    },
-                  ],
+                  item: {
+                    increment_id: '12345',
+                    top_level_attribute: "an_attribute",
+                  },
                 },
               },
             ).at_least(:once)
@@ -61,6 +63,78 @@ module ShopifyTransporter
 
             exporter = described_class.new(soap_client: soap_client)
             expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
+          end
+
+          it 'works with multiple orders being returned by the soap call' do
+            soap_client = double('soap client')
+
+            sales_order_list_response_body = double('sales_order_list_response_body')
+            sales_order_info_response_body = double('sales_order_info_response_body')
+
+            expect(soap_client)
+              .to receive(:call_in_batches)
+              .with(
+                method: :sales_order_list,
+                batch_index_column: 'order_id',
+              )
+              .and_return([sales_order_list_response_body])
+              .at_least(:once)
+
+            expect(sales_order_list_response_body).to receive(:body).and_return(
+              sales_order_list_response: {
+                result: {
+                  item: [
+                    {
+                      increment_id: '10',
+                      top_level_attribute: 'order1',
+                    },
+                    {
+                      increment_id: '11',
+                      top_level_attribute: 'order2',
+                    },
+                  ]
+                },
+              },
+            ).at_least(:once)
+
+            expect(soap_client)
+              .to receive(:call).with(:sales_order_info, order_increment_id: '10')
+              .and_return(sales_order_info_response_body)
+            expect(soap_client)
+              .to receive(:call).with(:sales_order_info, order_increment_id: '11')
+              .and_return(sales_order_info_response_body)
+
+            allow(sales_order_info_response_body).to receive(:body).and_return(
+              sales_order_info_response: {
+                result: {
+                  order_info_attribute: 'info',
+                },
+              },
+            )
+
+            expected_result = [
+              {
+                increment_id: '10',
+                top_level_attribute: 'order1',
+                items: {
+                  result: {
+                    order_info_attribute: 'info',
+                  }
+                },
+              },
+              {
+                increment_id: '11',
+                top_level_attribute: 'order2',
+                items: {
+                  result: {
+                    order_info_attribute: 'info',
+                  }
+                },
+              },
+            ]
+
+            exporter = described_class.new(soap_client: soap_client)
+            expect { |block| exporter.export(&block) }.to yield_successive_args(*expected_result)
           end
         end
       end

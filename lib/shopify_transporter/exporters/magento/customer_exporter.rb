@@ -26,8 +26,13 @@ module ShopifyTransporter
         end
 
         def base_customers
-          result = @client.call(:customer_customer_list, filters: nil).body
-          result[:customer_customer_list_response][:store_view][:item] || []
+          Enumerator.new do |enumerator|
+            @client.call_in_batches(method: :customer_customer_list, batch_index_column: 'customer_id').each do |batch|
+              result = batch.body[:customer_customer_list_response][:store_view][:item] || []
+              result = [result] unless result.is_a? Array
+              result.each { |customer| enumerator << customer }
+            end
+          end
         end
 
         def customer_address_list(customer_id)

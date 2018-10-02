@@ -20,7 +20,7 @@ module ShopifyTransporter
         end
 
         def export
-          apply_mappings(base_products).each do |product|
+          base_products.each do |product|
             yield with_attributes(product)
           end
         end
@@ -28,8 +28,13 @@ module ShopifyTransporter
         private
 
         def base_products
-          result = @client.call(:catalog_product_list, filters: nil).body
-          result.to_hash.dig(:catalog_product_list_response, :store_view, :item) || []
+          Enumerator.new do |enumerator|
+            @client.call_in_batches(method: :catalog_product_list, batch_index_column: 'product_id').each do |batch|
+              result = batch.body[:catalog_product_list_response][:store_view][:item] || []
+              result = [result] unless result.is_a? Array
+              with_parent_mappings(result).each { |product| enumerator << product }
+            end
+          end
         end
 
         def product_mappings
@@ -44,7 +49,7 @@ module ShopifyTransporter
           end
         end
 
-        def apply_mappings(product_list)
+        def with_parent_mappings(product_list)
           product_list.map do |product|
             case product[:type]
             when 'simple'

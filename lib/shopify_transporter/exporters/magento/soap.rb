@@ -7,6 +7,9 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class Soap
+        RETRY_SLEEP_TIME = 0.1
+        MAX_RETRIES = 4
+
         def initialize(hostname: '', username: '', api_key: '', batch_config:)
           @hostname = hostname
           @username = username
@@ -15,10 +18,7 @@ module ShopifyTransporter
         end
 
         def call(method, params)
-          soap_client.call(
-            method,
-            message: { session_id: soap_session_id }.merge(params)
-          )
+          call_with_retries(method: method, params: params)
         end
 
         def call_in_batches(method:, params: {}, batch_index_column:)
@@ -44,6 +44,17 @@ module ShopifyTransporter
         end
 
         private
+
+        def call_with_retries(method:, params:, retry_count: 0)
+          soap_client.call(
+            method,
+            message: { session_id: soap_session_id }.merge(params)
+          )
+        rescue Savon::Error
+          raise if retry_count >= MAX_RETRIES
+          sleep(RETRY_SLEEP_TIME * (retry_count + 1))
+          call_with_retries(method: method, params: params, retry_count: retry_count + 1)
+        end
 
         def soap_client
           @soap_client ||= Savon.client(

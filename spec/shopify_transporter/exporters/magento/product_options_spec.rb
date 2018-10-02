@@ -147,8 +147,7 @@ module ShopifyTransporter
         end
 
         describe '#shopify_variant_options' do
-          it '#shopify_variant_options returns the option names and values from a given parent product' \
-            ' and attributes hash' do
+          it 'returns the option names and values from a given parent product and attributes hash' do
             simple_product = {
               parent_id: '402',
               additional_attributes: {
@@ -175,6 +174,24 @@ module ShopifyTransporter
                 'option1_value': 'White',
                 'option2_name': 'Size',
                 'option2_value': 'XS',
+              )
+          end
+
+          it 'works when the additional attributes item is a single object instead of an array' do
+            simple_product = {
+              parent_id: '403',
+              additional_attributes: {
+                item: {
+                  key: 'color',
+                  value: '22',
+                },
+              },
+            }
+
+            expect(product_options.shopify_variant_options(simple_product))
+              .to eq(
+                'option1_name': 'Color',
+                'option1_value': 'White'
               )
           end
 

@@ -8,6 +8,7 @@ require 'thor/group'
 require 'shopify_transporter'
 require 'yaml'
 require 'io/console'
+require 'active_support/core_ext/string'
 
 module ShopifyTransporter
   class CLI < Thor
@@ -35,10 +36,19 @@ module ShopifyTransporter
     method_option :object, type: :string, required: true,
       desc: 'The object type (customer, product, or order) to extract.',
       enum: %w(customer product order)
+    method_option :first_id, type: :numeric, required: true,
+      desc: 'The first product_id, customer_id, or order_id for the range of objects you are trying to export.'
+    method_option :last_id, type: :numeric, required: true,
+      desc: 'The last product_id, customer_id, or order_id (inclusive) for the range of objects you are trying' \
+        ' to export.'
+    method_option :batch_size, type: :numeric, default: 1000,
+      desc: 'The number of records that are retrieved from the source platform at one time. ' \
+        'Use a smaller batch size if you are running into performance issues extracting your data.'
 
     desc 'extract', 'Extracts objects from a third-party platform into a format compatible for conversion.'
     def extract
-      exporter = Exporters::Exporter.new(options[:config], options[:object])
+      batch_config = options.slice('first_id', 'last_id', 'batch_size')
+      exporter = Exporters::Exporter.new(options[:config], options[:object], batch_config)
       exporter.run
     rescue Exporters::ExportError => error
       extract_error(error.message)

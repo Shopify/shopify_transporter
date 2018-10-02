@@ -59,11 +59,40 @@ module ShopifyTransporter
           .to receive(:for)
           .and_return(SomePlatformExporter)
 
-        exporter = Exporter.new(config_file.path, :unused)
+        exporter = Exporter.new(config_file.path, :unused, :unused)
 
         expected_result = [{ 'foo' => 'bar' }, { 'baz' => 'gud' }]
         output = capture(:stdout) { exporter.run }
         expect(JSON.parse(output)).to eq(expected_result)
+      end
+
+      it 'initializes the soap client with the right parameters' do
+        config_file = tmpfile(YAML.dump(default_config), '.yml')
+
+        expect(Magento::MagentoExporter)
+          .to receive(:for)
+          .and_return(SomePlatformExporter)
+
+        expect(Magento::Soap)
+          .to receive(:new)
+          .with(
+            hostname: default_config['extract_configuration']['soap']['hostname'],
+            username: default_config['extract_configuration']['soap']['username'],
+            api_key: default_config['extract_configuration']['soap']['api_key'],
+            batch_config: {
+              'first_id' => 0,
+              'last_id' => 4,
+              'batch_size' => 2,
+            }
+          )
+
+        exporter = Exporter.new(config_file.path, :unused, {
+          'first_id' => 0,
+          'last_id' => 4,
+          'batch_size' => 2,
+        })
+
+        exporter.run
       end
 
       it 'raises InvalidConfigError if config file does not exist' do
@@ -71,7 +100,7 @@ module ShopifyTransporter
 
         error_message = "Invalid configuration: cannot find file name 'nonexistent_config.yml'"
 
-        expect { Exporter.new(config_filename, :unused) }
+        expect { Exporter.new(config_filename, :unused, :unused) }
           .to raise_error(InvalidConfigError, error_message)
       end
 
@@ -81,7 +110,7 @@ module ShopifyTransporter
 
         error_message = "Invalid configuration: missing required key 'extract_configuration > soap > username'"
 
-        expect { Exporter.new(config_file.path, :unused) }
+        expect { Exporter.new(config_file.path, :unused, :unused) }
           .to raise_error(InvalidConfigError, error_message)
       end
 
@@ -91,7 +120,7 @@ module ShopifyTransporter
 
         error_message = "Invalid configuration: missing required key 'extract_configuration > soap > hostname'"
 
-        expect { Exporter.new(config_file.path, :unused) }
+        expect { Exporter.new(config_file.path, :unused, :unused) }
           .to raise_error(InvalidConfigError, error_message)
       end
 
@@ -101,7 +130,7 @@ module ShopifyTransporter
 
         error_message = "Invalid configuration: missing required key 'extract_configuration'"
 
-        expect { Exporter.new(config_file.path, :unused) }
+        expect { Exporter.new(config_file.path, :unused, :unused) }
           .to raise_error(InvalidConfigError, error_message)
       end
 
@@ -111,7 +140,7 @@ module ShopifyTransporter
 
         error_message = "Invalid configuration: missing required key 'extract_configuration > soap > api_key'"
 
-        expect { Exporter.new(config_file.path, :unused) }
+        expect { Exporter.new(config_file.path, :unused, :unused) }
           .to raise_error(InvalidConfigError, error_message)
       end
 
@@ -123,7 +152,7 @@ module ShopifyTransporter
 
             error_message = "Invalid configuration: missing required key 'extract_configuration > database > #{key}'"
 
-            expect { Exporter.new(config_file.path, 'product') }
+            expect { Exporter.new(config_file.path, 'product', :unused) }
               .to raise_error(InvalidConfigError, error_message)
           end
 
@@ -133,7 +162,7 @@ module ShopifyTransporter
 
             error_message = "Invalid configuration: missing required key 'extract_configuration > database > #{key}'"
 
-            expect { Exporter.new(config_file.path, 'other_object') }.not_to raise_error
+            expect { Exporter.new(config_file.path, 'other_object', :unused) }.not_to raise_error
           end
         end
       end

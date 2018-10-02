@@ -10,7 +10,7 @@ module ShopifyTransporter
         end
 
         def key
-          :increment_id
+          :order_id
         end
 
         def export
@@ -26,8 +26,13 @@ module ShopifyTransporter
         end
 
         def base_orders
-          result = @client.call(:sales_order_list, filters: nil).body
-          result[:sales_order_list_response][:result][:item] || []
+          Enumerator.new do |enumerator|
+            @client.call_in_batches(method: :sales_order_list, batch_index_column: 'order_id').each do |batch|
+              result = batch.body[:sales_order_list_response][:result][:item] || []
+              result = [result] unless result.is_a? Array
+              result.each { |order| enumerator << order }
+            end
+          end
         end
 
         def info_for(order_increment_id)

@@ -26,13 +26,13 @@ module ShopifyTransporter
       attr_reader :config, :object_type
 
       def print_exported_objects
-        $stderr.puts 'Starting export...'
+        $stderr.puts 'Starting extraction...'
         puts '['
         first = true
         object_exporter.export do |object|
           puts ',' unless first
           first = false
-          $stderr.puts "Fetching #{object_type}: #{object[object_exporter.key]}..."
+          $stderr.puts "Extracting #{object_type}: #{object[object_exporter.key]}..."
           print '  ' + JSON.pretty_generate(object, object_nl: "\n  ")
         end
       ensure
@@ -50,19 +50,19 @@ module ShopifyTransporter
 
       def soap_client
         Magento::Soap.new(
-          hostname: config['export_configuration']['soap']['hostname'],
-          username: config['export_configuration']['soap']['username'],
-          api_key: config['export_configuration']['soap']['api_key'],
+          hostname: config['extract_configuration']['soap']['hostname'],
+          username: config['extract_configuration']['soap']['username'],
+          api_key: config['extract_configuration']['soap']['api_key'],
         )
       end
 
       def database_adapter
         Magento::SQL.new(
-          database: config['export_configuration']['database']['database'],
-          host: config['export_configuration']['database']['host'],
-          user: config['export_configuration']['database']['user'],
-          port: config['export_configuration']['database']['port'],
-          password: config['export_configuration']['database']['password'],
+          database: config['extract_configuration']['database']['database'],
+          host: config['extract_configuration']['database']['host'],
+          user: config['extract_configuration']['database']['user'],
+          port: config['extract_configuration']['database']['port'],
+          password: config['extract_configuration']['database']['password'],
         )
       end
 
@@ -76,18 +76,18 @@ module ShopifyTransporter
 
       def ensure_config_has_required_keys
         base_required_keys = [
-          %w(export_configuration),
-          %w(export_configuration soap hostname),
-          %w(export_configuration soap username),
-          %w(export_configuration soap api_key),
+          %w(extract_configuration),
+          %w(extract_configuration soap hostname),
+          %w(extract_configuration soap username),
+          %w(extract_configuration soap api_key),
         ]
 
         product_required_keys = [
-          %w(export_configuration database host),
-          %w(export_configuration database port),
-          %w(export_configuration database database),
-          %w(export_configuration database user),
-          %w(export_configuration database password),
+          %w(extract_configuration database host),
+          %w(extract_configuration database port),
+          %w(extract_configuration database database),
+          %w(extract_configuration database user),
+          %w(extract_configuration database password),
         ]
 
         required_keys = base_required_keys + (@object_type == 'product' ? product_required_keys : [])

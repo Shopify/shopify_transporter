@@ -29,7 +29,7 @@ object_types:
       - LineItems
       - AddressesAttribute
 
-export_configuration:
+extract_configuration:
   soap:
     hostname:
     username:

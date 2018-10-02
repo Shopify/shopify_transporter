@@ -52,6 +52,15 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(shopify_product.deep_stringify_keys).to include(expected_product_tag_info.deep_stringify_keys)
       end
 
+      it 'should handle product with only one tag' do
+        magento_product = FactoryBot.build(:magento_product, :with_singular_tag)
+        shopify_product = described_class.new.convert(magento_product, {})
+        expected_product_tag_info = {
+          tags: 'grey'
+        }
+        expect(shopify_product.deep_stringify_keys).to include(expected_product_tag_info.deep_stringify_keys)
+      end
+
       describe 'product options' do
         it 'extracts product options when there are three options' do
           magento_product = FactoryBot.build(:magento_product, :with_product_options)

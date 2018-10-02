@@ -94,6 +94,7 @@ module ShopifyTransporter
             end
 
             def product_tags(input)
+              return input['tags']['name'] if input['tags'].is_a?(Hash)
               input['tags'].map { |tag| tag['name'] }.join(', ')
             end
           end

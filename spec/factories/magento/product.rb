@@ -63,6 +63,15 @@ FactoryBot.define do
       end
     end
 
+    trait :with_singular_tag do
+      tags do
+        {
+          "tag_id": "19",
+          "name": "grey"
+        }
+      end
+    end
+
     trait :with_product_options do
       option1_name 'Color'
       option2_name 'Size'

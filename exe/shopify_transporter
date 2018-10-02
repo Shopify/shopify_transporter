@@ -31,17 +31,17 @@ module ShopifyTransporter
     end
 
     method_option :config, type: :string, default: 'config.yml',
-      desc: 'The config file that describes the third party platform to export from.'
+      desc: 'The config file that describes the third party platform to extract from.'
     method_option :object, type: :string, required: true,
-      desc: 'The object type (customer, product, or order) to export.',
+      desc: 'The object type (customer, product, or order) to extract.',
       enum: %w(customer product order)
 
-    desc 'export', 'Exports objects from a third-party platform into a format compatible for conversion.'
-    def export
+    desc 'extract', 'Extracts objects from a third-party platform into a format compatible for conversion.'
+    def extract
       exporter = Exporters::Exporter.new(options[:config], options[:object])
       exporter.run
     rescue Exporters::ExportError => error
-      export_error(error.message)
+      extract_error(error.message)
     end
 
     no_commands do
@@ -50,8 +50,8 @@ module ShopifyTransporter
         exit 1
       end
 
-      def export_error(message)
-        say("Export error: #{message}", :red)
+      def extract_error(message)
+        say("Extract error: #{message}", :red)
         exit 1
       end
     end

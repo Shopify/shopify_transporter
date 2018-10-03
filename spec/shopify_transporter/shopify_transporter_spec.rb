@@ -271,6 +271,19 @@ RSpec.describe ShopifyTransporter do
       expect(errors[0]).to match(/2, .*field not found/)
       expect(stdout.split($/).count).to be > 1
     end
+
+    it 'rejects JSON with unexpected structure' do
+      content = {
+        increment_id: "increment_id-value"
+      }.to_json
+      file = Tempfile.new(['bad_json', '.json'])
+      file.puts content
+      file.close
+      config = 'spec/files/config.yml'
+      @tool = TransporterTool.new(*[file.path], config, 'customer')
+      expect{ @tool.run }.to raise_error(TransporterTool::UnexpectedJSONStructureError,
+        'Unexpected JSON structure detected. It must be an array of JSONs.')
+    end
   end
 
   describe ShopifyTransporter::New do

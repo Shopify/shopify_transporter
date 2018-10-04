@@ -52,6 +52,8 @@ module ShopifyTransporter
       exporter.run
     rescue Exporters::ExportError => error
       extract_error(error.message)
+    rescue SystemExit, Interrupt
+      $stderr.puts "\n...exiting"
     end
 
     no_commands do

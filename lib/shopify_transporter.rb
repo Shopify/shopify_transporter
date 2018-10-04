@@ -43,6 +43,14 @@ class TransporterTool
     end
   end
 
+  class UnexpectedJSONStructureError < ConversionError
+    def initialize
+      super(
+        'Unexpected JSON structure detected. The expected format is an array of JSON objects: [{}, {}, ..., {}]'
+      )
+    end
+  end
+
   def initialize(*files, config, object_type)
     config_file(config)
     input_files(*files)
@@ -113,8 +121,9 @@ class TransporterTool
     file_data = File.read(file_name)
     parsed_file_data = Yajl::Parser.parse(file_data)
     return if parsed_file_data.nil? || parsed_file_data.empty?
-
+    raise UnexpectedJSONStructureError unless expected_json_structure?(parsed_file_data)
     record = 1
+
     parsed_file_data.each do |json_row|
       process(json_row, file_name, record)
       record += 1
@@ -251,5 +260,9 @@ class TransporterTool
 
   def key_required_from_config
     @config['object_types'][@object_type]['key_required']
+  end
+
+  def expected_json_structure?(input)
+    input.is_a?(Array) && input.all? { |json_row| json_row.is_a?(Hash) }
   end
 end

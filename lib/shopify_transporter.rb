@@ -121,7 +121,7 @@ class TransporterTool
     file_data = File.read(file_name)
     parsed_file_data = Yajl::Parser.parse(file_data)
     return if parsed_file_data.nil? || parsed_file_data.empty?
-    raise UnexpectedJSONStructureError unless expected_json_structure(parsed_file_data)
+    raise UnexpectedJSONStructureError unless expected_json_structure?(parsed_file_data)
     record = 1
 
     parsed_file_data.each do |json_row|
@@ -262,7 +262,7 @@ class TransporterTool
     @config['object_types'][@object_type]['key_required']
   end
 
-  def expected_json_structure(input)
+  def expected_json_structure?(input)
     input.is_a?(Array) && input.all? { |json_row| json_row.is_a?(Hash) }
   end
 end

@@ -45,7 +45,7 @@ module ShopifyTransporter
               attributes = map_from_key_to_val(COLUMN_MAPPING, input)
               attributes['published'] = published?(input)
               attributes['published_scope'] = published?(input) ? 'global' : ''
-              attributes['published_at'] = published?(input) ? input['updated_at'] : ''
+              attributes['published_at'] = input['updated_at'] if published?(input)
               append_images_to_current_record!(input) if input['images'].present?
               attributes['tags'] = product_tags(input) if input['tags'].present?
               attributes['options'] = product_options(input) if input['option1_name'].present?

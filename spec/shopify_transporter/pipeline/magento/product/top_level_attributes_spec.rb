@@ -13,7 +13,6 @@ module ShopifyTransporter::Pipeline::Magento::Product
           body_html: magento_product['description'],
           handle: magento_product['url_key'],
           published: false,
-          published_at: '',
           published_scope: '',
         }
 

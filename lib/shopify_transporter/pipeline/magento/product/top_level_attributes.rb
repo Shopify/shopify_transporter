@@ -49,7 +49,7 @@ module ShopifyTransporter
               append_images_to_current_record!(input) if input['images'].present?
               attributes['tags'] = product_tags(input) if input['tags'].present?
               attributes['options'] = product_options(input) if input['option1_name'].present?
-              attributes
+              attributes.compact
             end
 
             def published?(input)

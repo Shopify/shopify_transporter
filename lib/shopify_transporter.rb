@@ -46,7 +46,7 @@ class TransporterTool
   class UnexpectedJSONStructureError < ConversionError
     def initialize
       super(
-        'Unexpected JSON structure detected. It must be an array of JSONs.'
+        'Unexpected JSON structure detected. The expected format is an array of JSON objects: [{}, {}]'
       )
     end
   end
@@ -263,7 +263,7 @@ class TransporterTool
   end
 
   def raise_if_unexpected_json_structure(input)
-    is_in_expected_format = input.is_a?(Array) ? input.all? { |json_row| json_row.is_a?(Hash) } : false
+    is_in_expected_format = input.is_a?(Array) && input.all? { |json_row| json_row.is_a?(Hash) }
     raise UnexpectedJSONStructureError unless is_in_expected_format
   end
 end

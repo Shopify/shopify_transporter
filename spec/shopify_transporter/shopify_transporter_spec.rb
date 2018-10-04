@@ -282,7 +282,7 @@ RSpec.describe ShopifyTransporter do
       config = 'spec/files/config.yml'
       @tool = TransporterTool.new(*[file.path], config, 'customer')
       expect{ @tool.run }.to raise_error(TransporterTool::UnexpectedJSONStructureError,
-        'Unexpected JSON structure detected. It must be an array of JSONs.')
+        'Unexpected JSON structure detected. The expected format is an array of JSON objects: [{}, {}]')
     end
   end
 

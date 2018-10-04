@@ -46,7 +46,7 @@ class TransporterTool
   class UnexpectedJSONStructureError < ConversionError
     def initialize
       super(
-        'Unexpected JSON structure detected. The expected format is an array of JSON objects: [{}, {}]'
+        'Unexpected JSON structure detected. The expected format is an array of JSON objects: [{}, {}, ..., {}]'
       )
     end
   end

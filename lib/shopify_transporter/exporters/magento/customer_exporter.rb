@@ -15,7 +15,12 @@ module ShopifyTransporter
 
         def export
           base_customers.each do |customer|
-            yield with_attributes(customer)
+            begin
+              yield with_attributes(customer)
+            rescue Savon::Error => e
+              print_customer_details_error(customer, e)
+              yield customer
+            end
           end
         end
 
@@ -37,6 +42,20 @@ module ShopifyTransporter
 
         def customer_address_list(customer_id)
           @client.call(:customer_address_list, customer_id: customer_id).body
+        end
+
+        def print_customer_details_error(customer, e)
+          $stderr.puts '***'
+          $stderr.puts 'Warning:'
+          $stderr.puts "Encountered an error with fetching details for customer with id: #{customer[:customer_id]}"
+          $stderr.puts JSON.pretty_generate(customer)
+          $stderr.puts 'The exact error was:'
+          $stderr.puts "#{e.class}: "
+          $stderr.puts e.message
+          $stderr.puts '-'
+          $stderr.puts "Exporting the customer (#{customer[:customer_id]}) without its details."
+          $stderr.puts 'Continuing with the next customer.'
+          $stderr.puts '***'
         end
       end
     end

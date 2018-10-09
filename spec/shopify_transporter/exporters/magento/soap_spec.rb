@@ -186,6 +186,47 @@ module ShopifyTransporter
                 .call_in_batches(method: :test_call, batch_index_column: 'increment_id', params: test_params).each(&b)
             end.to yield_successive_args(['batch-0'])
           end
+
+          it 'skips the batch and continues with the next batch if call raises an error' do
+            soap_client = Soap.new(init_params.merge(
+              batch_config: {
+                'first_id' => 0,
+                'last_id' => 7,
+                'batch_size' => 3,
+              }
+            ))
+
+            ['0,1,2', '6,7'].each do |batch_range_string|
+              expect(soap_client).to receive(:call).with(:test_call,
+                filters: expected_batching_filter(
+                  'customer_id',
+                  batch_range_string
+                )).and_return(["batch-#{batch_range_string}"])
+            end
+
+            expect(soap_client).to receive(:call).with(:test_call,
+              filters: expected_batching_filter(
+                'customer_id',
+                '3,4,5'
+              )) do
+              raise Savon::Error, 'Soap call failed.'
+            end
+
+            stderr = nil
+            expect do |b|
+              stderr = capture(:stderr) { soap_client.call_in_batches(method: :test_call, batch_index_column: 'customer_id').each(&b) }
+            end.to yield_successive_args(['batch-0,1,2'], ['batch-6,7'])
+            output = <<~WARNING
+              Processing batch: 0..2
+              Processing batch: 3..5
+              Skipping batch: 3..5 after 4 retries because of an error.
+              The exact error was:
+              Savon::Error: 
+              Soap call failed.
+              Processing batch: 6..7
+            WARNING
+            expect(stderr).to eq(output)
+          end
         end
       end
     end

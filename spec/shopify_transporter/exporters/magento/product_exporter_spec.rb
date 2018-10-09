@@ -127,6 +127,91 @@ module ShopifyTransporter
             expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
           end
 
+          context 'when product details are unretrievable' do
+            it 'returns the product without product details and warns the user' do
+              soap_client = double('soap client')
+
+              catalog_product_list_response_body = double('catalog_product_list_response_body')
+              catalog_product_info_response_body = double('catalog_product_info_response_body')
+              catalog_product_attribute_media_list_response_body = double('catalog_product_attribute_media_list_response_body')
+
+              expect(soap_client)
+                .to receive(:call_in_batches)
+                .with(
+                  method: :catalog_product_list,
+                  batch_index_column: 'product_id',
+                )
+                .and_return([catalog_product_list_response_body])
+
+              expect(catalog_product_list_response_body).to receive(:body).and_return(
+                catalog_product_list_response: {
+                  store_view: {
+                    item: {
+                      product_id: '12345',
+                      type: 'configurable',
+                      top_level_attribute: 'an_attribute',
+                    },
+                  },
+                },
+              )
+
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_info, product_id: '12345', attributes: nil)
+                .and_return(catalog_product_info_response_body)
+
+              expect(catalog_product_info_response_body).to receive(:body).and_return(
+                catalog_product_info_response: {
+                  info: {
+                    "another_key": "another_attribute"
+                  }
+                }
+              )
+
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_attribute_media_list, product: 12345)
+                .and_return(catalog_product_attribute_media_list_response_body)
+
+              allow(catalog_product_attribute_media_list_response_body).to receive(:body).and_return(
+                catalog_product_attribute_media_list_response: { result: { item: [] } }
+              )
+
+              expect(soap_client)
+                .to receive(:call).with(:catalog_product_tag_list, product_id: 12345)
+                .and_raise(Savon::Error)
+
+              expect(ProductOptions).to receive(:new).and_return(mock_product_options)
+
+              expected_result = {
+                product_id: '12345',
+                type: 'configurable',
+                top_level_attribute: "an_attribute",
+              }
+
+              exporter = described_class.new(soap_client: soap_client)
+              expect do |block|
+                stderr = capture(:stderr) { exporter.export(&block) }
+                output = <<~WARNING
+                  ***
+                  Warning:
+                  Encountered an error with fetching details for product with id: 12345
+                  {
+                    "product_id": "12345",
+                    "type": "configurable",
+                    "top_level_attribute": "an_attribute"
+                  }
+                  The exact error was:
+                  Savon::Error: 
+                  Savon::Error
+                  -
+                  Exporting the product (12345) without its details.
+                  Continuing with the next product.
+                  ***
+                WARNING
+                expect(stderr).to eq(output)
+              end.to yield_with_args(expected_result)
+            end
+          end
+
           it 'works when multiple products are returned by the soap call' do
             soap_client = double('soap client')
 

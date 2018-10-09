@@ -15,7 +15,12 @@ module ShopifyTransporter
 
         def export
           base_orders.each do |order|
-            yield with_attributes(order)
+            begin
+              yield with_attributes(order)
+            rescue Savon::Error => e
+              print_order_details_error(order, e)
+              yield order
+            end
           end
         end
 
@@ -39,6 +44,20 @@ module ShopifyTransporter
           @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
             .body[:sales_order_info_response]
+        end
+
+        def print_order_details_error(order, e)
+          $stderr.puts '***'
+          $stderr.puts 'Warning:'
+          $stderr.puts "Encountered an error with fetching details for order with id: #{order[:order_id]}"
+          $stderr.puts JSON.pretty_generate(order)
+          $stderr.puts 'The exact error was:'
+          $stderr.puts "#{e.class}: "
+          $stderr.puts e.message
+          $stderr.puts '-'
+          $stderr.puts "Exporting the order (#{order[:order_id]}) without its details."
+          $stderr.puts 'Continuing with the next order.'
+          $stderr.puts '***'
         end
       end
     end

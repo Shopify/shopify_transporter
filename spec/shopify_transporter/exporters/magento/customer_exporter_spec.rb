@@ -153,6 +153,66 @@ module ShopifyTransporter
             expect { |block| exporter.export(&block) }.to yield_successive_args(*expected_result)
 
           end
+
+          context 'when customer details are unretrievable' do
+            it 'skips the current customer' do
+              soap_client = double("soap client")
+
+              customer_customer_list_response_body = double('customer_customer_list_response_body')
+              customer_address_list_response_body = double('customer_address_list_response_body')
+
+              expect(soap_client)
+                .to receive(:call_in_batches)
+                .with(
+                  method: :customer_customer_list,
+                  batch_index_column: 'customer_id',
+                )
+                .and_return([customer_customer_list_response_body]).at_least(:once)
+
+              expect(customer_customer_list_response_body).to receive(:body).and_return(
+                customer_customer_list_response: {
+                  store_view: {
+                    item: {
+                      customer_id: '654321',
+                      top_level_attribute: "an_attribute",
+                    },
+                  },
+                },
+              ).at_least(:once)
+
+              expect(soap_client)
+                .to receive(:call)
+                .with(:customer_address_list, customer_id: '654321')
+                .and_raise(Savon::Error).at_least(:once)
+
+              expected_result =  {
+                customer_id: '654321',
+                top_level_attribute: "an_attribute",
+              }
+
+              exporter = described_class.new(soap_client: soap_client)
+              expect do |block|
+                stderr = capture(:stderr) { exporter.export(&block) }
+                output = <<~WARNING
+                  ***
+                  Warning:
+                  Encountered an error with fetching details for customer with id: 654321
+                  {
+                    "customer_id": "654321",
+                    "top_level_attribute": "an_attribute"
+                  }
+                  The exact error was:
+                  Savon::Error: 
+                  Savon::Error
+                  -
+                  Exporting the customer (654321) without its details.
+                  Continuing with the next customer.
+                  ***
+                WARNING
+                expect(stderr).to eq(output)
+              end.to yield_with_args(expected_result)
+            end
+          end
         end
       end
     end

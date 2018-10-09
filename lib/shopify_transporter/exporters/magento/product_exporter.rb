@@ -21,7 +21,12 @@ module ShopifyTransporter
 
         def export
           base_products.each do |product|
-            yield with_attributes(product)
+            begin
+              yield with_attributes(product)
+            rescue Savon::Error => e
+              print_product_details_error(product, e)
+              yield product
+            end
           end
         end
 
@@ -122,6 +127,20 @@ module ShopifyTransporter
           @client
             .call(:catalog_product_tag_list, product_id: product_id.to_i)
             .body[:catalog_product_tag_list_response][:result][:item]
+        end
+
+        def print_product_details_error(product, e)
+          $stderr.puts '***'
+          $stderr.puts 'Warning:'
+          $stderr.puts "Encountered an error with fetching details for product with id: #{product[:product_id]}"
+          $stderr.puts JSON.pretty_generate(product)
+          $stderr.puts 'The exact error was:'
+          $stderr.puts "#{e.class}: "
+          $stderr.puts e.message
+          $stderr.puts '-'
+          $stderr.puts "Exporting the product (#{product[:product_id]}) without its details."
+          $stderr.puts 'Continuing with the next product.'
+          $stderr.puts '***'
         end
       end
     end

@@ -37,7 +37,7 @@ module ShopifyTransporter
                 enumerator << call(
                   method,
                   params.merge(batching_filter(current_id, end_of_range, batch_index_column)),
-                )
+                  )
               rescue Savon::Error => e
                 output = 'Skipping batch: '\
                   "#{current_id}..#{end_of_range} after #{MAX_RETRIES} retries because of an error."
@@ -70,7 +70,7 @@ module ShopifyTransporter
             wsdl: "https://#{@hostname}/api/v2_soap?wsdl",
             open_timeout: 500,
             read_timeout: 500,
-          )
+            )
         end
 
         def soap_session_id

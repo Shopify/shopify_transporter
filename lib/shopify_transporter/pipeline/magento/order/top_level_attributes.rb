@@ -43,6 +43,53 @@ module ShopifyTransporter
             }.stringify_keys
           end
 
+          def financial_status(hash)
+            order_state = hash['state']
+            status = nil
+
+            if order_state == 'Pending Payment'
+              status = 'pending'
+            elsif paid?(hash)
+              status = 'paid'
+            elsif partially_paid?(hash)
+              status = 'partially_paid'
+            elsif partially_refunded?(hash)
+              status = 'partially_refunded'
+            elsif refunded?(hash)
+              status = 'refunded'
+            end
+            status
+          end
+
+          def fulfillment_status(hash)
+            total_qty_ordered = hash['total_qty_ordered'].to_i
+            total_qty_shipped = total_qty_shipped(hash)
+            status = nil
+
+            if total_qty_shipped == total_qty_ordered
+              status = 'fulfilled'
+            elsif total_qty_shipped > 0 && total_qty_shipped < total_qty_ordered
+              status = 'partial'
+            end
+            status
+          end
+
+          def cancelled_at(hash)
+            timestamp(hash, 'canceled') if cancelled?(hash)
+          end
+
+          def closed_at(hash)
+            timestamp(hash, 'closed') if closed?(hash)
+          end
+
+          def cancelled?(hash)
+            hash['state'] == 'canceled'
+          end
+
+          def closed?(hash)
+            hash['state'] == 'closed'
+          end
+
           def total_price(hash)
             hash['grand_total'].to_i
           end
@@ -73,58 +120,11 @@ module ShopifyTransporter
             total_refunded(hash) == total_paid(hash) && total_refunded(hash) != 0
           end
 
-          def financial_status(hash)
-            order_state = hash['state']
-            status = nil
-
-            if order_state == 'Pending Payment'
-              status = 'pending'
-            elsif paid?(hash)
-              status = 'paid'
-            elsif partially_paid?(hash)
-              status = 'partially_paid'
-            elsif partially_refunded?(hash)
-              status = 'partially_refunded'
-            elsif refunded?(hash)
-              status = 'refunded'
-            end
-            status
-          end
-
           def total_qty_shipped(hash)
             return 0 unless hash.dig('items', 'result', 'items', 'item').present?
             line_items = hash['items']['result']['items']['item']
             return line_items['qty_shipped'].to_i if line_items.is_a?(Hash)
             line_items.map { |line_item| line_item['qty_shipped'].to_i }.sum
-          end
-
-          def fulfillment_status(hash)
-            total_qty_ordered = hash['total_qty_ordered'].to_i
-            total_qty_shipped = total_qty_shipped(hash)
-            status = nil
-
-            if total_qty_shipped == total_qty_ordered
-              status = 'fulfilled'
-            elsif total_qty_shipped > 0 && total_qty_shipped < total_qty_ordered
-              status = 'partial'
-            end
-            status
-          end
-
-          def cancelled?(hash)
-            hash['state'] == 'canceled'
-          end
-
-          def cancelled_at(hash)
-            timestamp(hash, 'canceled') if cancelled?(hash)
-          end
-
-          def closed?(hash)
-            hash['state'] == 'closed'
-          end
-
-          def closed_at(hash)
-            timestamp(hash, 'closed') if closed?(hash)
           end
 
           def timestamp(hash, status)

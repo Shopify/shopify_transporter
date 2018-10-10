@@ -30,7 +30,6 @@ module ShopifyTransporter::Pipeline::Magento::Order
           },
           currency: 'CAD',
           source_name: 'Magento',
-          total_discounts: '100',
           total_weight: '40'
         }
 

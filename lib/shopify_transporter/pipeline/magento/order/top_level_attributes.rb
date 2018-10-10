@@ -21,7 +21,6 @@ module ShopifyTransporter
                 total_tax: hash['tax_amount'],
                 total_price: hash['grand_total'],
                 source_name: ORDER_ORIGINATED_FROM,
-                total_discounts: hash['discount_amount'],
                 total_weight: hash['weight'],
                 financial_status: financial_status(hash),
                 fulfillment_status: fulfillment_status(hash),

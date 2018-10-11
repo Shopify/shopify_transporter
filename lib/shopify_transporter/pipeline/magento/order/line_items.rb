@@ -42,6 +42,7 @@ module ShopifyTransporter
           end
 
           def tax_lines(item)
+            return unless tax_applied?(item)
             [
               {
                 title: 'Tax',
@@ -49,6 +50,10 @@ module ShopifyTransporter
                 rate: item['tax_percent'],
               }.stringify_keys,
             ]
+          end
+
+          def tax_applied?(item)
+            item['tax_percent'].to_f > 0 && item['tax_amount'].to_f > 0
           end
         end
       end

@@ -25,8 +25,8 @@ module ShopifyTransporter
             'Lineitem price', 'Lineitem discount', 'Lineitem compare at price', 'Lineitem sku',
             'Lineitem requires shipping', 'Lineitem taxable', 'Lineitem fulfillment status',
             'Tax 1 Title', 'Tax 1 Price', 'Tax 1 Rate', 'Tax 2 Title', 'Tax 2 Price', 'Tax 2 Rate',
-            'Tax 3 Title', 'Tax 3 Price', 'Tax 3 Rate', 'Metafield Namespace', 'Metafield Key',
-            'Metafield Value', 'Metafield Value Type'
+            'Tax 3 Title', 'Tax 3 Price', 'Tax 3 Rate', 'Transaction amount', 'Transaction kind', 'Transaction status',
+            'Metafield Namespace', 'Metafield Key', 'Metafield Value', 'Metafield Value Type'
           ].to_csv
         end
 
@@ -45,6 +45,7 @@ module ShopifyTransporter
         CSV.generate do |csv|
           csv << top_level_row_values
           line_item_row_values.each { |row| csv << row }
+          transaction_row_values.each { |row| csv << row }
           metafield_row_values.each { |row| csv << row }
         end
       end
@@ -65,6 +66,12 @@ module ShopifyTransporter
 
       LINE_ITEM_ATTRIBUTES = %w(
         name quantity price discount compare_at_price sku requires_shipping taxable fulfillment_status
+      )
+
+      TRANSACTION_PREFIX = 'transaction_'
+
+      TRANSACTION_ATTRIBUTES = %w(
+        amount kind status
       )
 
       def address_hash_for(address_hash, prefix)
@@ -100,6 +107,17 @@ module ShopifyTransporter
             .merge(tax_line_hash(line_item_hash))
 
           row_values_from(line_item) if self.class.has_values?(line_item)
+        end.compact
+      end
+
+      def transaction_row_values
+        return [] unless record_hash['transactions']
+
+        record_hash['transactions'].map do |transaction_hash|
+          transaction = transaction_hash.slice(*TRANSACTION_ATTRIBUTES)
+            .transform_keys! { |k| "#{TRANSACTION_PREFIX}#{k}" }
+
+          row_values_from(transaction) if self.class.has_values?(transaction)
         end.compact
       end
     end

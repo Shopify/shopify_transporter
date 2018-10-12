@@ -28,6 +28,7 @@ object_types:
       - TopLevelAttributes
       - LineItems
       - AddressesAttribute
+      - Transactions
 
 extract_configuration:
   soap:

@@ -61,6 +61,23 @@ FactoryBot.define do
       end
     end
 
+    trait :with_transactions do
+      transactions do
+        [
+          {
+            'amount': '1000',
+            'kind': 'sale',
+            'status': 'success'
+          }.stringify_keys,
+          {
+            'amount': '500',
+            'kind': 'refund',
+            'status': 'success'
+          }.stringify_keys
+        ]
+      end
+    end
+
     trait :complete do
       transient do
         tax_line_count 0

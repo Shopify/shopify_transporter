@@ -829,7 +829,7 @@ Style/Proc:
   Enabled: true
 
 Style/RedundantBegin:
-  Enabled: true
+  Enabled: false
 
 Style/RedundantException:
   Enabled: true

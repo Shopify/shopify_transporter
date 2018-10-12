@@ -16,7 +16,6 @@ module ShopifyTransporter
                 cancelled_at: cancelled_at(hash),
                 closed_at: closed_at(hash),
                 processed_at: hash['created_at'],
-                phone: hash['telephone'],
                 subtotal_price: hash['subtotal'],
                 total_tax: hash['tax_amount'],
                 total_price: hash['grand_total'],

@@ -39,7 +39,9 @@ module ShopifyTransporter
                   params.merge(batching_filter(current_id, end_of_range, batch_index_column)),
                 )
               rescue Savon::Error => e
-                $stderr.puts "Skipping batch: #{current_id}..#{end_of_range} after #{MAX_RETRIES} retries because of an error."
+                output = 'Skipping batch: '\
+                  "#{current_id}..#{end_of_range} after #{MAX_RETRIES} retries because of an error."
+                $stderr.puts output
                 $stderr.puts 'The exact error was:'
                 $stderr.puts "#{e.class}: "
                 $stderr.puts e.message

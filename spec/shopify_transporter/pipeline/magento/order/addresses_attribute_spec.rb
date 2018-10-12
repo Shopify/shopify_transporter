@@ -51,22 +51,26 @@ module ShopifyTransporter::Pipeline::Magento::Order
           "billing_address" => {
             first_name: 'billing test first name-1',
             last_name: 'billing test last name-1',
+            name: 'billing test first name-1 billing test last name-1',
             phone: 'billing test telephone-1',
             address1: 'billing test street-1',
             city: 'billing test city-1',
             province_code: 'billing test region-1',
             zip: 'billing test postcode-1',
             country_code: 'billing test country-1',
+            company: 'billing test company-1',
           },
           "shipping_address" => {
             first_name: 'shipping test first name-1',
             last_name: 'shipping test last name-1',
+            name: 'shipping test first name-1 shipping test last name-1',
             phone: 'shipping test telephone-1',
             address1: 'shipping test street-1',
             city: 'shipping test city-1',
             province_code: 'shipping test region-1',
             zip: 'shipping test postcode-1',
             country_code: 'shipping test country-1',
+            company: 'shipping test company-1',
           }
         }
         expect(shopify_order).to include(expected_shopify_addresses)

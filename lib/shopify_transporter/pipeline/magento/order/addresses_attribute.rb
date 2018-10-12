@@ -31,13 +31,21 @@ module ShopifyTransporter
             {
               first_name: address_attrs['firstname'],
               last_name: address_attrs['lastname'],
+              name: name(address_attrs),
               phone: address_attrs['telephone'],
               address1: address_attrs['street'],
               city: address_attrs['city'],
               province_code: address_attrs['region'],
               zip: address_attrs['postcode'],
               country_code: address_attrs['country_id'],
+              company: address_attrs['company'],
             }
+          end
+
+          def name(address_attrs)
+            if address_attrs['firstname'].present? && address_attrs['lastname'].present?
+              address_attrs['firstname'] + ' ' + address_attrs['lastname']
+            end
           end
         end
       end

@@ -73,9 +73,9 @@ module ShopifyTransporter
 
         def with_attributes(product)
           product_with_base_attributes = product
-                                           .merge(images: images_attribute(product[:product_id]))
-                                           .merge(info_for(product))
-                                           .merge(tags: product_tags(product[:product_id]))
+            .merge(images: images_attribute(product[:product_id]))
+            .merge(info_for(product))
+            .merge(tags: product_tags(product[:product_id]))
 
           case product[:type]
           when 'simple'

@@ -15,12 +15,10 @@ module ShopifyTransporter
 
         def export
           base_orders.each do |order|
-            begin
-              yield with_attributes(order)
-            rescue Savon::Error => e
-              print_order_details_error(order, e)
-              yield order
-            end
+            yield with_attributes(order)
+          rescue Savon::Error => e
+            print_order_details_error(order, e)
+            yield order
           end
         end
 

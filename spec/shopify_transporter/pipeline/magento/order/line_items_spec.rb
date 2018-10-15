@@ -26,19 +26,22 @@ module ShopifyTransporter::Pipeline::Magento::Order
       it 'extracts line item attributes from an input hash' do
         magento_order_line_items = 2.times.map do |i|
           FactoryBot.build(:magento_order_line_item,
-            qty_ordered: "qty ordered #{i}",
+            qty_ordered: "5",
+            qty_shipped: "5",
             sku: "sku #{i}",
             name: "name #{i}",
             price: "price #{i}",
             tax_amount: "10",
             tax_percent: "12",
+            discount_amount: "20",
+            is_virtual: "0"
           )
         end
         magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
         shopify_order = described_class.new.convert(magento_order, {})
         expected_shopify_order_line_items = 2.times.map do |i|
           {
-            quantity: "qty ordered #{i}",
+            quantity: '5',
             sku: "sku #{i}",
             name: "name #{i}",
             price: "price #{i}",
@@ -48,21 +51,27 @@ module ShopifyTransporter::Pipeline::Magento::Order
                 price: "10",
                 rate: 0.12,
               }
-            ]
+            ],
+            total_discount: '20',
+            requires_shipping: true,
+            fulfillment_status: 'fulfilled',
+            fulfillable_quantity: 0,
+            taxable: true
           }.deep_stringify_keys
         end
-        expect(shopify_order['line_items']).to match_array(expected_shopify_order_line_items)
+        expect(shopify_order['line_items']).to eq(expected_shopify_order_line_items)
       end
 
       it 'should not generate tax info for a line item if zero tax is applied' do
         magento_order_line_item = [
           FactoryBot.build(:magento_order_line_item,
-            qty_ordered: "qty ordered",
+            qty_ordered: "5",
+            qty_shipped: "3",
             sku: "sku",
             name: "name",
             price: "price",
-            tax_amount: "0",
-            tax_percent: "0",
+            discount_amount: "20",
+            is_virtual: "0"
           )
         ]
 
@@ -70,14 +79,19 @@ module ShopifyTransporter::Pipeline::Magento::Order
         shopify_order = described_class.new.convert(magento_order, {})
         expected_shopify_order_line_item = [
           {
-            quantity: "qty ordered",
+            quantity: '5',
             sku: "sku",
             name: "name",
             price: "price",
-            tax_lines: nil
+            tax_lines: nil,
+            total_discount: '20',
+            requires_shipping: true,
+            fulfillment_status: 'partial',
+            fulfillable_quantity: 2,
+            taxable: false
           }.deep_stringify_keys
         ]
-        expect(shopify_order['line_items']).to match_array(expected_shopify_order_line_item)
+        expect(shopify_order['line_items']).to eq(expected_shopify_order_line_item)
       end
 
     end

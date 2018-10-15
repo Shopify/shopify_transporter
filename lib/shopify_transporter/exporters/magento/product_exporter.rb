@@ -21,10 +21,12 @@ module ShopifyTransporter
 
         def export
           base_products.each do |product|
-            yield with_attributes(product)
-          rescue Savon::Error => e
-            print_product_details_error(product, e)
-            yield product
+            begin
+              yield with_attributes(product)
+            rescue Savon::Error => e
+              print_product_details_error(product, e)
+              yield product
+            end
           end
         end
 
@@ -71,9 +73,9 @@ module ShopifyTransporter
 
         def with_attributes(product)
           product_with_base_attributes = product
-            .merge(images: images_attribute(product[:product_id]))
-            .merge(info_for(product))
-            .merge(tags: product_tags(product[:product_id]))
+                                           .merge(images: images_attribute(product[:product_id]))
+                                           .merge(info_for(product))
+                                           .merge(tags: product_tags(product[:product_id]))
 
           case product[:type]
           when 'simple'

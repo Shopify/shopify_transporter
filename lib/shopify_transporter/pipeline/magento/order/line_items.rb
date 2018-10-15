@@ -36,8 +36,13 @@ module ShopifyTransporter
               quantity: item['qty_ordered'],
               sku: item['sku'],
               name: item['name'],
+              total_discount: total_discount(item),
+              requires_shipping: requires_shipping?(item),
               price: item['price'],
+              taxable: taxable?(item),
+              fulfillment_status: fulfillment_status(item),
               tax_lines: tax_lines(item),
+              fulfillable_quantity: fulfillable_quantity(item),
             }.stringify_keys
           end
 
@@ -50,6 +55,42 @@ module ShopifyTransporter
                 rate: item['tax_percent'],
               }.stringify_keys,
             ]
+          end
+
+          def total_discount(item)
+            item['discount_amount'] if item['discount_amount'].present? && item['discount_amount'].to_f != 0
+          end
+
+          def fulfillment_status(item)
+            qty_ordered = qty_by_status(item, 'ordered')
+            qty_shipped = qty_by_status(item, 'shipped')
+            qty_refunded = qty_by_status(item, 'refunded')
+            if qty_ordered == qty_shipped && qty_refunded == 0
+              'fulfilled'
+            elsif qty_shipped > 0 && qty_shipped < qty_ordered
+              'partial'
+            end
+          end
+
+          def fulfillable_quantity(item)
+            qty_ordered = qty_by_status(item, 'ordered')
+            qty_shipped = qty_by_status(item, 'shipped')
+            qty_refunded = qty_by_status(item, 'refunded')
+
+            qty_ordered - [qty_shipped, qty_refunded].max
+          end
+
+          def requires_shipping?(item)
+            item['is_virtual'].to_i == 0 ? true : false
+          end
+
+          def taxable?(item)
+            item['tax_amount'].to_f > 0
+          end
+
+          def qty_by_status(item, status)
+            key = "qty_#{status}"
+            item[key].present? ? item[key].to_i : 0
           end
 
           def tax_applied?(item)

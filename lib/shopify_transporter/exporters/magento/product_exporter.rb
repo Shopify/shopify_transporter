@@ -21,12 +21,10 @@ module ShopifyTransporter
 
         def export
           base_products.each do |product|
-            begin
-              yield with_attributes(product)
-            rescue Savon::Error => e
-              print_product_details_error(product, e)
-              yield product
-            end
+            yield with_attributes(product)
+          rescue Savon::Error => e
+            print_product_details_error(product, e)
+            yield product
           end
         end
 

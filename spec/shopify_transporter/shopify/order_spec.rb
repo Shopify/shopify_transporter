@@ -20,7 +20,7 @@ module ShopifyTransporter
 
       let(:line_item_attributes) do
         %w(
-          name quantity price discount compare_at_price sku requires_shipping taxable fulfillment_status
+          name quantity fulfillable_quantity price total_discount sku requires_shipping taxable fulfillment_status
         )
       end
 

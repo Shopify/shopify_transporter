@@ -98,12 +98,12 @@ FactoryBot.define do
     sequence(:name) { |n| "name-#{n}" }
     sequence(:quantity) { |n| "quantity-#{n}" }
     sequence(:price) { |n| "price-#{n}" }
-    sequence(:compare_at_price) { |n| "compare-at-price-#{n}" }
     sequence(:taxable) { |n| "taxable-#{n}" }
     sequence(:requires_shipping) { |n| "requires-shipping#{n}" }
     sequence(:sku) { |n| "sku-#{n}" }
     sequence(:fulfillment_status) { |n| "fulfillment-status#{n}" }
-    sequence(:discount) { |n| "discount-#{n}" }
+    sequence(:fulfillable_quantity) { |n| "fulfillable_quantity-#{n}" }
+    sequence(:total_discount) { |n| "total_discount-#{n}" }
 
     trait :with_tax_lines do
       transient do

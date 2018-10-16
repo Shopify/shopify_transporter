@@ -46,7 +46,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
               {
                 title: 'Tax',
                 price: "10",
-                rate: "12",
+                rate: 0.12,
               }
             ]
           }.deep_stringify_keys

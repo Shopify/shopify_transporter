@@ -47,9 +47,13 @@ module ShopifyTransporter
               {
                 title: 'Tax',
                 price: item['tax_amount'],
-                rate: item['tax_percent'],
+                rate: tax_percentage(item),
               }.stringify_keys,
             ]
+          end
+
+          def tax_percentage(item)
+            item['tax_percent'].to_f / 100
           end
 
           def tax_applied?(item)

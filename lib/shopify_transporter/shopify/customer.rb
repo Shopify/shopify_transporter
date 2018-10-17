@@ -2,7 +2,7 @@
 require_relative 'record'
 require 'active_support/inflector'
 require 'csv'
-require 'pry'
+
 module ShopifyTransporter
   module Shopify
     class Customer < Record

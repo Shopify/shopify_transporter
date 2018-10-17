@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'pry'
 module ShopifyTransporter
   module Exporters
     module Magento
@@ -27,7 +27,7 @@ module ShopifyTransporter
         private
 
         def with_attributes(base_order)
-          base_order.merge(items: info_for(base_order[:increment_id]))
+          compact_line_items!(base_order.merge(items: info_for(base_order[:increment_id])))
         end
 
         def base_orders
@@ -44,6 +44,31 @@ module ShopifyTransporter
           @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
             .body[:sales_order_info_response]
+        end
+
+        def compact_line_items!(order)
+          return order unless order.dig(:items, :result, :items, :item).present?
+
+          products = order[:items][:result][:items][:item]
+
+          return order if products.is_a?(Hash)
+
+          remove_child_products!(products)
+          order
+        end
+
+        def remove_child_products!(products)
+          grouped_products = products.group_by { |product| product[:sku] }
+          grouped_products.each do |_, array|
+            next unless array.length > 1
+
+            parent = array.find { |product| product[:product_type] == 'configurable' }
+            child = array.find { |product| product[:product_type] == 'simple' }
+
+            target = products.find { |product| product[:product_id] == parent[:product_id] }
+            target[:name] = child[:name]
+            products.delete_if { |product| product[:product_id] == child[:product_id] }
+          end
         end
 
         def print_order_details_error(order, e)

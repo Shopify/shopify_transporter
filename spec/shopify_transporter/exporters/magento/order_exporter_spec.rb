@@ -65,6 +65,86 @@ module ShopifyTransporter
             expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
           end
 
+          it 'should merge the information of child product into its parent and delete the child' do
+            soap_client = double("soap client")
+
+            sales_order_list_response_body = double('sales_order_list_response_body')
+            sales_order_info_response_body = double('sales_order_info_response_body')
+
+            expect(soap_client)
+              .to receive(:call_in_batches)
+                    .with(
+                      method: :sales_order_list,
+                      batch_index_column: 'order_id',
+                      )
+                    .and_return([sales_order_list_response_body])
+                    .at_least(:once)
+
+            expect(sales_order_list_response_body).to receive(:body).and_return(
+              sales_order_list_response: {
+                result: {
+                  item: {
+                    increment_id: '12345',
+                    top_level_attribute: "an_attribute",
+                  },
+                },
+              },
+              ).at_least(:once)
+
+            expect(soap_client)
+              .to receive(:call).with(:sales_order_info, order_increment_id: '12345')
+                    .and_return(sales_order_info_response_body)
+                    .at_least(:once)
+
+            expect(sales_order_info_response_body).to receive(:body).and_return(
+              sales_order_info_response: {
+                result: {
+                  items: {
+                    item: [
+                      {
+                        sku: 'test-sku',
+                        name: 'test-product',
+                        product_type: 'configurable',
+                        product_id: 1,
+                        price: '200'
+                      },
+                      {
+                        sku: 'test-sku',
+                        name: 'test-product-size-small',
+                        product_type: 'simple',
+                        product_id: 2,
+                        price: '0'
+                      }
+                    ]
+                  }
+                },
+              },
+              ).at_least(:once)
+
+            expected_result = {
+              increment_id: '12345',
+              top_level_attribute: "an_attribute",
+              items: {
+                result: {
+                  items: {
+                    item: [
+                      {
+                        sku: 'test-sku',
+                        name: 'test-product-size-small',
+                        product_type: 'configurable',
+                        product_id: 1,
+                        price: '200'
+                      },
+                    ]
+                  }
+                }
+              },
+            }
+
+            exporter = described_class.new(soap_client: soap_client)
+            expect { |block| exporter.export(&block) }.to yield_with_args(expected_result)
+          end
+
           it 'works with multiple orders being returned by the soap call' do
             soap_client = double('soap client')
 

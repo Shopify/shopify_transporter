@@ -27,7 +27,9 @@ module ShopifyTransporter
         private
 
         def with_attributes(base_order)
-          base_order.merge(items: info_for(base_order[:increment_id]))
+          base_order.merge(
+            items: process_items(info_for(base_order[:increment_id])),
+          )
         end
 
         def base_orders
@@ -44,6 +46,40 @@ module ShopifyTransporter
           @client
             .call(:sales_order_info, order_increment_id: order_increment_id)
             .body[:sales_order_info_response]
+        end
+
+        def process_items(items)
+          products = items.dig(:result, :items, :item)
+          return items unless products.present? && products.is_a?(Array)
+
+          {
+            result: {
+              items: {
+                item: remove_children(products),
+              },
+            },
+          }
+        end
+
+        def remove_children(products)
+          products.group_by { |product| product[:sku] }.map do |_sku, related_products|
+            parent_with_child_name(related_products)
+          end
+        end
+
+        def parent_with_child_name(related_products)
+          child = related_products.find { |product| simple?(product) }
+          parent = related_products.find { |product| configurable?(product) }
+
+          parent.merge(name: child[:name])
+        end
+
+        def simple?(sub_product)
+          sub_product[:product_type] == 'simple'
+        end
+
+        def configurable?(sub_product)
+          sub_product[:product_type] == 'configurable'
         end
 
         def print_order_details_error(order, e)

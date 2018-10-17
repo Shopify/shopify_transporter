@@ -55,14 +55,14 @@ module ShopifyTransporter
           {
             result: {
               items: {
-                item: remove_child_items(products)
-              }
-            }
+                item: remove_children(products),
+              },
+            },
           }
         end
 
-        def remove_child_items(products)
-          products.group_by { |product| product[:sku] }.map do |sku, related_products|
+        def remove_children(products)
+          products.group_by { |product| product[:sku] }.map do |_sku, related_products|
             parent_with_child_name(related_products)
           end
         end

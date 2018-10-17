@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'pry'
+
 module ShopifyTransporter
   module Exporters
     module Magento

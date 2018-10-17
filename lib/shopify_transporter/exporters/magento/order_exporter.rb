@@ -27,7 +27,9 @@ module ShopifyTransporter
         private
 
         def with_attributes(base_order)
-          compact_line_items!(base_order.merge(items: info_for(base_order[:increment_id])))
+          base_order.merge(
+            items: remove_child_items(info_for(base_order[:increment_id])),
+          )
         end
 
         def base_orders
@@ -46,29 +48,34 @@ module ShopifyTransporter
             .body[:sales_order_info_response]
         end
 
-        def compact_line_items!(order)
-          return order unless order.dig(:items, :result, :items, :item).present?
+        def remove_child_items(items)
+          all_products = items.dig(:result, :items, :item)
+          return items unless all_products.present? && all_products.is_a?(Array)
 
-          products = order[:items][:result][:items][:item]
-
-          return order if products.is_a?(Hash)
-
-          remove_child_products!(products)
-          order
+          {
+            result: {
+              items: {
+                item: combine_parent_and_child_info(all_products)
+              }
+            }
+          }
         end
 
-        def remove_child_products!(products)
-          grouped_products = products.group_by { |product| product[:sku] }
-          grouped_products.each do |_, array|
-            next unless array.length > 1
+        def combine_parent_and_child_info(products)
+          products.group_by { |product| product[:sku] }.map do |sku, sub_products|
+            return sub_products unless sub_products.size == 2
 
-            parent = array.find { |product| product[:product_type] == 'configurable' }
-            child = array.find { |product| product[:product_type] == 'simple' }
-
-            target = products.find { |product| product[:product_id] == parent[:product_id] }
-            target[:name] = child[:name]
-            products.delete_if { |product| product[:product_id] == child[:product_id] }
+            child_name = sub_products.find { |sub_product| simple?(sub_product) }[:name]
+            sub_products.find { |sub_product| configurable?(sub_product) }.merge(name: child_name)
           end
+        end
+
+        def simple?(sub_product)
+          sub_product[:product_type] == 'simple'
+        end
+
+        def configurable?(sub_product)
+          sub_product[:product_type] == 'configurable'
         end
 
         def print_order_details_error(order, e)

@@ -28,7 +28,7 @@ module ShopifyTransporter
 
         def with_attributes(base_order)
           base_order.merge(
-            items: remove_child_items(info_for(base_order[:increment_id])),
+            items: process_items(info_for(base_order[:increment_id])),
           )
         end
 
@@ -48,26 +48,30 @@ module ShopifyTransporter
             .body[:sales_order_info_response]
         end
 
-        def remove_child_items(items)
-          all_products = items.dig(:result, :items, :item)
-          return items unless all_products.present? && all_products.is_a?(Array)
+        def process_items(items)
+          products = items.dig(:result, :items, :item)
+          return items unless products.present? && products.is_a?(Array)
 
           {
             result: {
               items: {
-                item: combine_parent_and_child_info(all_products)
+                item: remove_child_items(products)
               }
             }
           }
         end
 
-        def combine_parent_and_child_info(products)
-          products.group_by { |product| product[:sku] }.map do |sku, sub_products|
-            return sub_products unless sub_products.size == 2
-
-            child_name = sub_products.find { |sub_product| simple?(sub_product) }[:name]
-            sub_products.find { |sub_product| configurable?(sub_product) }.merge(name: child_name)
+        def remove_child_items(products)
+          products.group_by { |product| product[:sku] }.map do |sku, related_products|
+            parent_with_child_name(related_products)
           end
+        end
+
+        def parent_with_child_name(related_products)
+          child = related_products.find { |product| simple?(product) }
+          parent = related_products.find { |product| configurable?(product) }
+
+          parent.merge(name: child[:name])
         end
 
         def simple?(sub_product)

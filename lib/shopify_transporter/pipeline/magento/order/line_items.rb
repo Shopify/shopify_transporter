@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
+require 'pry'
 
 module ShopifyTransporter
   module Pipeline
@@ -17,8 +18,32 @@ module ShopifyTransporter
 
           private
 
+          def remove_children(products)
+            products.group_by { |product| product['sku'] }.map do |_sku, related_products|
+              parent_with_child_name(related_products)
+            end
+          end
+
+          def parent_with_child_name(related_products)
+            child = related_products.find { |product| simple?(product) }
+            parent = related_products.find { |product| configurable?(product) }
+            return child if parent.nil?
+            parent.merge('name' => child['name'])
+          end
+
+          def simple?(sub_product)
+            sub_product['product_type'] == 'simple'
+          end
+
+          def configurable?(sub_product)
+            sub_product['product_type'] == 'configurable'
+          end
+
           def line_items(input)
+            x = input.dig("items", "result", "items", "item")
+            input["items"]["result"]["items"]["item"] = x.is_a?(Array) ? remove_children(x) : x
             line_items = line_items_array(input)
+
             line_items.map { |item| line_item(item) }
           end
 
@@ -32,6 +57,7 @@ module ShopifyTransporter
           end
 
           def line_item(item)
+            return {} if item.nil?
             {
               quantity: item['qty_ordered'],
               sku: item['sku'],

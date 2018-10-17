@@ -48,12 +48,11 @@ module ShopifyTransporter
           )
         end
 
-        it 'can produce the additonal address row when a single addresss exists' do
+        it 'can merge the default address into the top level row when a single addresss exists' do
           hash = FactoryBot.build(:shopify_customer_hash, :with_addresses)
           expect(described_class.new(hash).to_csv).to eq(
             [
-              top_level_attributes_row(hash),
-              address_row(hash, hash['addresses'][0]),
+              top_level_attributes_row(hash)
             ].join
           )
         end
@@ -63,7 +62,6 @@ module ShopifyTransporter
           expect(described_class.new(hash).to_csv).to eq(
             [
               top_level_attributes_row(hash),
-              address_row(hash, hash['addresses'][0]),
               address_row(hash, hash['addresses'][1]),
             ].join
           )
@@ -73,13 +71,14 @@ module ShopifyTransporter
           hash = FactoryBot.build(
               :shopify_customer_hash,
               addresses:  [
+                FactoryBot.build(:address),
                 FactoryBot.build(:address, first_name: "custom first", last_name: "custom last", phone: "custom phone")
               ]
           )
           expect(described_class.new(hash).to_csv).to eq(
             [
               top_level_attributes_row(hash),
-              address_row(hash, hash['addresses'][0]),
+              address_row(hash, hash['addresses'][1]),
             ].join
           )
         end
@@ -89,7 +88,6 @@ module ShopifyTransporter
           expect(described_class.new(hash).to_csv).to eq(
             [
               top_level_attributes_row(hash),
-              address_row(hash, hash['addresses'][0]),
               metafield_row(hash, hash['metafields'][0]),
             ].join
           )
@@ -97,10 +95,18 @@ module ShopifyTransporter
       end
 
       def top_level_attributes_row(hash)
-        [
-          *hash.values_at(*top_level_attributes),
-          *Array.new(address_attributes.count + metafield_attributes.count, nil),
-        ].to_csv
+        if hash['addresses'].present? && hash['addresses'][0].present?
+          [
+            *hash.values_at(*top_level_attributes),
+            *hash['addresses'][0].values_at(*address_attributes),
+            *Array.new(metafield_attributes.count, nil),
+          ].to_csv
+        else
+          [
+            *hash.values_at(*top_level_attributes),
+            *Array.new(metafield_attributes.count + address_attributes.count, nil),
+          ].to_csv
+        end
       end
 
       def address_row_top_level_values(hash, address_hash)

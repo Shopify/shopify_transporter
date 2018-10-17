@@ -2,7 +2,7 @@
 require_relative 'record'
 require 'active_support/inflector'
 require 'csv'
-
+require 'pry'
 module ShopifyTransporter
   module Shopify
     class Customer < Record
@@ -57,12 +57,21 @@ module ShopifyTransporter
       ).freeze
 
       def top_level_row_values
-        base_hash.merge(record_hash.slice(*TOP_LEVEL_ATTRIBUTES)).values
+        base_hash.merge(record_hash.slice(*TOP_LEVEL_ATTRIBUTES))
+          .merge(default_address_without_name_and_phone)
+          .values
+      end
+
+      def default_address_without_name_and_phone
+        return {} unless record_hash.dig('addresses').present?
+        default_address = record_hash['addresses'][0]
+        %w(first_name last_name phone).each { |key| default_address.delete(key) }
+        default_address
       end
 
       def address_row_values
         return [] unless record_hash['addresses']
-        record_hash['addresses'].map do |address_hash|
+        record_hash['addresses'].drop(1).map do |address_hash|
           address = address_hash.slice(*ADDRESS_ATTRIBUTES)
           populate_missing_address_attributes!(address)
           row_values_from(address) if self.class.has_values?(address)

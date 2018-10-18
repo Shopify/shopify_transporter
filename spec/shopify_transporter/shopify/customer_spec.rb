@@ -67,7 +67,7 @@ module ShopifyTransporter
           )
         end
 
-        it 'produces rows with overridden last_name/first_name/phone those values exist in the address' do
+        it 'produces rows with overridden last_name/first_name/phone if those values exist in the address' do
           hash = FactoryBot.build(
               :shopify_customer_hash,
               addresses:  [

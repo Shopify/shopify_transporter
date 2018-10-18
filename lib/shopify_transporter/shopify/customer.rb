@@ -67,19 +67,17 @@ module ShopifyTransporter
       end
 
       def default_address
-        if at_least_one_address?
-          record_hash['addresses'][0].slice(*ADDRESS_ATTRIBUTES)
-        else
-          {}
-        end
+        return {} unless at_least_one_address?
+
+        record_hash['addresses'][0].slice(*ADDRESS_ATTRIBUTES)
       end
 
       def at_least_one_address?
-        record_hash.dig('addresses').present? && record_hash.dig('addresses')[0].present?
+        record_hash['addresses'].present? && record_hash['addresses'][0].present?
       end
 
       def address_row_values
-        return [] unless record_hash['addresses'].present?
+        return [] unless record_hash['addresses'].present? && record_hash['addresses'].length > 1
         record_hash['addresses'].drop(1).map do |address_hash|
           address = address_hash.slice(*ADDRESS_ATTRIBUTES)
           populate_missing_address_attributes!(address)

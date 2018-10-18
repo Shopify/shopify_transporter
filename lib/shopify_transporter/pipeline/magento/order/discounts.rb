@@ -30,7 +30,7 @@ module ShopifyTransporter
             shipping_amount = fetch_value(hash, 'shipping_amount')
             if shipping_discount_amount > shipping_amount
               {
-                code: hash['discount_description'],
+                code: discount_code(hash),
                 amount: shipping_discount_amount,
                 type: 'shipping'
               }.stringify_keys
@@ -42,7 +42,7 @@ module ShopifyTransporter
             discount_percentage = discount_percentage(hash)
             if discount_amount > 0 && discount_percentage == 0
               {
-                code: hash['discount_description'],
+                code: discount_code(hash),
                 amount: discount_amount,
                 type: 'fixed_amount'
               }.stringify_keys
@@ -55,7 +55,7 @@ module ShopifyTransporter
 
             if discount_amount > 0 && discount_percentage != 0
               {
-                code: hash['discount_description'],
+                code: discount_code(hash),
                 amount: discount_percentage,
                 type: 'percentage'
               }.stringify_keys
@@ -75,6 +75,10 @@ module ShopifyTransporter
               percentage = discounts.first if discount_applied_on_all_line_items?(discounts)
             end
             percentage
+          end
+
+          def discount_code(hash)
+            hash['discount_description'].present? ? hash['discount_description'] : 'Magento'
           end
 
           def discount_amount(hash)

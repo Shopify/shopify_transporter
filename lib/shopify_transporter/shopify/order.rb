@@ -14,7 +14,7 @@ module ShopifyTransporter
           [
             'Name', 'Email', 'Financial Status', 'Fulfillment Status', 'Currency',
             'Buyer Accepts Marketing', 'Cancel Reason', 'Cancelled At', 'Closed At', 'Tags', 'Note',
-            'Phone', 'Referring Site', 'Processed At', 'Source name', 'Total discounts', 'Total weight',
+            'Phone', 'Referring Site', 'Processed At', 'Source name', 'Total weight',
             'Total Tax', 'Shipping Company', 'Shipping Name', 'Shipping Phone', 'Shipping First Name',
             'Shipping Last Name', 'Shipping Address1', 'Shipping Address2', 'Shipping City',
             'Shipping Province', 'Shipping Province Code', 'Shipping Zip', 'Shipping Country',
@@ -47,8 +47,8 @@ module ShopifyTransporter
           csv << top_level_row_values
           line_item_row_values.each { |row| csv << row }
           transaction_row_values.each { |row| csv << row }
-          metafield_row_values.each { |row| csv << row }
           discount_row_values.each { |row| csv << row }
+          metafield_row_values.each { |row| csv << row }
         end
       end
 

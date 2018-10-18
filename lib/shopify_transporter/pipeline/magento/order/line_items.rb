@@ -27,6 +27,7 @@ module ShopifyTransporter
           def parent_with_child_name(related_products)
             child = related_products.find { |product| simple?(product) }
             parent = related_products.find { |product| configurable?(product) }
+            return related_products.first if child.nil? && parent.nil?
             return child if parent.nil?
             parent.merge('name' => child['name'])
           end
@@ -41,7 +42,11 @@ module ShopifyTransporter
 
           def line_items(input)
             x = input.dig("items", "result", "items", "item")
-            input["items"]["result"]["items"]["item"] = x.is_a?(Array) ? remove_children(x) : x
+
+            if x
+              input["items"]["result"]["items"]["item"] = x.is_a?(Array) ? remove_children(x) : x
+            end
+
             line_items = line_items_array(input)
 
             line_items.map { |item| line_item(item) }

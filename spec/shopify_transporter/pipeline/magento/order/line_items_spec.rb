@@ -33,7 +33,6 @@ module ShopifyTransporter::Pipeline::Magento::Order
             price: "price #{i}",
             tax_amount: "10",
             tax_percent: "12",
-            discount_amount: "20",
             is_virtual: "0"
           )
         end
@@ -52,10 +51,8 @@ module ShopifyTransporter::Pipeline::Magento::Order
                 rate: 0.12,
               }
             ],
-            total_discount: '20',
             requires_shipping: true,
             fulfillment_status: 'fulfilled',
-            fulfillable_quantity: 0,
             taxable: true
           }.deep_stringify_keys
         end
@@ -70,7 +67,6 @@ module ShopifyTransporter::Pipeline::Magento::Order
             sku: "sku",
             name: "name",
             price: "price",
-            discount_amount: "20",
             is_virtual: "0"
           )
         ]
@@ -84,10 +80,8 @@ module ShopifyTransporter::Pipeline::Magento::Order
             name: "name",
             price: "price",
             tax_lines: nil,
-            total_discount: '20',
             requires_shipping: true,
             fulfillment_status: 'partial',
-            fulfillable_quantity: 2,
             taxable: false
           }.deep_stringify_keys
         ]

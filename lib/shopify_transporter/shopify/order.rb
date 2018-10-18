@@ -22,10 +22,10 @@ module ShopifyTransporter
             'Billing First Name', 'Billing Last Name', 'Billing Address1', 'Billing Address2',
             'Billing City', 'Billing Province', 'Billing Province Code', 'Billing Zip',
             'Billing Country', 'Billing Country Code', 'Lineitem name', 'Lineitem quantity',
-            'Lineitem fulfillable quantity', 'Lineitem price', 'Lineitem total discount', 'Lineitem sku',
-            'Lineitem requires shipping', 'Lineitem taxable', 'Lineitem fulfillment status',
-            'Tax 1 Title', 'Tax 1 Price', 'Tax 1 Rate', 'Tax 2 Title', 'Tax 2 Price', 'Tax 2 Rate',
-            'Tax 3 Title', 'Tax 3 Price', 'Tax 3 Rate', 'Transaction amount', 'Transaction kind', 'Transaction status',
+            'Lineitem price', 'Lineitem sku', 'Lineitem requires shipping', 'Lineitem taxable',
+            'Lineitem fulfillment status', 'Tax 1 Title', 'Tax 1 Price', 'Tax 1 Rate', 'Tax 2 Title',
+            'Tax 2 Price', 'Tax 2 Rate', 'Tax 3 Title', 'Tax 3 Price', 'Tax 3 Rate',
+            'Transaction amount', 'Transaction kind', 'Transaction status',
             'Metafield Namespace', 'Metafield Key', 'Metafield Value', 'Metafield Value Type'
           ].to_csv
         end
@@ -65,7 +65,7 @@ module ShopifyTransporter
       LINE_ITEM_PREFIX = 'lineitem_'
 
       LINE_ITEM_ATTRIBUTES = %w(
-        name quantity price total_discount sku requires_shipping taxable fulfillment_status fulfillable_quantity
+        name quantity price sku requires_shipping taxable fulfillment_status
       )
 
       TRANSACTION_PREFIX = 'transaction_'

@@ -46,7 +46,7 @@ module ShopifyTransporter
             order_state = hash['state']
             status = nil
 
-            if order_state == 'Pending Payment'
+            if order_state == 'Pending Payment' || unpaid?(hash)
               status = 'pending'
             elsif paid?(hash)
               status = 'paid'
@@ -105,6 +105,10 @@ module ShopifyTransporter
 
           def paid?(hash)
             total_price(hash) == total_paid(hash) && total_refunded(hash) == 0
+          end
+
+          def unpaid?(hash)
+            total_paid(hash) == 0
           end
 
           def partially_paid?(hash)

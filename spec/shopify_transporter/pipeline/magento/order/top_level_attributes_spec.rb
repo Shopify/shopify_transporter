@@ -148,6 +148,19 @@ module ShopifyTransporter::Pipeline::Magento::Order
           }
           expect(shopify_order).to include(expected_shopify_order.deep_stringify_keys)
         end
+
+        it 'financial_status should be pending if the order is unpaid' do
+          magento_order = FactoryBot.build(:magento_order,
+            increment_id: 'test order number',
+            total_paid: '0'
+          )
+          shopify_order = described_class.new.convert(magento_order, {})
+          expected_shopify_order = {
+            name: 'test order number',
+            financial_status: 'pending'
+          }
+          expect(shopify_order).to include(expected_shopify_order.deep_stringify_keys)
+        end
       end
 
       context "fulfillment_status" do

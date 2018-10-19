@@ -62,6 +62,38 @@ module ShopifyTransporter::Pipeline::Magento::Order
         ]
         expect(shopify_order['discounts']).to eq(expected_discount_code)
       end
+
+      it 'should generate a list of discount codes when there are more than one discount applied' do
+        magento_order = FactoryBot.build(:magento_order, :with_percentage_discount, :with_shipping_discount)
+        shopify_order = described_class.new.convert(magento_order, {})
+        expected_discount_code = [
+          {
+            amount: 25,
+            code: 'TEST_DISCOUNT_CODE',
+            type: 'percentage'
+          }.stringify_keys,
+          {
+            amount: 15,
+            code: 'TEST_DISCOUNT_CODE',
+            type: 'shipping'
+          }.stringify_keys
+        ]
+        expect(shopify_order['discounts']).to match_array(expected_discount_code)
+      end
+
+      it 'should generate default code when there are no such info in the input' do
+        magento_order = FactoryBot.build(:magento_order, :with_percentage_discount)
+        magento_order['discount_description'] = nil
+        shopify_order = described_class.new.convert(magento_order, {})
+        expected_discount_code = [
+          {
+            amount: 25,
+            code: 'Magento',
+            type: 'percentage'
+          }.stringify_keys
+        ]
+        expect(shopify_order['discounts']).to match_array(expected_discount_code)
+      end
     end
   end
 end

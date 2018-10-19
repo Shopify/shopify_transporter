@@ -21,7 +21,7 @@ module ShopifyTransporter
             [
               shipping_discount(hash),
               fixed_amount_discount(hash),
-              percentage_discount(hash)
+              percentage_discount(hash),
             ].compact
           end
 
@@ -32,7 +32,7 @@ module ShopifyTransporter
               {
                 code: discount_code(hash),
                 amount: shipping_discount_amount,
-                type: 'shipping'
+                type: 'shipping',
               }.stringify_keys
             end
           end
@@ -44,7 +44,7 @@ module ShopifyTransporter
               {
                 code: discount_code(hash),
                 amount: discount_amount,
-                type: 'fixed_amount'
+                type: 'fixed_amount',
               }.stringify_keys
             end
           end
@@ -57,7 +57,7 @@ module ShopifyTransporter
               {
                 code: discount_code(hash),
                 amount: discount_percentage,
-                type: 'percentage'
+                type: 'percentage',
               }.stringify_keys
             end
           end

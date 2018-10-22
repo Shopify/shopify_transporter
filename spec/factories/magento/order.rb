@@ -14,7 +14,6 @@ FactoryBot.define do
     sequence(:grand_total) { |n| "grand_total-#{n}" }
     sequence(:order_currency_code) { 'CAD' }
     sequence(:total_qty_ordered) { "1.000" }
-    sequence(:discount_amount) { '100' }
     sequence(:weight) { '40' }
 
     trait :with_line_items do

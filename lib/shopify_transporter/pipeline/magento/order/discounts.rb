@@ -26,8 +26,8 @@ module ShopifyTransporter
           end
 
           def shipping_discount(hash)
-            shipping_discount_amount = fetch_value(hash, 'shipping_discount_amount')
-            shipping_amount = fetch_value(hash, 'shipping_amount')
+            shipping_discount_amount = value_as_float(hash, 'shipping_discount_amount')
+            shipping_amount = value_as_float(hash, 'shipping_amount')
             if shipping_discount_amount > shipping_amount
               {
                 code: discount_code(hash),
@@ -63,18 +63,16 @@ module ShopifyTransporter
           end
 
           def discount_percentage(hash)
-            percentage = 0
-            return percentage unless hash.dig('items', 'result', 'items', 'item').present?
+            return 0 unless hash.dig('items', 'result', 'items', 'item').present?
 
             if line_items(hash).is_a?(Hash)
-              percentage = fetch_value(line_items(hash), 'discount_percent')
+              value_as_float(line_items(hash), 'discount_percent')
             else
               discounts = line_items(hash).map do |line_item|
-                fetch_value(line_item, 'discount_percent')
+                value_as_float(line_item, 'discount_percent')
               end.uniq
-              percentage = discounts.first if discount_applied_on_all_line_items?(discounts)
+              discount_applied_on_all_line_items?(discounts) ? discounts.first : 0
             end
-            percentage
           end
 
           def discount_code(hash)
@@ -82,10 +80,10 @@ module ShopifyTransporter
           end
 
           def discount_amount(hash)
-            hash['discount_amount'].present? ? hash['discount_amount'][1..-1].to_f : 0
+            hash['discount_amount'].present? ? hash['discount_amount'].to_f.abs : 0
           end
 
-          def fetch_value(hash, key)
+          def value_as_float(hash, key)
             hash[key].present? ? hash[key].to_f : 0
           end
 

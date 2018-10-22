@@ -17,7 +17,6 @@ FactoryBot.define do
     sequence(:referring_site) { |n| "referring-site#{n}" }
     sequence(:processed_at) { |n| "processed-at-#{n}" }
     sequence(:source_name) { |n| "source-name-#{n}" }
-    sequence(:total_discounts) { |n| "total-discounts#{n}" }
     sequence(:total_weight) { |n| "total-weight-#{n}" }
     sequence(:total_tax) { |n| "total-tax-#{n}" }
 
@@ -102,8 +101,6 @@ FactoryBot.define do
     sequence(:requires_shipping) { |n| "requires-shipping#{n}" }
     sequence(:sku) { |n| "sku-#{n}" }
     sequence(:fulfillment_status) { |n| "fulfillment-status#{n}" }
-    sequence(:fulfillable_quantity) { |n| "fulfillable_quantity-#{n}" }
-    sequence(:total_discount) { |n| "total_discount-#{n}" }
 
     trait :with_tax_lines do
       transient do

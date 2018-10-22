@@ -63,11 +63,19 @@ module ShopifyTransporter
             qty_ordered = qty_by_status(item, 'ordered')
             qty_shipped = qty_by_status(item, 'shipped')
             qty_refunded = qty_by_status(item, 'refunded')
-            if qty_ordered == qty_shipped && qty_refunded == 0
+            if fully_fulfilled?(qty_ordered, qty_shipped, qty_refunded)
               'fulfilled'
-            elsif qty_shipped > 0 && qty_shipped < qty_ordered
+            elsif partially_fulfilled?(qty_shipped, qty_ordered)
               'partial'
             end
+          end
+
+          def fully_fulfilled?(qty_ordered, qty_shipped, qty_refunded)
+            qty_ordered == qty_shipped && qty_refunded == 0 && qty_shipped > 0
+          end
+
+          def partially_fulfilled?(qty_shipped, qty_ordered)
+            qty_shipped > 0 && qty_shipped < qty_ordered
           end
 
           def requires_shipping?(item)

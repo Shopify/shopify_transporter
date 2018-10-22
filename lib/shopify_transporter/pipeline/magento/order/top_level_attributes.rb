@@ -103,10 +103,6 @@ module ShopifyTransporter
             total_price(hash) == total_paid(hash) && total_paid(hash) > 0 && total_refunded(hash) == 0
           end
 
-          def unpaid?(hash)
-            total_paid(hash) == 0
-          end
-
           def partially_paid?(hash)
             total_paid(hash) > 0 && total_paid(hash) < total_price(hash) && total_refunded(hash) == 0
           end

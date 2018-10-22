@@ -59,7 +59,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expect(shopify_order['line_items']).to eq(expected_shopify_order_line_items)
       end
 
-      it 'fulfillment_status remains nil if neither fulfilled nor partial fulfilled' do
+      it 'sets fulfillment_status to nil if neither fulfilled nor partial fulfilled' do
         magento_order_line_items = 2.times.map do |i|
           FactoryBot.build(:magento_order_line_item,
             qty_ordered: "0",

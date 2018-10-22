@@ -77,6 +77,23 @@ FactoryBot.define do
       end
     end
 
+    trait :with_discounts do
+      discounts do
+        [
+          {
+            'amount': 25,
+            'code': '25OFF',
+            'type': 'fixed_amount'
+          }.stringify_keys,
+          {
+            'amount': 20,
+            'kind': 'FREESHIPPINGUNDER20',
+            'type': 'shipping'
+          }.stringify_keys
+        ]
+      end
+    end
+
     trait :complete do
       transient do
         tax_line_count 0

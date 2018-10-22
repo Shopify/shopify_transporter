@@ -44,6 +44,19 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expect(shopify_order['discounts']).to eq(expected_discount_code)
       end
 
+      it "extract percentage discount into correct discount codes in Shopify when there're multiple line items" do
+        magento_order = FactoryBot.build(:magento_order, :with_percentage_discounts)
+        shopify_order = described_class.new.convert(magento_order, {})
+        expected_discount_code = [
+          {
+            amount: 25,
+            code: 'TEST_DISCOUNT_CODE',
+            type: 'percentage'
+          }.stringify_keys
+        ]
+        expect(shopify_order['discounts']).to eq(expected_discount_code)
+      end
+
       it "will not extract shipping discount if the discount amount is less than shipping fee" do
         magento_order = FactoryBot.build(:magento_order, :with_disqualified_shipping_discount)
         shopify_order = described_class.new.convert(magento_order, {})

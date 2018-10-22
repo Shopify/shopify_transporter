@@ -38,40 +38,32 @@ module ShopifyTransporter
           end
 
           def fixed_amount_discount(hash)
-            discount_amount = discount_amount(hash)
-            discount_percentage = discount_percentage(hash)
-            if discount_amount > 0 && discount_percentage == 0
+            if fixed_amount_discount?(hash)
               {
                 code: discount_code(hash),
-                amount: discount_amount,
+                amount: discount_amount(hash),
                 type: 'fixed_amount',
               }.stringify_keys
             end
           end
 
           def percentage_discount(hash)
-            discount_amount = discount_amount(hash)
-            discount_percentage = discount_percentage(hash)
-
-            if discount_amount > 0 && discount_percentage != 0
+            if percentage_discount?(hash)
               {
                 code: discount_code(hash),
-                amount: discount_percentage,
+                amount: discount_percentage(hash),
                 type: 'percentage',
               }.stringify_keys
             end
           end
 
           def discount_percentage(hash)
-            return 0 unless hash.dig('items', 'result', 'items', 'item').present?
-
-            if line_items(hash).is_a?(Hash)
-              value_as_float(line_items(hash), 'discount_percent')
-            else
-              discounts = line_items(hash).map do |line_item|
-                value_as_float(line_item, 'discount_percent')
-              end.uniq
-              discount_applied_on_all_line_items?(discounts) ? discounts.first : 0
+            if qualifies_for_percentage_discount?(hash)
+              if line_items(hash).is_a?(Hash)
+                value_as_float(line_items(hash), 'discount_percent')
+              elsif line_items(hash).is_a?(Array)
+                all_discount_percentages(hash).first
+              end
             end
           end
 
@@ -87,12 +79,35 @@ module ShopifyTransporter
             hash[key].present? ? hash[key].to_f : 0
           end
 
+
+          def qualifies_for_percentage_discount?(hash)
+            return false unless line_items?(hash)
+
+            return true if line_items(hash).is_a?(Hash) and value_as_float(line_items(hash), 'discount_percent') > 0
+
+            all_discount_percentages(hash).length == 1 && all_discount_percentages(hash).first > 0
+          end
+
+          def line_items?(hash)
+            hash.dig('items', 'result', 'items', 'item').present?
+          end
+
           def line_items(hash)
             hash['items']['result']['items']['item']
           end
 
-          def discount_applied_on_all_line_items?(discounts)
-            discounts.length == 1
+          def all_discount_percentages(hash)
+            line_items(hash).map do |line_item|
+              value_as_float(line_item, 'discount_percent')
+            end.uniq
+          end
+
+          def fixed_amount_discount?(hash)
+            discount_amount(hash) > 0 && !qualifies_for_percentage_discount?(hash)
+          end
+
+          def percentage_discount?(hash)
+            discount_amount(hash) > 0 && qualifies_for_percentage_discount?(hash)
           end
         end
       end

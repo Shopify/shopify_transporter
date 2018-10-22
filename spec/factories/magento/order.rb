@@ -142,6 +142,20 @@ FactoryBot.define do
       end
     end
 
+    trait :with_percentage_discounts do
+      after(:build) do |order, evaluator|
+        order['discount_amount'] = '-15.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['items'] ||= {}
+        order['items']['result']['items']['item'] ||= [
+          create(:magento_percentage_discount),
+          create(:magento_percentage_discount)
+        ]
+      end
+    end
+
     trait :with_disqualified_percentage_discount do
       after(:build) do |order, evaluator|
         order['discount_amount'] = '-15.00'

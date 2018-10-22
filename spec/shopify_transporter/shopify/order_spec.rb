@@ -107,6 +107,16 @@ module ShopifyTransporter
           ].join
           expect(actual_csv).to eq(expected_csv)
         end
+
+        it 'outputs discounts correctly' do
+          order_hash = FactoryBot.build(:shopify_order_hash, :with_discounts)
+          actual_csv = described_class.new(order_hash).to_csv
+          expected_csv = [
+            top_level_attributes_row(order_hash),
+            discount_rows(order_hash),
+          ].join
+          expect(actual_csv).to eq(expected_csv)
+        end
       end
 
       def address_values(hash)

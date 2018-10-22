@@ -43,21 +43,17 @@ module ShopifyTransporter
           end
 
           def financial_status(hash)
-            order_state = hash['state']
-            status = nil
-
-            if order_state == 'Pending Payment'
-              status = 'pending'
-            elsif paid?(hash)
-              status = 'paid'
+            if paid?(hash)
+              'paid'
             elsif partially_paid?(hash)
-              status = 'partially_paid'
+              'partially_paid'
             elsif partially_refunded?(hash)
-              status = 'partially_refunded'
+              'partially_refunded'
             elsif refunded?(hash)
-              status = 'refunded'
+              'refunded'
+            else
+              'pending'
             end
-            status
           end
 
           def fulfillment_status(hash)
@@ -104,7 +100,7 @@ module ShopifyTransporter
           end
 
           def paid?(hash)
-            total_price(hash) == total_paid(hash) && total_refunded(hash) == 0
+            total_price(hash) == total_paid(hash) && total_paid(hash) > 0 && total_refunded(hash) == 0
           end
 
           def partially_paid?(hash)

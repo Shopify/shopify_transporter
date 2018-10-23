@@ -14,7 +14,7 @@ module ShopifyTransporter
 
           class VariantAttributesAccumulator < Shopify::AttributesAccumulator
             def accumulate(current_product)
-              if current_product['parent_id'].present?
+              if current_product['type'] == 'simple'
                 @output['variants'] ||= []
                 @output['variants'] << current_product
                 @output

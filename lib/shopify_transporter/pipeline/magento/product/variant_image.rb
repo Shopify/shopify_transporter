@@ -15,7 +15,7 @@ module ShopifyTransporter
           end
 
           def input_applied?(input)
-            input['images'].present? && input['parent_id'].present?
+            input['images'].present? && input['type'] == 'simple'
           end
 
           def current_variant(input, record)

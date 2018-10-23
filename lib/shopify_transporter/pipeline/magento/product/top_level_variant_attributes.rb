@@ -17,7 +17,7 @@ module ShopifyTransporter
           end
 
           def input_applies?(input)
-            true unless input['parent_id'].nil?
+            input['type'] == 'simple'
           end
 
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator

@@ -28,33 +28,33 @@ module ShopifyTransporter
           def shipping_discount(hash)
             shipping_discount_amount = value_as_float(hash, 'shipping_discount_amount')
             shipping_amount = value_as_float(hash, 'shipping_amount')
-            if shipping_discount_amount > shipping_amount
-              {
-                code: discount_code(hash),
-                amount: shipping_discount_amount,
-                type: 'shipping',
-              }.stringify_keys
-            end
+            return unless  shipping_discount_amount > shipping_amount
+
+            {
+              code: discount_code(hash),
+              amount: shipping_discount_amount,
+              type: 'shipping',
+            }.stringify_keys
           end
 
           def fixed_amount_discount(hash)
-            if fixed_amount_discount?(hash)
-              {
-                code: discount_code(hash),
-                amount: discount_amount(hash),
-                type: 'fixed_amount',
-              }.stringify_keys
-            end
+            return unless fixed_amount_discount?(hash)
+
+            {
+              code: discount_code(hash),
+              amount: discount_amount(hash),
+              type: 'fixed_amount',
+            }.stringify_keys
           end
 
           def percentage_discount(hash)
-            if percentage_discount?(hash)
-              {
-                code: discount_code(hash),
-                amount: discount_percentage(hash),
-                type: 'percentage',
-              }.stringify_keys
-            end
+            return unless percentage_discount?(hash)
+
+            {
+              code: discount_code(hash),
+              amount: discount_percentage(hash),
+              type: 'percentage',
+            }.stringify_keys
           end
 
           def discount_percentage(hash)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
+require 'pry'
 
 module ShopifyTransporter
   module Pipeline
@@ -9,9 +10,9 @@ module ShopifyTransporter
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
             return unless input_applies?(hash)
-            simple_product_in_magento_format = record['variants'].select do |product|
+            simple_product_in_magento_format = record['variants'].find do |product|
               product['product_id'] == hash['product_id']
-            end.first
+            end
             accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
             accumulator.accumulate(hash)
           end

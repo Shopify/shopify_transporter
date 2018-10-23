@@ -79,11 +79,10 @@ module ShopifyTransporter
             hash[key].present? ? hash[key].to_f : 0
           end
 
-
           def qualifies_for_percentage_discount?(hash)
             return false unless line_items?(hash)
 
-            return true if line_items(hash).is_a?(Hash) and value_as_float(line_items(hash), 'discount_percent') > 0
+            return true if line_items(hash).is_a?(Hash) && value_as_float(line_items(hash), 'discount_percent') > 0
 
             all_discount_percentages(hash).length == 1 && all_discount_percentages(hash).first > 0
           end

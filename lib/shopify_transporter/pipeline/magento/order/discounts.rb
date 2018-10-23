@@ -28,7 +28,7 @@ module ShopifyTransporter
           def shipping_discount(hash)
             shipping_discount_amount = value_as_float(hash, 'shipping_discount_amount')
             shipping_amount = value_as_float(hash, 'shipping_amount')
-            return unless  shipping_discount_amount > shipping_amount
+            return unless shipping_discount_amount > shipping_amount
 
             {
               code: discount_code(hash),

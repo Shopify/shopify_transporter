@@ -11,7 +11,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expected_discount_code = [
           {
             amount: 15,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'fixed_amount'
           }.stringify_keys
         ]
@@ -24,7 +24,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expected_discount_code = [
           {
             amount: 15,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'shipping'
           }.stringify_keys
         ]
@@ -37,7 +37,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expected_discount_code = [
           {
             amount: 25,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'percentage'
           }.stringify_keys
         ]
@@ -50,7 +50,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expected_discount_code = [
           {
             amount: 25,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'percentage'
           }.stringify_keys
         ]
@@ -69,7 +69,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expected_discount_code = [
           {
             amount: 15,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'fixed_amount'
           }.stringify_keys
         ]
@@ -82,12 +82,12 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expected_discount_code = [
           {
             amount: 25,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'percentage'
           }.stringify_keys,
           {
             amount: 15,
-            code: 'TEST_DISCOUNT_CODE',
+            code: magento_order['discount_description'],
             type: 'shipping'
           }.stringify_keys
         ]

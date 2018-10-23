@@ -87,7 +87,7 @@ FactoryBot.define do
           }.stringify_keys,
           {
             'amount': 20,
-            'kind': 'FREESHIPPINGUNDER20',
+            'code': 'FREESHIPPINGUNDER20',
             'type': 'shipping'
           }.stringify_keys
         ]

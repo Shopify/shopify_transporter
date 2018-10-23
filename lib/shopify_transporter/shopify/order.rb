@@ -67,7 +67,7 @@ module ShopifyTransporter
       LINE_ITEM_PREFIX = 'lineitem_'
 
       LINE_ITEM_ATTRIBUTES = %w(
-        name quantity price discount compare_at_price sku requires_shipping taxable fulfillment_status
+        name quantity price sku requires_shipping taxable fulfillment_status
       )
 
       TRANSACTION_PREFIX = 'transaction_'

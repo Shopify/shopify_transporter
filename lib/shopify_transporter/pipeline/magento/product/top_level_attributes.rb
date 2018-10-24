@@ -38,7 +38,7 @@ module ShopifyTransporter
             private
 
             def input_applies?(input)
-              true unless input['parent_id'].present?
+              input['parent_id'].blank?
             end
 
             def attributes_from(input)

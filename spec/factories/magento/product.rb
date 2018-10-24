@@ -10,6 +10,10 @@ FactoryBot.define do
     sequence(:created_at) { |n| "created_at-#{n}" }
     sequence(:visibility) { '1' }
 
+    trait :with_parent_id do
+      sequence(:parent_id) { |n| n.to_s }
+    end
+
     trait :with_no_label_image do
       images do
         [
@@ -136,7 +140,11 @@ FactoryBot.define do
     sequence(:handle) { 'french-cuff-cotton-twill-oxford' }
     sequence(:created_at) { '2013-03-05T01:25:10-05:00' }
     sequence(:published_scope) { 'web' }
-    sequence(:parent_id) { '1' }
+    type 'simple'
+
+    trait :with_parent_id do
+      sequence(:parent_id) { |n| n.to_s }
+    end
 
     trait :with_img do
       images do
@@ -182,6 +190,11 @@ FactoryBot.define do
     sequence(:price) { '222' }
     sequence(:weight) { '100' }
     sequence(:sku) { |n| "m#{n}" }
+    type 'simple'
+
+    trait :with_parent_id do
+      sequence(:parent_id) { |n| n.to_s }
+    end
 
     initialize_with { attributes.deep_stringify_keys }
   end

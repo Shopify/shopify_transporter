@@ -5,8 +5,17 @@ require 'shopify_transporter/pipeline/magento/product/top_level_variant_attribut
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe TopLevelVariantAttributes, type: :helper do
     context '#convert' do
+      it 'does not accumulate anything if product is not a simple product' do
+        magento_product = FactoryBot.build(:configurable_magento_product)
+        shopify_product = {}
+
+        described_class.new.convert(magento_product, shopify_product)
+
+        expect(shopify_product).to eq({})
+      end
+
       it 'extracts top level product variant attributes from an input hash' do
-        child_product = FactoryBot.build(:advanced_magento_simple_product)
+        child_product = FactoryBot.build(:advanced_magento_simple_product, :with_parent_id)
         parent_product = FactoryBot.build(:advanced_magento_configurable_product,
           variants: [
             {
@@ -63,8 +72,8 @@ module ShopifyTransporter::Pipeline::Magento::Product
       end
 
       it 'make sure the correct product is being converted when there exist multiple simple products as variants' do
-        child_product = FactoryBot.build(:advanced_magento_simple_product)
-        another_child_product = FactoryBot.build(:advanced_magento_simple_product)
+        child_product = FactoryBot.build(:advanced_magento_simple_product, :with_parent_id)
+        another_child_product = FactoryBot.build(:advanced_magento_simple_product, :with_parent_id)
         parent_product = FactoryBot.build(:advanced_magento_configurable_product,
           variants: [
             {
@@ -95,11 +104,12 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(parent_product).to include(expected_variant_information.deep_stringify_keys)
       end
 
-      it 'should skip converting top level variants when the input is a product without parent_id' do
+      it 'should skip converting top level variants when the input is a configurable product' do
+        configurable_product = FactoryBot.build(:configurable_magento_product)
         parent_product = {}
-        simple_product_without_parent = FactoryBot.build(:simple_magento_product)
-        simple_product_without_parent.delete('parent_id')
-        described_class.new.convert(simple_product_without_parent, parent_product)
+
+        described_class.new.convert(configurable_product, parent_product)
+
         expect(parent_product.keys).not_to include(:variants)
       end
 
@@ -114,6 +124,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
         child_product = {
           'product_id' => '111',
           'parent_id' => parent_product['product_id'],
+          'type' => 'simple',
           'option1_name' => 'Color',
           'option1_value' => 'White',
           'option2_name' => 'Size',
@@ -148,6 +159,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
 
         child_product = {
           'product_id' => '111',
+          'type' => 'simple',
           'parent_id' => parent_product['product_id'],
           'option1_name' => 'Color',
           'option1_value' => 'White',

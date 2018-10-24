@@ -5,9 +5,9 @@ module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe VariantAttributes, type: :helper do
 
     context '#convert' do
-      it 'Should accumulate variants of child products and append them to corresponding parent product' do
+      it 'should accumulate variants of child products and append them to corresponding parent product' do
         parent_product = FactoryBot.build(:configurable_magento_product)
-        child_product = FactoryBot.build(:simple_magento_product)
+        child_product = FactoryBot.build(:simple_magento_product, :with_parent_id)
         shopify_product = described_class.new.convert(child_product, parent_product)
 
         expected_shopify_product = {
@@ -19,6 +19,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
           published_scope: 'web',
           variants: [
               {
+                  type: 'simple',
                   product_id: '2',
                   title: 'French Cuff Cotton Twill Oxford',
                   body_html: 'Button front. Long sleeves. Tapered collar, chest pocket, french cuffs.',
@@ -32,6 +33,13 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
       end
 
+      it 'should not add a variant to the record if product is configurable' do
+        parent_product = FactoryBot.build(:configurable_magento_product)
+        child_product = FactoryBot.build(:configurable_magento_product)
+        shopify_product = described_class.new.convert(child_product, parent_product)
+
+        expect(shopify_product.keys).not_to include('variants')
+      end
     end
   end
 end

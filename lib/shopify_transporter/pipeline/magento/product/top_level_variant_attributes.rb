@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
+require 'pry'
 
 module ShopifyTransporter
   module Pipeline
@@ -12,6 +13,7 @@ module ShopifyTransporter
             simple_product_in_magento_format = record['variants'].find do |product|
               product['product_id'] == hash['product_id']
             end
+            return {} unless simple_product_in_magento_format.present?
             accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
             accumulator.accumulate(hash)
           end

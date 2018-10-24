@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/magento/product/variant_attributes'
-require 'pry'
+
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe VariantAttributes, type: :helper do
 

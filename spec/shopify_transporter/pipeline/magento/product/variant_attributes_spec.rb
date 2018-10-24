@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/magento/product/variant_attributes'
-
+require 'pry'
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe VariantAttributes, type: :helper do
 
@@ -33,6 +33,13 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(shopify_product).to eq(expected_shopify_product.deep_stringify_keys)
       end
 
+      it 'should not add a variant to the record if product is configurable' do
+        parent_product = FactoryBot.build(:configurable_magento_product)
+        child_product = FactoryBot.build(:configurable_magento_product)
+        shopify_product = described_class.new.convert(child_product, parent_product)
+
+        expect(shopify_product.keys).not_to include('variants')
+      end
     end
   end
 end

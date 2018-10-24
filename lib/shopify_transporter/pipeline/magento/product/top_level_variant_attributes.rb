@@ -8,16 +8,12 @@ module ShopifyTransporter
       module Product
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
-            return unless input_applies?(hash)
+            return {} unless record.key?('variants')
             simple_product_in_magento_format = record['variants'].find do |product|
               product['product_id'] == hash['product_id']
             end
             accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
             accumulator.accumulate(hash)
-          end
-
-          def input_applies?(input)
-            input['type'] == 'simple'
           end
 
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator
@@ -34,6 +30,10 @@ module ShopifyTransporter
             end
 
             private
+
+            def input_applies?(input)
+              input.present? && input['type'] == 'simple'
+            end
 
             def variant_options(input)
               {

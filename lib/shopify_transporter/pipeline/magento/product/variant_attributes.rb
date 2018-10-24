@@ -14,11 +14,15 @@ module ShopifyTransporter
 
           class VariantAttributesAccumulator < Shopify::AttributesAccumulator
             def accumulate(current_product)
-              if current_product['type'] == 'simple'
-                @output['variants'] ||= []
-                @output['variants'] << current_product
-                @output
-              end
+              @output['variants'] ||= []
+              @output['variants'] << current_product
+              @output
+            end
+
+            private
+
+            def input_applies?(current_product)
+              current_product['type'] == 'simple'
             end
           end
         end

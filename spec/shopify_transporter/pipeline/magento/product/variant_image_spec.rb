@@ -6,7 +6,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe VariantImage, type: :helper do
     context '#convert' do
       it 'should extract the correct image as the variant image and add that to the parent image list' do
-        simple_product_with_img = FactoryBot.build(:simple_magento_product, :with_img)
+        simple_product_with_img = FactoryBot.build(:simple_magento_product, :with_img, :with_parent_id)
         configurable_product_with_img = FactoryBot.build(:configurable_magento_product, :with_img, 'variants': [simple_product_with_img])
         shopify_product = described_class.new.convert(simple_product_with_img, configurable_product_with_img)
         expected_variant_image_info = {
@@ -38,8 +38,8 @@ module ShopifyTransporter::Pipeline::Magento::Product
       end
 
       it 'should work when there are multiple child products with variant images' do
-        simple_product_with_img = FactoryBot.build(:simple_magento_product, :with_img)
-        another_simple_product_with_img = FactoryBot.build(:simple_magento_product, 'product_id': '3', 'images': [
+        simple_product_with_img = FactoryBot.build(:simple_magento_product, :with_img, :with_parent_id)
+        another_simple_product_with_img = FactoryBot.build(:simple_magento_product, :with_parent_id, 'product_id': '3', 'images': [
           {
             "file": "child_img_position_1",
             "position": "1",
@@ -84,15 +84,22 @@ module ShopifyTransporter::Pipeline::Magento::Product
       it 'should skip variant image conversion if the child product has no image attached' do
         simple_product_without_img = FactoryBot.build(:simple_magento_product)
         configurable_product_with_img = FactoryBot.build(:configurable_magento_product, :with_img, 'variants': [simple_product_without_img])
-        should_skip_conversion = described_class.new.convert(simple_product_without_img, configurable_product_with_img).nil?
-        expect(should_skip_conversion).to be true
+        result = described_class.new.convert(simple_product_without_img, configurable_product_with_img)
+        expect(result).to eq({})
       end
 
-      it 'should skip variant image conversion if the input product is not a child product' do
+      it 'should skip variant image conversion if the input product is a configurable product' do
         magento_product = FactoryBot.build(:magento_product)
         configurable_product_with_img = FactoryBot.build(:configurable_magento_product, :with_img, 'variants': [magento_product])
-        should_skip_conversion = described_class.new.convert(magento_product, configurable_product_with_img).nil?
-        expect(should_skip_conversion).to be true
+        result = described_class.new.convert(magento_product, configurable_product_with_img)
+        expect(result).to eq({})
+      end
+
+      it 'should skip variant image conversion if the input product does not have a parent product' do
+        magento_product = FactoryBot.build(:magento_product)
+        configurable_product_with_img = FactoryBot.build(:simple_magento_product, :with_img, 'variants': [magento_product])
+        result = described_class.new.convert(magento_product, configurable_product_with_img)
+        expect(result).to eq({})
       end
     end
   end

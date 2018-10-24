@@ -5,6 +5,13 @@ require 'shopify_transporter/pipeline/magento/product/top_level_attributes'
 module ShopifyTransporter::Pipeline::Magento::Product
   RSpec.describe TopLevelAttributes, type: :helper do
     context '#convert' do
+      it 'does not accumulate anything if product is not a top level product' do
+        magento_product = FactoryBot.build(:magento_product, :with_parent_id)
+        shopify_product = described_class.new.convert(magento_product, {})
+
+        expect(shopify_product).to eq({})
+      end
+
       it 'extracts top level shopify product attributes from an input hash' do
         magento_product = FactoryBot.build(:magento_product)
         shopify_product = described_class.new.convert(magento_product, {})
@@ -130,8 +137,6 @@ module ShopifyTransporter::Pipeline::Magento::Product
           expect(shopify_product.keys).not_to include('options')
         end
       end
-
-
 
       context '#images' do
         it 'handles images with no labels' do

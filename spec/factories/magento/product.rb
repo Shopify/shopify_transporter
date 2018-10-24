@@ -10,6 +10,10 @@ FactoryBot.define do
     sequence(:created_at) { |n| "created_at-#{n}" }
     sequence(:visibility) { '1' }
 
+    trait :with_parent_id do
+      sequence(:parent_id) { |n| n.to_s }
+    end
+
     trait :with_no_label_image do
       images do
         [

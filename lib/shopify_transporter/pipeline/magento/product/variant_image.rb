@@ -8,14 +8,10 @@ module ShopifyTransporter
       module Product
         class VariantImage < Pipeline::Stage
           def convert(hash, record)
-            return unless input_applied?(hash)
+            return {} unless hash['images'].present? && hash['parent_id'].present?
             add_variant_image!(hash, record)
             add_variant_image_to_parent_images!(hash, record)
             record
-          end
-
-          def input_applied?(input)
-            input['images'].present? && input['type'] == 'simple'
           end
 
           def current_variant(input, record)

@@ -8,7 +8,7 @@ module ShopifyTransporter
         %w( 
           name  email  financial_status  fulfillment_status  currency
           buyer_accepts_marketing  cancel_reason  cancelled_at  closed_at  tags  note 
-          phone  referring_site  processed_at  source_name  total_discounts  total_weight  total_tax
+          phone  referring_site  processed_at  source_name  total_weight  total_tax
         )
       end
 
@@ -38,6 +38,10 @@ module ShopifyTransporter
 
       let(:transaction_attributes) do
         %w(amount kind status)
+      end
+
+      let(:discount_attributes) do
+        %w(code amount type)
       end
 
       let(:shipping_address_prefix) { "shipping_" }
@@ -103,6 +107,16 @@ module ShopifyTransporter
           ].join
           expect(actual_csv).to eq(expected_csv)
         end
+
+        it 'outputs discounts correctly' do
+          order_hash = FactoryBot.build(:shopify_order_hash, :with_discounts)
+          actual_csv = described_class.new(order_hash).to_csv
+          expected_csv = [
+            top_level_attributes_row(order_hash),
+            discount_rows(order_hash),
+          ].join
+          expect(actual_csv).to eq(expected_csv)
+        end
       end
 
       def address_values(hash)
@@ -117,8 +131,9 @@ module ShopifyTransporter
           *address_values(hash['billing_address']), 
           *Array.new(line_item_attributes.size, nil),
           *Array.new(tax_line_attributes.size, nil),
-          *Array.new(metafield_attributes.size, nil),
           *Array.new(transaction_attributes.size, nil),
+          *Array.new(discount_attributes.size, nil),
+          *Array.new(metafield_attributes.size, nil),
         ].to_csv
       end
       
@@ -143,6 +158,7 @@ module ShopifyTransporter
           *line_item_hash.values_at(*line_item_attributes),
           *tax_line_values(line_item_hash['tax_lines']),
           *Array.new(transaction_attributes.size, nil),
+          *Array.new(discount_attributes.size, nil),
           *Array.new(metafield_attributes.size, nil),
         ].to_csv
       end
@@ -156,6 +172,7 @@ module ShopifyTransporter
             *Array.new(line_item_attributes.size, nil),
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
+            *Array.new(discount_attributes.size, nil),
             *metafield.values_at(*metafield_attributes),
           ].to_csv
         end.join
@@ -170,6 +187,22 @@ module ShopifyTransporter
             *Array.new(line_item_attributes.size, nil),
             *Array.new(tax_line_attributes.size, nil),
             *transaction.values_at(*transaction_attributes),
+            *Array.new(discount_attributes.size, nil),
+            *Array.new(metafield_attributes.size, nil),
+          ].to_csv
+        end.join
+      end
+
+      def discount_rows(hash)
+        hash['discounts'].map do |discount|
+          [
+            *hash.slice(*described_class.keys).values_at(*top_level_attributes),
+            *Array.new(address_attributes.size, nil),
+            *Array.new(address_attributes.size, nil),
+            *Array.new(line_item_attributes.size, nil),
+            *Array.new(tax_line_attributes.size, nil),
+            *Array.new(transaction_attributes.size, nil),
+            *discount.values_at(*discount_attributes),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv
         end.join

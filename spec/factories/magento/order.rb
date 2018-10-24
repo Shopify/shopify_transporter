@@ -14,7 +14,6 @@ FactoryBot.define do
     sequence(:grand_total) { |n| "grand_total-#{n}" }
     sequence(:order_currency_code) { 'CAD' }
     sequence(:total_qty_ordered) { "1.000" }
-    sequence(:discount_amount) { '100' }
     sequence(:weight) { '40' }
 
     trait :with_line_items do
@@ -109,6 +108,72 @@ FactoryBot.define do
       end
     end
 
+    trait :with_fixed_amount_discount do
+      after(:build) do |order, evaluator|
+        order['discount_amount'] = '-15.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+      end
+    end
+
+    trait :with_shipping_discount do
+      after(:build) do |order, evaluator|
+        order['shipping_discount_amount'] = '15.00'
+        order['shipping_amount'] = '10.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+      end
+    end
+
+    trait :with_disqualified_shipping_discount do
+      after(:build) do |order, evaluator|
+        order['shipping_discount_amount'] = '15.00'
+        order['shipping_amount'] = '100.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+      end
+    end
+
+    trait :with_percentage_discount do
+      after(:build) do |order, evaluator|
+        order['discount_amount'] = '-15.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['items'] ||= {}
+        order['items']['result']['items']['item'] ||= create(:magento_percentage_discount)
+      end
+    end
+
+    trait :with_percentage_discounts do
+      after(:build) do |order, evaluator|
+        order['discount_amount'] = '-15.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['items'] ||= {}
+        order['items']['result']['items']['item'] ||= [
+          create(:magento_percentage_discount),
+          create(:magento_percentage_discount)
+        ]
+      end
+    end
+
+    trait :with_disqualified_percentage_discount do
+      after(:build) do |order, evaluator|
+        order['discount_amount'] = '-15.00'
+        order['discount_description'] = 'TEST_DISCOUNT_CODE'
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['items'] ||= {}
+        order['items']['result']['items']['item'] ||= [
+          {
+            discount_percent: '25.00'
+          },
+          {
+            discount_percent: '10.00'
+          }
+        ]
+      end
+    end
+
     initialize_with { attributes.deep_stringify_keys }
   end
 
@@ -175,6 +240,12 @@ FactoryBot.define do
     skip_create
     sequence(:created_at) { "2014-06-18 18:09:08" }
     sequence(:status) { "closed" }
+    initialize_with { attributes.deep_stringify_keys }
+  end
+
+  factory :magento_percentage_discount, class: Hash do
+    skip_create
+    sequence(:discount_percent) { "25.00" }
     initialize_with { attributes.deep_stringify_keys }
   end
 end

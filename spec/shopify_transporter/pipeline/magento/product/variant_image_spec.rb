@@ -84,22 +84,22 @@ module ShopifyTransporter::Pipeline::Magento::Product
       it 'should skip variant image conversion if the child product has no image attached' do
         simple_product_without_img = FactoryBot.build(:simple_magento_product)
         configurable_product_with_img = FactoryBot.build(:configurable_magento_product, :with_img, 'variants': [simple_product_without_img])
-        result = described_class.new.convert(simple_product_without_img, configurable_product_with_img)
-        expect(result).to eq({})
+        described_class.new.convert(simple_product_without_img, configurable_product_with_img)
+        expect(configurable_product_with_img['variants'].first.key?('images'))
       end
 
       it 'should skip variant image conversion if the input product is a configurable product' do
         magento_product = FactoryBot.build(:magento_product)
         configurable_product_with_img = FactoryBot.build(:configurable_magento_product, :with_img, 'variants': [magento_product])
-        result = described_class.new.convert(magento_product, configurable_product_with_img)
-        expect(result).to eq({})
+        described_class.new.convert(magento_product, configurable_product_with_img)
+        expect(configurable_product_with_img['variants'].first.key?('images'))
       end
 
       it 'should skip variant image conversion if the input product does not have a parent product' do
         magento_product = FactoryBot.build(:magento_product)
         configurable_product_with_img = FactoryBot.build(:simple_magento_product, :with_img, 'variants': [magento_product])
-        result = described_class.new.convert(magento_product, configurable_product_with_img)
-        expect(result).to eq({})
+        described_class.new.convert(magento_product, configurable_product_with_img)
+        expect(configurable_product_with_img['variants'].first.key?('images'))
       end
     end
   end

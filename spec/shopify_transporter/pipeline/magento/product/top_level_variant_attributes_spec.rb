@@ -7,7 +7,9 @@ module ShopifyTransporter::Pipeline::Magento::Product
     context '#convert' do
       it 'does not accumulate anything if product is not a simple product' do
         magento_product = FactoryBot.build(:configurable_magento_product)
-        shopify_product = described_class.new.convert(magento_product, {})
+        shopify_product = {}
+
+        described_class.new.convert(magento_product, shopify_product)
 
         expect(shopify_product).to eq({})
       end

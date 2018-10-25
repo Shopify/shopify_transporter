@@ -23,7 +23,7 @@ module ShopifyTransporter
           end
 
           def combine_associated_line_items(line_items)
-            line_items.group_by { |line_item| line_item['sku'] }.map do |sku, associated_items|
+            line_items.group_by { |line_item| line_item['sku'] }.map do |_, associated_items|
               case associated_items.size
               when 1
                 associated_items.first

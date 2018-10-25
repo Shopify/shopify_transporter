@@ -19,14 +19,24 @@ module ShopifyTransporter
 
           def line_items(input)
             line_items = line_items_array(input)
-            line_items.map { |item| line_item(item) }
+            combine_associated_line_items(line_items.map { |item| line_item(item) })
+          end
+
+          def combine_associated_line_items(line_items)
+            line_items.group_by { |y| y['sku'] }.map do |sku, associated_items|
+              case associated_items.size
+              when 1
+                associated_items.first
+              when 2
+                parent = associated_items.find { |x| x['product_type'] == 'configurable' }
+                child = associated_items.find { |x| x['product_type'] == 'simple' }
+                parent.merge(child.slice('name'))
+              end.except('product_type')
+            end
           end
 
           def line_items_array(input)
-            items_1 = input['items']
-            result = items_1 && items_1['result']
-            items_2 = result && result['items']
-            item = items_2 && items_2['item']
+            item = input.dig('items', 'result', 'items', 'item')
             return [] unless item
             item.is_a?(Array) ? item : [item]
           end
@@ -41,6 +51,7 @@ module ShopifyTransporter
               taxable: taxable?(item),
               fulfillment_status: fulfillment_status(item),
               tax_lines: tax_lines(item),
+              product_type: item['product_type'],
             }.stringify_keys
           end
 

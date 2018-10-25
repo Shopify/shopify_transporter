@@ -23,6 +23,27 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expect(shopify_order['line_items']).to be_empty
       end
 
+      it 'combines parent and child info into one line item if they share a sku' do
+        parent = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'configurable', name: 'parent_name')
+        child = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'simple', name: 'child_name')
+        magento_order_line_items = [parent, child]
+
+        magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
+        shopify_order = {}
+
+        described_class.new.convert(magento_order, shopify_order)
+
+        parent_line_item_with_child_name = {
+          "name"=>child['name'],
+          "price"=>parent['price'],
+          "quantity"=>parent['qty_ordered'],
+          "sku"=>parent['sku'],
+        }
+
+        expect(shopify_order['line_items'].size).to eq(1)
+        expect(shopify_order['line_items'].first).to include(parent_line_item_with_child_name)
+      end
+
       it 'extracts line item attributes from an input hash' do
         magento_order_line_items = 2.times.map do |i|
           FactoryBot.build(:magento_order_line_item,

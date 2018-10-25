@@ -8,7 +8,7 @@ module ShopifyTransporter
       module Order
         class TopLevelAttributes < Pipeline::Stage
           def convert(hash, record)
-            record.merge!(
+            record.merge(
               {
                 name: hash['increment_id'],
                 email: hash['customer_email'],
@@ -23,11 +23,9 @@ module ShopifyTransporter
                 total_weight: hash['weight'],
                 financial_status: financial_status(hash),
                 fulfillment_status: fulfillment_status(hash),
-              }.stringify_keys
+                customer: build_customer(hash)
+              }.stringify_keys.compact
             )
-            customer = build_customer(hash)
-            record['customer'] = customer unless customer.empty?
-            record
           end
 
           private

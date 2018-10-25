@@ -31,22 +31,21 @@ module ShopifyTransporter::Pipeline::Magento::Customer
         magento_customer.except!('address_list')
         record = {}
         described_class.new.convert(magento_customer, record)
-        expect(record).not_to include('addresses') 
+        expect(record).not_to include('addresses')
       end
 
       it 'builds a single address when the magento address is a hash containing a single address' do
         magento_customer = FactoryBot.build(:magento_customer, address_count: 1)
         address = magento_customer['address_list']['customer_address_list_response']['result']['item']
         address['is_default_shipping'] = true
-        record = {}
-        described_class.new.convert(magento_customer, record) 
-        expect(record['addresses']).to eq(
+        result = described_class.new.convert(magento_customer, {})
+        expect(result['addresses']).to eq(
           [
             address_from(address),
           ]
         )
       end
-      
+
       context 'when the magento address is an array containing multiple addresses' do
         it 'builds the first address from the default shipping address and subsequent addresses from the non-default shipping address' do
           magento_customer = FactoryBot.build(:magento_customer, address_count: 3)
@@ -54,9 +53,8 @@ module ShopifyTransporter::Pipeline::Magento::Customer
           strip_defaults_from(addresses)
 
           addresses[1]['is_default_shipping'] = true
-          record = {}
-          described_class.new.convert(magento_customer, record)
-          expect(record['addresses']).to eq(
+          result = described_class.new.convert(magento_customer, {})
+          expect(result['addresses']).to eq(
             [
               address_from(addresses[1]),
               address_from(addresses[0]),

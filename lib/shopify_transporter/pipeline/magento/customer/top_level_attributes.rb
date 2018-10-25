@@ -10,7 +10,7 @@ module ShopifyTransporter
           def convert(hash, record)
             accumulator = TopLevelAttributesAccumulator.new(record)
             accumulator.accumulate(hash)
-            record.merge!(accumulator.output)
+            record.merge(accumulator.output)
           end
 
           class TopLevelAttributesAccumulator < Shopify::AttributesAccumulator

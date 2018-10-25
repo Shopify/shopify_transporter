@@ -9,35 +9,34 @@ module ShopifyTransporter
         class VariantImage < Pipeline::Stage
           def convert(hash, record)
             return {} unless hash['images'].present? && hash['parent_id'].present?
-            add_variant_image!(hash, record)
-            add_variant_image_to_parent_images!(hash, record)
-            record
-          end
+            variants = record['variants']
+            parent_images = record['images'] || []
 
-          def current_variant(input, record)
-            record['variants'].select do |variant|
-              variant['product_id'] == input['product_id']
-            end.first
-          end
-
-          def add_variant_image!(input, record)
-            current_variant(input, record).merge!(
-              'variant_image' => {
-                'src' => variant_image_url(input),
-              }
+            record.merge(
+              {
+                images: parent_images + [foo(hash)],
+                variants: with_images(variants)
+              }.deep_stringify_keys
             )
+          end
+
+          def foo(x)
+            { 'src' => variant_image_url(x) }
+          end
+
+          def with_images(variants)
+            variants.map do |variant|
+              {
+                'variant_image' => {
+                  'src' => variant_image_url(variant),
+                }
+              }
+            end
           end
 
           def variant_image_url(input)
             return input['images']['url'] if input['images'].is_a?(Hash)
             input['images'].sort_by { |image| image['position'] }.first['url']
-          end
-
-          def add_variant_image_to_parent_images!(input, record)
-            record['images'] ||= []
-            record['images'] << {
-              'src' => variant_image_url(input),
-            }
           end
         end
       end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
-require 'pry'
 
 module ShopifyTransporter
   module Pipeline
@@ -18,51 +17,31 @@ module ShopifyTransporter
 
           private
 
-          def remove_children(products)
-            products.group_by { |product| product['sku'] }.map do |_sku, related_products|
-              parent_with_child_name(related_products)
-            end
-          end
-
-          def parent_with_child_name(related_products)
-            child = related_products.find { |product| simple?(product) }
-            parent = related_products.find { |product| configurable?(product) }
-            return related_products.first if child.nil? && parent.nil?
-            return child if parent.nil?
-            parent.merge('name' => child['name'])
-          end
-
-          def simple?(sub_product)
-            sub_product['product_type'] == 'simple'
-          end
-
-          def configurable?(sub_product)
-            sub_product['product_type'] == 'configurable'
-          end
-
           def line_items(input)
-            x = input.dig("items", "result", "items", "item")
-
-            if x
-              input["items"]["result"]["items"]["item"] = x.is_a?(Array) ? remove_children(x) : x
-            end
-
             line_items = line_items_array(input)
+            combine_associated_line_items(line_items.map { |item| line_item(item) })
+          end
 
-            line_items.map { |item| line_item(item) }
+          def combine_associated_line_items(line_items)
+            line_items.group_by { |y| y['sku'] }.map do |sku, associated_items|
+              case associated_items.size
+              when 1
+                associated_items.first
+              when 2
+                parent = associated_items.find { |x| x['product_type'] == 'configurable' }
+                child = associated_items.find { |x| x['product_type'] == 'simple' }
+                parent.merge(child.slice('name'))
+              end.except('product_type')
+            end
           end
 
           def line_items_array(input)
-            items_1 = input['items']
-            result = items_1 && items_1['result']
-            items_2 = result && result['items']
-            item = items_2 && items_2['item']
+            item = input.dig('items', 'result', 'items', 'item')
             return [] unless item
             item.is_a?(Array) ? item : [item]
           end
 
           def line_item(item)
-            return {} if item.nil?
             {
               quantity: item['qty_ordered'],
               sku: item['sku'],
@@ -72,6 +51,7 @@ module ShopifyTransporter
               taxable: taxable?(item),
               fulfillment_status: fulfillment_status(item),
               tax_lines: tax_lines(item),
+              product_type: item['product_type'],
             }.stringify_keys
           end
 
@@ -94,11 +74,19 @@ module ShopifyTransporter
             qty_ordered = qty_by_status(item, 'ordered')
             qty_shipped = qty_by_status(item, 'shipped')
             qty_refunded = qty_by_status(item, 'refunded')
-            if qty_ordered == qty_shipped && qty_refunded == 0
+            if fully_fulfilled?(qty_ordered, qty_shipped, qty_refunded)
               'fulfilled'
-            elsif qty_shipped > 0 && qty_shipped < qty_ordered
+            elsif partially_fulfilled?(qty_shipped, qty_ordered)
               'partial'
             end
+          end
+
+          def fully_fulfilled?(qty_ordered, qty_shipped, qty_refunded)
+            qty_ordered == qty_shipped && qty_refunded == 0 && qty_shipped > 0
+          end
+
+          def partially_fulfilled?(qty_shipped, qty_ordered)
+            qty_shipped > 0 && qty_shipped < qty_ordered
           end
 
           def requires_shipping?(item)

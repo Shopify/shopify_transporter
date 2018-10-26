@@ -30,6 +30,7 @@ object_types:
       - AddressesAttribute
       - Transactions
       - Discounts
+      - ShippingLines
 
 extract_configuration:
   soap:

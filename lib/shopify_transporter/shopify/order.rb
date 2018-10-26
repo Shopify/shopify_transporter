@@ -3,7 +3,7 @@ require 'active_support/inflector'
 require 'csv'
 require_relative 'attributes_helpers'
 require_relative 'record'
-
+require 'pry'
 module ShopifyTransporter
   module Shopify
     class Order < Record
@@ -26,6 +26,8 @@ module ShopifyTransporter
             'Lineitem fulfillment status', 'Tax 1 Title', 'Tax 1 Price', 'Tax 1 Rate', 'Tax 2 Title',
             'Tax 2 Price', 'Tax 2 Rate', 'Tax 3 Title', 'Tax 3 Price', 'Tax 3 Rate',
             'Transaction amount', 'Transaction kind', 'Transaction status',
+            'Shipping line code', 'Shipping line price', 'Shipping line title', 'Shipping line carrier identifier',
+            'Shipping Tax Price',
             'Discount code', 'Discount amount', 'Discount type',
             'Metafield Namespace', 'Metafield Key', 'Metafield Value', 'Metafield Value Type'
           ].to_csv
@@ -47,6 +49,7 @@ module ShopifyTransporter
           csv << top_level_row_values
           line_item_row_values.each { |row| csv << row }
           transaction_row_values.each { |row| csv << row }
+          shipping_line_row_values.each { |row| csv << row }
           discount_row_values.each { |row| csv << row }
           metafield_row_values.each { |row| csv << row }
         end
@@ -80,6 +83,12 @@ module ShopifyTransporter
 
       DISCOUNT_ATTRIBUTES = %w(
         code amount type
+      )
+
+      SHIPPING_LINE_PREFIX = 'shipping_line_'
+
+      SHIPPING_LINE_ATTRIBUTES = %w(
+        code price title carrier_identifier
       )
 
       def address_hash_for(address_hash, prefix)
@@ -138,6 +147,28 @@ module ShopifyTransporter
 
           row_values_from(discount) if self.class.has_values?(discount)
         end.compact
+      end
+
+      def shipping_line_row_values
+        return [] unless record_hash['shipping_lines']
+
+        record_hash['shipping_lines'].map do |shipping_line_hash|
+          shipping_line = shipping_line_hash.slice(*SHIPPING_LINE_ATTRIBUTES)
+            .transform_keys! { |k| "#{SHIPPING_LINE_PREFIX}#{k}" }
+            .merge(shipping_tax_hash(shipping_line_hash))
+
+          row_values_from(shipping_line) if self.class.has_values?(shipping_line)
+        end.compact
+      end
+
+      def shipping_tax_hash(shipping_line_hash)
+        return {} if shipping_line_hash['tax_lines'].blank?
+
+        shipping_line_hash['tax_lines'].map do |tax_line|
+          tax_line.each_with_object({}) do |(key, val), hash|
+            hash["shipping_tax_#{key}"] = val
+          end
+        end.reduce({}, :merge)
       end
     end
   end

@@ -115,7 +115,7 @@ module ShopifyTransporter
       end
 
       def top_level_attributes_row(hash)
-        if addresses?(hash) && !not_able_to_merge_address?(hash)
+        if addresses?(hash) && able_to_merge_address?(hash)
             [
               *hash.values_at(*top_level_attributes),
               *hash['addresses'][0].values_at(*address_attributes),
@@ -152,11 +152,11 @@ module ShopifyTransporter
       end
 
 
-      def not_able_to_merge_address?(hash)
+      def able_to_merge_address?(hash)
         default_address = hash['addresses'].present? ? hash['addresses'][0] : {}
         top_level_attribute_hash = hash.slice(*top_level_attributes).compact
 
-        top_level_attribute_hash.keys.any? do |key|
+        !top_level_attribute_hash.keys.any? do |key|
           default_address[key].present? && top_level_attribute_hash[key] != default_address[key]
         end
       end

@@ -57,13 +57,13 @@ module ShopifyTransporter
       ).freeze
 
       def top_level_row_values
-        default_address.merge(top_level_attributes).values_at(*Customer.columns)
+        return top_level_attributes.values if not_able_to_merge_address?
+
+        top_level_attributes.merge(default_address.compact).values_at(*Customer.columns)
       end
 
       def top_level_attributes
-        base_hash
-          .merge(record_hash.slice(*TOP_LEVEL_ATTRIBUTES))
-          .delete_if { |_, v| v.nil? }
+        base_hash.merge(record_hash.slice(*TOP_LEVEL_ATTRIBUTES))
       end
 
       def default_address
@@ -76,13 +76,17 @@ module ShopifyTransporter
         record_hash['addresses'].present? && record_hash['addresses'][0].present?
       end
 
-      def more_than_one_address?
-        record_hash['addresses'].present? && record_hash['addresses'].length > 1
+      def not_able_to_merge_address?
+        top_level_attributes.compact.keys.any? do |key|
+          default_address[key].present? && top_level_attributes[key] != default_address[key]
+        end
       end
 
       def address_row_values
-        return [] unless more_than_one_address?
-        record_hash['addresses'].drop(1).map do |address_hash|
+        return [] unless at_least_one_address?
+
+        addresses = not_able_to_merge_address? ? record_hash['addresses'] : record_hash['addresses'].drop(1)
+        addresses.map do |address_hash|
           address = address_hash.slice(*ADDRESS_ATTRIBUTES)
           populate_missing_address_attributes!(address)
           row_values_from(address) if self.class.has_values?(address)

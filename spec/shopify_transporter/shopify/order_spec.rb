@@ -44,8 +44,18 @@ module ShopifyTransporter
         %w(code amount type)
       end
 
+      let(:shipping_line_attributes) do
+        %w(code price title carrier_identifier)
+      end
+
+      let(:shipping_tax_attributes) do
+        %w(price)
+      end
+
       let(:shipping_address_prefix) { "shipping_" }
       let(:billing_address_prefix) { "billing_" }
+      let(:shipping_line_prefix) { "shipping_line_" }
+      let(:shipping_tax_prefix) { "shipping_tax_" }
 
       let(:shipping_address_attributes) do
         address_attributes.map { |attribute| "#{shipping_address_prefix}#{attribute}" }
@@ -117,6 +127,16 @@ module ShopifyTransporter
           ].join
           expect(actual_csv).to eq(expected_csv)
         end
+
+        it 'outputs shipping lines correctly' do
+          order_hash = FactoryBot.build(:shopify_order_hash, :with_shipping_lines)
+          actual_csv = described_class.new(order_hash).to_csv
+          expected_csv = [
+            top_level_attributes_row(order_hash),
+            shipping_line_rows(order_hash),
+          ].join
+          expect(actual_csv).to eq(expected_csv)
+        end
       end
 
       def address_values(hash)
@@ -132,6 +152,8 @@ module ShopifyTransporter
           *Array.new(line_item_attributes.size, nil),
           *Array.new(tax_line_attributes.size, nil),
           *Array.new(transaction_attributes.size, nil),
+          *Array.new(shipping_line_attributes.size, nil),
+          *Array.new(shipping_tax_attributes.size, nil),
           *Array.new(discount_attributes.size, nil),
           *Array.new(metafield_attributes.size, nil),
         ].to_csv
@@ -158,6 +180,8 @@ module ShopifyTransporter
           *line_item_hash.values_at(*line_item_attributes),
           *tax_line_values(line_item_hash['tax_lines']),
           *Array.new(transaction_attributes.size, nil),
+          *Array.new(shipping_line_attributes.size, nil),
+          *Array.new(shipping_tax_attributes.size, nil),
           *Array.new(discount_attributes.size, nil),
           *Array.new(metafield_attributes.size, nil),
         ].to_csv
@@ -172,6 +196,8 @@ module ShopifyTransporter
             *Array.new(line_item_attributes.size, nil),
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
+            *Array.new(shipping_line_attributes.size, nil),
+            *Array.new(shipping_tax_attributes.size, nil),
             *Array.new(discount_attributes.size, nil),
             *metafield.values_at(*metafield_attributes),
           ].to_csv
@@ -187,6 +213,8 @@ module ShopifyTransporter
             *Array.new(line_item_attributes.size, nil),
             *Array.new(tax_line_attributes.size, nil),
             *transaction.values_at(*transaction_attributes),
+            *Array.new(shipping_line_attributes.size, nil),
+            *Array.new(shipping_tax_attributes.size, nil),
             *Array.new(discount_attributes.size, nil),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv
@@ -202,11 +230,35 @@ module ShopifyTransporter
             *Array.new(line_item_attributes.size, nil),
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
+            *Array.new(shipping_line_attributes.size, nil),
+            *Array.new(shipping_tax_attributes.size, nil),
             *discount.values_at(*discount_attributes),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv
         end.join
       end
+
+      def shipping_line_rows(hash)
+        hash['shipping_lines'].map do |shipping_line|
+          [
+            *hash.slice(*described_class.keys).values_at(*top_level_attributes),
+            *Array.new(address_attributes.size, nil),
+            *Array.new(address_attributes.size, nil),
+            *Array.new(line_item_attributes.size, nil),
+            *Array.new(tax_line_attributes.size, nil),
+            *Array.new(transaction_attributes.size, nil),
+            *shipping_line.values_at(*shipping_line_attributes),
+            *shipping_tax_values(shipping_line['tax_lines']),
+            *Array.new(discount_attributes.size, nil),
+            *Array.new(metafield_attributes.size, nil),
+          ].to_csv
+        end.join
+      end
+
+      def shipping_tax_values(tax_lines)
+        tax_lines.map { |tax| tax['price'] }
+      end
+      
     end
   end
 end

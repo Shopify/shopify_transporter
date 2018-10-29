@@ -123,6 +123,15 @@ FactoryBot.define do
       end
     end
 
+    trait :with_shipping_info do
+      after(:build) do |order, evaluator|
+        order['shipping_description'] = 'FedEx - 2nd Day Air'
+        order['shipping_amount'] = '25.00'
+        order['shipping_method'] = 'FedEx'
+        order['shipping_tax_amount'] = '10'
+      end
+    end
+
     trait :with_disqualified_shipping_discount do
       after(:build) do |order, evaluator|
         order['shipping_discount_amount'] = '15.00'

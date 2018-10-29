@@ -94,6 +94,25 @@ FactoryBot.define do
       end
     end
 
+    trait :with_shipping_lines do
+      shipping_lines do
+        [
+          {
+            'code': 'FedEx 1-day Air',
+            'title': 'FedEx 1-day Air',
+            'price': 35,
+            'source': 'Magento',
+            'carrier_identifier': 'FedEx',
+            'tax_lines': [
+              {
+                'price': 3.5
+              },
+            ],
+          }.deep_stringify_keys,
+        ]
+      end
+    end
+
     trait :complete do
       transient do
         tax_line_count 0

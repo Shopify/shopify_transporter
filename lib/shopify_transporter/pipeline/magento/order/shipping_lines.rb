@@ -32,11 +32,7 @@ module ShopifyTransporter
           def shipping_tax_lines(input)
             return unless input['shipping_tax_amount'].present? && input['shipping_tax_amount'].to_f != 0
 
-            [
-              {
-                'price' => input['shipping_tax_amount'],
-              },
-            ]
+            [{ 'price' => input['shipping_tax_amount'] }]
           end
         end
       end

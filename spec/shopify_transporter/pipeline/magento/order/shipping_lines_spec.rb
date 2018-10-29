@@ -17,9 +17,9 @@ module ShopifyTransporter::Pipeline::Magento::Order
             tax_lines: [
               {
                 price: magento_order['shipping_tax_amount']
-              }.stringify_keys
+              }
             ]
-          }.stringify_keys
+          }.deep_stringify_keys
         ]
         expect(shopify_order['shipping_lines']).to eq(expected_shipping_lines)
       end

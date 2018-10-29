@@ -106,9 +106,9 @@ FactoryBot.define do
             'tax_lines': [
               {
                 'price': 3.5
-              }.stringify_keys,
+              },
             ],
-          }.stringify_keys,
+          }.deep_stringify_keys,
         ]
       end
     end

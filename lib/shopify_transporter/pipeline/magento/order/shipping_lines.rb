@@ -25,8 +25,8 @@ module ShopifyTransporter
                 price: input['shipping_amount'],
                 source: 'Magento',
                 carrier_identifier: input['shipping_method'],
-                tax_lines: shipping_tax_lines(input)
-             }.stringify_keys
+                tax_lines: shipping_tax_lines(input),
+              }.stringify_keys,
             ]
           end
 
@@ -35,8 +35,8 @@ module ShopifyTransporter
 
             [
               {
-                price: input['shipping_tax_amount']
-              }.stringify_keys
+                price: input['shipping_tax_amount'],
+              }.stringify_keys,
             ]
           end
         end

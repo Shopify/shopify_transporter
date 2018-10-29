@@ -48,7 +48,7 @@ module ShopifyTransporter
           )
         end
 
-        it 'can produce the additonal address row when a single addresss exists' do
+        it 'should not merge the default address into the top level row when names are different' do
           hash = FactoryBot.build(:shopify_customer_hash, :with_addresses)
           expect(described_class.new(hash).to_csv).to eq(
             [
@@ -58,8 +58,12 @@ module ShopifyTransporter
           )
         end
 
-        it 'produces a row for each address when multiple addresses exist' do
+        it 'should not merge the non-default address into the top level row even if names/phones are the same' do
           hash = FactoryBot.build(:shopify_customer_hash, :with_addresses, address_count: 2)
+          hash['addresses'][1]['first_name'] = hash['first_name']
+          hash['addresses'][1]['last_name'] = hash['last_name']
+          hash['addresses'][1]['phone'] = hash['phone']
+
           expect(described_class.new(hash).to_csv).to eq(
             [
               top_level_attributes_row(hash),
@@ -69,7 +73,21 @@ module ShopifyTransporter
           )
         end
 
-        it 'produces rows with overridden last_name/first_name/phone those values exist in the address' do
+        it 'should merge the default address into the top level row when there is no conflict in doing so' do
+          hash = FactoryBot.build(:shopify_customer_hash, :with_addresses, address_count: 2)
+          hash['addresses'][0]['first_name'] = hash['first_name']
+          hash['addresses'][0]['last_name'] = hash['last_name']
+          hash['addresses'][0]['phone'] = hash['phone']
+
+          expect(described_class.new(hash).to_csv).to eq(
+            [
+              top_level_attributes_row(hash),
+              address_row(hash, hash['addresses'][1]),
+            ].join
+          )
+        end
+
+        it 'produces rows with overridden last_name/first_name/phone if those values exist in the address' do
           hash = FactoryBot.build(
               :shopify_customer_hash,
               addresses:  [
@@ -97,10 +115,18 @@ module ShopifyTransporter
       end
 
       def top_level_attributes_row(hash)
-        [
-          *hash.values_at(*top_level_attributes),
-          *Array.new(address_attributes.count + metafield_attributes.count, nil),
-        ].to_csv
+        if addresses?(hash) && able_to_merge_default_address?(hash)
+            [
+              *hash.values_at(*top_level_attributes),
+              *hash['addresses'][0].values_at(*address_attributes),
+              *Array.new(metafield_attributes.count, nil),
+            ].to_csv
+          else
+            [
+              *hash.values_at(*top_level_attributes),
+              *Array.new(metafield_attributes.count + address_attributes.count, nil),
+            ].to_csv
+        end
       end
 
       def address_row_top_level_values(hash, address_hash)
@@ -123,6 +149,20 @@ module ShopifyTransporter
           *Array.new(address_attributes.count, nil),
           *metafield_hash.values_at(*metafield_attributes),
         ].to_csv
+      end
+
+
+      def able_to_merge_default_address?(hash)
+        default_address = hash['addresses'].present? ? hash['addresses'][0] : {}
+        top_level_attribute_hash = hash.slice(*top_level_attributes).compact
+
+        !top_level_attribute_hash.keys.any? do |key|
+          default_address[key].present? && top_level_attribute_hash[key] != default_address[key]
+        end
+      end
+
+      def addresses?(hash)
+        hash['addresses'].present?
       end
     end
   end

@@ -120,7 +120,7 @@ module ShopifyTransporter
 
         record_hash['line_items'].map do |line_item_hash|
           line_item = line_item_hash.slice(*LINE_ITEM_ATTRIBUTES)
-            .transform_keys! { |k| "#{LINE_ITEM_PREFIX}#{k}" }
+            .transform_keys { |k| "#{LINE_ITEM_PREFIX}#{k}" }
             .merge(tax_line_hash(line_item_hash))
 
           row_values_from(line_item) if self.class.has_values?(line_item)
@@ -132,7 +132,7 @@ module ShopifyTransporter
 
         record_hash['transactions'].map do |transaction_hash|
           transaction = transaction_hash.slice(*TRANSACTION_ATTRIBUTES)
-            .transform_keys! { |k| "#{TRANSACTION_PREFIX}#{k}" }
+            .transform_keys { |k| "#{TRANSACTION_PREFIX}#{k}" }
 
           row_values_from(transaction) if self.class.has_values?(transaction)
         end.compact
@@ -143,7 +143,7 @@ module ShopifyTransporter
 
         record_hash['discounts'].map do |discount_hash|
           discount = discount_hash.slice(*DISCOUNT_ATTRIBUTES)
-            .transform_keys! { |k| "#{DISCOUNT_PREFIX}#{k}" }
+            .transform_keys { |k| "#{DISCOUNT_PREFIX}#{k}" }
 
           row_values_from(discount) if self.class.has_values?(discount)
         end.compact
@@ -154,7 +154,7 @@ module ShopifyTransporter
 
         record_hash['shipping_lines'].map do |shipping_line_hash|
           shipping_line = shipping_line_hash.slice(*SHIPPING_LINE_ATTRIBUTES)
-            .transform_keys! { |k| "#{SHIPPING_LINE_PREFIX}#{k}" }
+            .transform_keys { |k| "#{SHIPPING_LINE_PREFIX}#{k}" }
             .merge(shipping_tax_hash(shipping_line_hash))
 
           row_values_from(shipping_line) if self.class.has_values?(shipping_line)

@@ -23,7 +23,6 @@ module ShopifyTransporter
                 code: input['shipping_description'],
                 title: input['shipping_description'],
                 price: input['shipping_amount'],
-                source: 'Magento',
                 carrier_identifier: input['shipping_method'],
                 tax_lines: shipping_tax_lines(input),
               }.stringify_keys,

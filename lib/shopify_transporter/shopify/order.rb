@@ -3,7 +3,7 @@ require 'active_support/inflector'
 require 'csv'
 require_relative 'attributes_helpers'
 require_relative 'record'
-require 'pry'
+
 module ShopifyTransporter
   module Shopify
     class Order < Record

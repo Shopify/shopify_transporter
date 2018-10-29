@@ -127,6 +127,16 @@ module ShopifyTransporter
           ].join
           expect(actual_csv).to eq(expected_csv)
         end
+
+        it 'outpus shipping lines correctly' do
+          order_hash = FactoryBot.build(:shopify_order_hash, :with_shipping_lines)
+          actual_csv = described_class.new(order_hash).to_csv
+          expected_csv = [
+            top_level_attributes_row(order_hash),
+            shipping_line_rows(order_hash),
+          ].join
+          expect(actual_csv).to eq(expected_csv)
+        end
       end
 
       def address_values(hash)
@@ -238,7 +248,7 @@ module ShopifyTransporter
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
             *shipping_line.values_at(*shipping_line_attributes),
-            *tax_line_values(shipping_line['tax_lines']),
+            *shipping_tax_values(shipping_line['tax_lines']),
             *Array.new(discount_attributes.size, nil),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv

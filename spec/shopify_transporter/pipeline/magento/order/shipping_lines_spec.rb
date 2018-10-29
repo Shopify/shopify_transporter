@@ -13,7 +13,6 @@ module ShopifyTransporter::Pipeline::Magento::Order
             code: magento_order['shipping_description'],
             title: magento_order['shipping_description'],
             price: magento_order['shipping_amount'],
-            source: 'Magento',
             carrier_identifier: magento_order['shipping_method'],
             tax_lines: [
               {

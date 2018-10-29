@@ -55,6 +55,7 @@ module ShopifyTransporter
       let(:shipping_address_prefix) { "shipping_" }
       let(:billing_address_prefix) { "billing_" }
       let(:shipping_line_prefix) { "shipping_line_" }
+      let(:shipping_tax_prefix) { "shipping_tax_" }
 
       let(:shipping_address_attributes) do
         address_attributes.map { |attribute| "#{shipping_address_prefix}#{attribute}" }
@@ -66,7 +67,6 @@ module ShopifyTransporter
 
       it '#header matches the transporter app template' do
         expected_header = File.open('spec/files/transporter_csv_templates/orders.csv', &:readline)
-        binding.pry
         expect(described_class.header).to eq(expected_header)
       end
      
@@ -143,6 +143,7 @@ module ShopifyTransporter
           *Array.new(tax_line_attributes.size, nil),
           *Array.new(transaction_attributes.size, nil),
           *Array.new(shipping_line_attributes.size, nil),
+          *Array.new(shipping_tax_attributes.size, nil),
           *Array.new(discount_attributes.size, nil),
           *Array.new(metafield_attributes.size, nil),
         ].to_csv
@@ -170,6 +171,7 @@ module ShopifyTransporter
           *tax_line_values(line_item_hash['tax_lines']),
           *Array.new(transaction_attributes.size, nil),
           *Array.new(shipping_line_attributes.size, nil),
+          *Array.new(shipping_tax_attributes.size, nil),
           *Array.new(discount_attributes.size, nil),
           *Array.new(metafield_attributes.size, nil),
         ].to_csv
@@ -185,6 +187,7 @@ module ShopifyTransporter
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
             *Array.new(shipping_line_attributes.size, nil),
+            *Array.new(shipping_tax_attributes.size, nil),
             *Array.new(discount_attributes.size, nil),
             *metafield.values_at(*metafield_attributes),
           ].to_csv
@@ -201,6 +204,7 @@ module ShopifyTransporter
             *Array.new(tax_line_attributes.size, nil),
             *transaction.values_at(*transaction_attributes),
             *Array.new(shipping_line_attributes.size, nil),
+            *Array.new(shipping_tax_attributes.size, nil),
             *Array.new(discount_attributes.size, nil),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv
@@ -217,6 +221,7 @@ module ShopifyTransporter
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
             *Array.new(shipping_line_attributes.size, nil),
+            *Array.new(shipping_tax_attributes.size, nil),
             *discount.values_at(*discount_attributes),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv
@@ -233,10 +238,15 @@ module ShopifyTransporter
             *Array.new(tax_line_attributes.size, nil),
             *Array.new(transaction_attributes.size, nil),
             *shipping_line.values_at(*shipping_line_attributes),
+            *tax_line_values(shipping_line['tax_lines']),
             *Array.new(discount_attributes.size, nil),
             *Array.new(metafield_attributes.size, nil),
           ].to_csv
         end.join
+      end
+
+      def shipping_tax_values(tax_lines)
+        tax_lines.map { |tax| tax['price'] }
       end
       
     end

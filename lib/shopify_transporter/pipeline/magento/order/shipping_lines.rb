@@ -8,10 +8,10 @@ module ShopifyTransporter
       module Order
         class ShippingLines < Pipeline::Stage
           def convert(input, record)
-            record.merge!(
+            record.merge(
               {
-                shipping_lines: shipping_lines(input),
-              }.stringify_keys
+                'shipping_lines' => shipping_lines(input),
+              }
             )
           end
 
@@ -20,12 +20,12 @@ module ShopifyTransporter
           def shipping_lines(input)
             [
               {
-                code: input['shipping_description'],
-                title: input['shipping_description'],
-                price: input['shipping_amount'],
-                carrier_identifier: input['shipping_method'],
-                tax_lines: shipping_tax_lines(input),
-              }.stringify_keys,
+                'code' => input['shipping_description'],
+                'title' => input['shipping_description'],
+                'price'=> input['shipping_amount'],
+                'carrier_identifier'=> input['shipping_method'],
+                'tax_lines'=> shipping_tax_lines(input),
+              },
             ]
           end
 
@@ -34,8 +34,8 @@ module ShopifyTransporter
 
             [
               {
-                price: input['shipping_tax_amount'],
-              }.stringify_keys,
+                'price' => input['shipping_tax_amount'],
+              },
             ]
           end
         end

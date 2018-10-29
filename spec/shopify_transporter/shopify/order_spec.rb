@@ -128,7 +128,7 @@ module ShopifyTransporter
           expect(actual_csv).to eq(expected_csv)
         end
 
-        it 'outpus shipping lines correctly' do
+        it 'outputs shipping lines correctly' do
           order_hash = FactoryBot.build(:shopify_order_hash, :with_shipping_lines)
           actual_csv = described_class.new(order_hash).to_csv
           expected_csv = [

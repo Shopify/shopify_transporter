@@ -90,9 +90,10 @@ module ShopifyTransporter
             }
           ).body
 
-          raise FailedLoginError, result.to_s unless result&.dig(:login_response, :login_return).present?
+          session_id = result&.dig(:login_response, :login_return)
+          raise FailedLoginError, result.to_s unless session_id.present?
 
-          @soap_session_id ||= result.dig(:login_response, :login_return)
+          @soap_session_id ||= session_id
         end
 
         def batching_filter(starting_id, ending_id, batch_index_column)

@@ -43,14 +43,14 @@ module ShopifyTransporter
         end
 
         describe '#call' do
-          it 'initializes savon with the right parameters' do
+          it 'raises FailedLoginError if login response does not contain a session id' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
 
-            Soap.new(init_params).call(:test_call, {})
+            expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError)
           end
 
-          it 'creates a session' do
+          it 'creates a session correctly if login response contains a session id' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
             stub_login_call(mock_client)

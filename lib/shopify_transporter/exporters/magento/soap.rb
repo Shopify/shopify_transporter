@@ -7,6 +7,13 @@ module ShopifyTransporter
   module Exporters
     module Magento
       class Soap
+        class FailedLoginError < Exporters::ExportError
+          def initialize(error_message)
+            sep = $INPUT_RECORD_SEPARATOR
+            super("Unable to obtain SOAP session ID from server.#{sep + sep}Details:#{sep + error_message}")
+          end
+        end
+
         RETRY_SLEEP_TIME = 0.1
         MAX_RETRIES = 4
 
@@ -74,13 +81,20 @@ module ShopifyTransporter
         end
 
         def soap_session_id
-          @soap_session_id ||= soap_client.call(
+          return @soap_session_id if @soap_session_id.present?
+
+          result = soap_client.call(
             :login,
             message: {
               username: @username,
               api_key: @api_key,
             }
-          ).body[:login_response][:login_return]
+          ).body
+
+          session_id = result&.dig(:login_response, :login_return)
+          raise FailedLoginError, result.to_s unless session_id.present?
+
+          @soap_session_id ||= session_id
         end
 
         def batching_filter(starting_id, ending_id, batch_index_column)

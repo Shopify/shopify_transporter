@@ -22,7 +22,7 @@ module ShopifyTransporter
           ).and_return(mock_client)
         end
 
-        def stub_login_call(mock_client)
+        def stub_login_call(mock_client, body: { login_response: { login_return: '123' } })
           login_response = double('login_response')
 
           expect(mock_client).to receive(:call).with(
@@ -35,22 +35,28 @@ module ShopifyTransporter
             login_response
           )
 
-          expect(login_response).to receive(:body).and_return(
-            login_response: {
-              login_return: '123',
-            },
-          )
+          expect(login_response).to receive(:body).and_return(body)
         end
 
         describe '#call' do
-          it 'initializes savon with the right parameters' do
+          it 'raises FailedLoginError if login response does not contain a session id' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
 
-            Soap.new(init_params).call(:test_call, {})
+            expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError)
           end
 
-          it 'creates a session' do
+          it 'raises FailedLoginError with the right message and format' do
+            mock_client = spy('mock_client')
+            stub_client_call(mock_client)
+            stub_login_call(mock_client, body: {not_the_right_key: 0})
+
+            expected_error_message = "Unable to obtain SOAP session ID from server.\n\nDetails:\n{:not_the_right_key=>0}"
+
+            expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError, expected_error_message)
+          end
+
+          it 'creates a session correctly if login response contains a session id' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
             stub_login_call(mock_client)

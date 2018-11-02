@@ -42,6 +42,13 @@ module ShopifyTransporter
           it 'raises FailedLoginError if login response does not contain a session id' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
+
+            expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError)
+          end
+
+          it 'raises FailedLoginError with the right message and format' do
+            mock_client = spy('mock_client')
+            stub_client_call(mock_client)
             stub_login_call(mock_client, body: nil)
 
             expected_error_message = "Unable to obtain SOAP session ID from server.\n\nDetails:\n\n"
@@ -220,7 +227,7 @@ module ShopifyTransporter
               Processing batch: 3..5
               Skipping batch: 3..5 after 4 retries because of an error.
               The exact error was:
-              Savon::Error:
+              Savon::Error: 
               Soap call failed.
               Processing batch: 6..7
             WARNING

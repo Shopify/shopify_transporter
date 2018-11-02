@@ -2,7 +2,6 @@
 
 require 'json'
 require 'savon'
-require 'pry'
 
 module ShopifyTransporter
   module Exporters

@@ -10,7 +10,7 @@ module ShopifyTransporter
         class FailedLoginError < Exporters::ExportError
           def initialize(error_message)
             sep = $INPUT_RECORD_SEPARATOR
-            super("Unable to obtain SOAP session ID from server.#{sep + sep}Details:#{sep + sep + error_message}")
+            super("Unable to obtain SOAP session ID from server.#{sep + sep}Details:#{sep + error_message}")
           end
         end
 

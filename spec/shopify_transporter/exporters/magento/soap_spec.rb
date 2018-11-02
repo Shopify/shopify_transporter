@@ -49,9 +49,9 @@ module ShopifyTransporter
           it 'raises FailedLoginError with the right message and format' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
-            stub_login_call(mock_client, body: nil)
+            stub_login_call(mock_client, body: {not_the_right_key: 0})
 
-            expected_error_message = "Unable to obtain SOAP session ID from server.\n\nDetails:\n\n"
+            expected_error_message = "Unable to obtain SOAP session ID from server.\n\nDetails:\n{:not_the_right_key=>0}"
 
             expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError, expected_error_message)
           end

@@ -91,7 +91,7 @@ module ShopifyTransporter
             }
           ).body
 
-          session_id = result&.dig(:login_response, :login_return)
+          session_id = result&.dig(:login_response, :login_return) || result&.dig(:login_response_param, :result)
           raise FailedLoginError, result.to_s unless session_id.present?
 
           @soap_session_id ||= session_id

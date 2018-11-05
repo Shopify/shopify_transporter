@@ -56,7 +56,7 @@ module ShopifyTransporter
             expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError, expected_error_message)
           end
 
-          it 'creates a session correctly if the login response contains a session id in format A' do
+          it 'creates a session correctly if the login response has keys :login_response and :login_return' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
             stub_login_call(mock_client)
@@ -64,7 +64,7 @@ module ShopifyTransporter
             Soap.new(init_params).call(:test_call, {})
           end
 
-          it 'creates a session correctly if login response contains a session id in format B' do
+          it 'creates a session correctly if login response has keys :login_response_param and :result' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
             stub_login_call(mock_client, body: { login_response_param: { result: '456' } })

@@ -235,7 +235,7 @@ module ShopifyTransporter
               Processing batch: 3..5
               Skipping batch: 3..5 after 4 retries because of an error.
               The exact error was:
-              Savon::Error:
+              Savon::Error: 
               Soap call failed.
               Processing batch: 6..7
             WARNING

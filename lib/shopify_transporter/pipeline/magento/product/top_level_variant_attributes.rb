@@ -26,8 +26,8 @@ module ShopifyTransporter
 
             def accumulate(input)
               accumulate_attributes(map_from_key_to_val(COLUMN_MAPPING, input))
-              accumulate_attributes(variant_options(input))
               accumulate_attributes(map_from_key_to_val(price_mapping(input), input))
+              accumulate_attributes(variant_options(input))
             end
 
             private
@@ -37,18 +37,9 @@ module ShopifyTransporter
             end
 
             def price_mapping(input)
-              if input['special_price'].present?
-                special_price_foo(input)
-              else
-                { 'price' => 'price' }
-              end
-            end
+              return { 'price' => 'price' } unless input['special_price'].present?
 
-            def special_price_foo(input)
-              {
-                'special_price' => 'price',
-                'price' => 'compare_at_price',
-              }
+              { 'special_price' => 'price', 'price' => 'compare_at_price' }
             end
 
             def variant_options(input)

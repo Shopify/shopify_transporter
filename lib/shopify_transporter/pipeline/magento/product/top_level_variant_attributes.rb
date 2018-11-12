@@ -21,19 +21,34 @@ module ShopifyTransporter
             COLUMN_MAPPING = {
               'sku' => 'sku',
               'weight' => 'weight',
-              'price' => 'price',
               'inventory_quantity' => 'inventory_qty',
             }
 
             def accumulate(input)
               accumulate_attributes(map_from_key_to_val(COLUMN_MAPPING, input))
               accumulate_attributes(variant_options(input))
+              accumulate_attributes(map_from_key_to_val(price_mapping(input), input))
             end
 
             private
 
             def input_applies?(input)
               input.present? && input['type'] == 'simple'
+            end
+
+            def price_mapping(input)
+              if input['special_price'].present?
+                special_price_foo(input)
+              else
+                { 'price' => 'price' }
+              end
+            end
+
+            def special_price_foo(input)
+              {
+                'special_price' => 'price',
+                'price' => 'compare_at_price',
+              }
             end
 
             def variant_options(input)

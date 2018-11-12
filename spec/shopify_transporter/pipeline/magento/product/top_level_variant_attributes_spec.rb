@@ -40,6 +40,45 @@ module ShopifyTransporter::Pipeline::Magento::Product
         expect(parent_product).to include(expected_variant_information.deep_stringify_keys)
       end
 
+      context 'special_price conversions' do
+        it 'sets shopify price to match magento price when special_price is not present' do
+          child_product = FactoryBot.build(:advanced_magento_simple_product, :with_parent_id, price: '15')
+          parent_product = FactoryBot.build(:advanced_magento_configurable_product,
+            variants: [
+              {
+                'product_id': child_product['product_id'],
+              },
+            ])
+
+          described_class.new.convert(child_product, parent_product)
+
+          expected_variant_information = {
+            price: child_product['price'],
+          }
+
+          expect(parent_product['variants'].first).to include(expected_variant_information.deep_stringify_keys)
+        end
+
+        it 'sets shopify price to match the magento special_price when it is present' do
+          child_product = FactoryBot.build(:advanced_magento_simple_product, :with_parent_id, price: '15', special_price: '10')
+          parent_product = FactoryBot.build(:advanced_magento_configurable_product,
+            variants: [
+              {
+                'product_id': child_product['product_id'],
+              },
+            ])
+
+          described_class.new.convert(child_product, parent_product)
+
+          expected_variant_information = {
+            price: child_product['special_price'],
+            compare_at_price: child_product['price'],
+          }
+
+          expect(parent_product['variants'].first).to include(expected_variant_information.deep_stringify_keys)
+        end
+      end
+
       it 'ignores attributes that are not explicitly specified in the top-level' do
         with_nonsense = {
           nonsense_value: :blah,

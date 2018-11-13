@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
+require 'pry'
 
 module ShopifyTransporter
   module Pipeline
@@ -9,8 +10,10 @@ module ShopifyTransporter
         class VariantImage < Pipeline::Stage
           def convert(hash, record)
             return {} unless hash['images'].present? && hash['parent_id'].present?
-            variants = record['variants']
+            variants = record['variants'] || []
             parent_images = record['images'] || []
+
+            binding.pry
 
             record.merge(
               {

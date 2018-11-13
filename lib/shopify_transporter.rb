@@ -7,6 +7,7 @@ require_relative 'shopify_transporter/pipeline.rb'
 require_relative 'shopify_transporter/shopify.rb'
 require_relative 'shopify_transporter/record_builder/record_builder.rb'
 require_relative 'shopify_transporter/record_builder/product_record_builder'
+
 Dir["#{Dir.pwd}/lib/custom_pipeline_stages/**/*.rb"].each { |f| require f }
 
 module ShopifyTransporter
@@ -185,14 +186,14 @@ class TransporterTool
 
   def process(input, file_name, row_number)
     @record_builder.build(input) do |record|
-      run_pipeline(input, record)
+      record = run_pipeline(input, record)
     end
   rescue ShopifyTransporter::RequiredKeyMissing, ShopifyTransporter::MissingParentObject => e
     $stderr.puts error_message_from(e, file_name, row_number)
   end
 
-  def run_pipeline(row, record)
-    @pipeline_stages.each do |_stage_name, stage|
+  def run_pipeline(row, initial_record)
+    @pipeline_stages.reduce(initial_record) do |record, (_stage_name, stage)|
       stage.convert(row, record)
     end
   end

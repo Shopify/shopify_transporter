@@ -11,8 +11,23 @@ module ShopifyTransporter
           def convert(hash, record)
             return {} unless hash['images'].present? && hash['parent_id'].present?
 
-            variants = record['variants'] || []
-            parent_images = record['images'] || []
+            variants = case record['variants']
+            when nil
+              []
+            when Array
+              record['variants']
+            when Hash
+              [record['variants']]
+            end
+
+            parent_images = case record['images']
+            when nil
+              []
+            when Array
+              record['images']
+            when Hash
+              [record['images']]
+            end
 
             record.merge(
               {
@@ -21,6 +36,8 @@ module ShopifyTransporter
               }.deep_stringify_keys
             )
           end
+
+          private
 
           def variant_image(x)
             { 'src' => variant_image_url(x) }

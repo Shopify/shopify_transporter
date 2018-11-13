@@ -7,7 +7,7 @@ module ShopifyTransporter
       RSpec.describe Soap do
         let(:init_params) do
           {
-            hostname: 'example.com',
+            hostname: 'https://example.com',
             username: 'testuser',
             api_key: 'testapikey',
             batch_config: {},

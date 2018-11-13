@@ -74,7 +74,7 @@ module ShopifyTransporter
 
         def soap_client
           @soap_client ||= Savon.client(
-            wsdl: "https://#{@hostname}/api/v2_soap?wsdl",
+            wsdl: "#{@hostname}/api/v2_soap?wsdl",
             open_timeout: 500,
             read_timeout: 500,
           )

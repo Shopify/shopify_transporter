@@ -11,14 +11,14 @@ module ShopifyTransporter
           def convert(hash, record)
             return {} unless hash['images'].present? && hash['parent_id'].present?
 
-            variants = case record['variants']
-            when nil
-              []
-            when Array
-              record['variants']
-            when Hash
-              [record['variants']]
-            end
+            # variants = case record['variants']
+            # when nil
+            #   []
+            # when Array
+            #   record['variants']
+            # when Hash
+            #   [record['variants']]
+            # end
 
             parent_images = case record['images']
             when nil
@@ -29,7 +29,7 @@ module ShopifyTransporter
               [record['images']]
             end
 
-            binding.pry
+            #binding.pry
 
             record.merge(
               {

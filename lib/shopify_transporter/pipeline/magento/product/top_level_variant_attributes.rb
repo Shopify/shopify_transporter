@@ -9,12 +9,13 @@ module ShopifyTransporter
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
             return {} unless record.key?('variants')
-            simple_product_in_magento_format = record['variants'].find do |product|
+            variant = record['variants'].find do |product|
               product['product_id'] == hash['product_id']
             end
-            return {} unless simple_product_in_magento_format.present?
-            accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
-            accumulator.accumulate(hash)
+            return {} unless variant.present?
+            accumulator = TopLevelVariantAttributesAccumulator.new(variant)
+            accumulator.accumulate(hash) #THIS MUTATES RECORD
+            record
           end
 
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator

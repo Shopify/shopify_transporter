@@ -10,6 +10,7 @@ module ShopifyTransporter
       validate_related(input)
 
       if has_parent?(input)
+      #  binding.pry
         yield parent_record(input)
         return
       end

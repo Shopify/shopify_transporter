@@ -194,6 +194,7 @@ class TransporterTool
 
   def run_pipeline(row, initial_record)
     @pipeline_stages.reduce(initial_record) do |record, (_stage_name, stage)|
+      #binding.pry
       stage.convert(row, record)
     end
   end

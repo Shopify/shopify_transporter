@@ -29,10 +29,12 @@ module ShopifyTransporter
               [record['images']]
             end
 
+            binding.pry
+
             record.merge(
               {
                 images: parent_images + [variant_image(hash)],
-                variants: with_images(variants)
+                variants: []
               }.deep_stringify_keys
             )
           end
@@ -41,12 +43,6 @@ module ShopifyTransporter
 
           def variant_image(x)
             { 'src' => variant_image_url(x) }
-          end
-
-          def with_images(variants)
-            variants.map do |variant|
-              variant.merge('variant_image' => variant_image(variant))
-            end
           end
 
           def variant_image_url(input)

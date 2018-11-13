@@ -16,7 +16,7 @@ module ShopifyTransporter
             def accumulate(current_product)
               return @output unless input_applies?(current_product)
               @output['variants'] ||= []
-              @output['variants'] << current_product
+              @output['variants'] << { 'product_id' => current_product['product_id'] }
               @output
             end
 

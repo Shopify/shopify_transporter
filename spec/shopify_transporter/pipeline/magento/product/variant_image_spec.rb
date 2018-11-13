@@ -78,7 +78,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
 
         expect(shopify_product['images']).to eq  expected_parent_image_info
         expect(shopify_product['variants'].first).to include  expected_variant_image_info['simple_product_with_img']
-        expect(shopify_product['variants'].second).to include  expected_variant_image_info['another_simple_product_with_img']
+        expect(shopify_product['variants'][1]).to include  expected_variant_image_info['another_simple_product_with_img']
       end
 
       it 'should skip variant image conversion if the child product has no image attached' do

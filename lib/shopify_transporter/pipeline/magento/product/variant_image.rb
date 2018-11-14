@@ -32,12 +32,16 @@ module ShopifyTransporter
             record.merge(
               {
                 images: parent_images + [variant_image(hash)],
-                variants: variants,
+                variants: variants.map { |variant| with_image(hash, variant) },
               }.deep_stringify_keys
             )
           end
 
           private
+
+          def with_image(input, variant)
+            variant.merge('variant_image' => variant_image(input))
+          end
 
           def variant_image(x)
             { 'src' => variant_image_url(x) }

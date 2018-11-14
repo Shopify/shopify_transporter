@@ -11,11 +11,13 @@ module ShopifyTransporter
 
       if has_parent?(input)
       #  binding.pry
-        yield parent_record(input)
+        result = yield parent_record(input)
         return
       end
 
-      yield record_from(input)
+      result = yield record_from(input)
+
+      @instances[key_of(input)] = result
     end
 
     private

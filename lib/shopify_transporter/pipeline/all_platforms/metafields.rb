@@ -15,6 +15,7 @@ module ShopifyTransporter
             metafield_namespace: params['metafield_namespace'] || ShopifyTransporter::DEFAULT_METAFIELD_NAMESPACE,
           )
           accumulator.accumulate(input)
+          record.merge(accumulator.output)
         end
 
         private

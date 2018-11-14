@@ -186,7 +186,7 @@ class TransporterTool
 
   def process(input, file_name, row_number)
     @record_builder.build(input) do |record|
-      record = run_pipeline(input, record)
+      run_pipeline(input, record)
     end
   rescue ShopifyTransporter::RequiredKeyMissing, ShopifyTransporter::MissingParentObject => e
     $stderr.puts error_message_from(e, file_name, row_number)

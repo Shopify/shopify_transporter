@@ -19,14 +19,7 @@ module ShopifyTransporter::Pipeline::Magento::Product
           published_scope: 'web',
           variants: [
               {
-                  type: 'simple',
-                  product_id: '2',
-                  title: 'French Cuff Cotton Twill Oxford',
-                  body_html: 'Button front. Long sleeves. Tapered collar, chest pocket, french cuffs.',
-                  handle: 'french-cuff-cotton-twill-oxford',
-                  created_at: '2013-03-05T01:25:10-05:00',
-                  published_scope: 'web',
-                  parent_id: '1'
+                  product_id: '2'
               }
           ]
         }

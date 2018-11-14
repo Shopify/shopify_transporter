@@ -11,11 +11,13 @@ module ShopifyTransporter
 
       if has_parent?(input)
         result = yield parent_record(input)
+        key = input['parent_id']
       else
         result = yield record_from(input)
+        key = key_of(input)
       end
 
-      @instances[key_of(input)] = result
+      @instances[key] = result
     end
 
     private

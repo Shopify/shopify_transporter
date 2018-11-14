@@ -29,8 +29,6 @@ module ShopifyTransporter
               [record['images']]
             end
 
-           
-
             record.merge(
               {
                 images: parent_images + [variant_image(hash)],

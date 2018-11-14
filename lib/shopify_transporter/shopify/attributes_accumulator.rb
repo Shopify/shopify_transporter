@@ -9,7 +9,7 @@ module ShopifyTransporter
       attr_reader :output
 
       def initialize(initial_value)
-        @output = initial_value
+        @output = initial_value#.dup
       end
 
       def accumulate(input)

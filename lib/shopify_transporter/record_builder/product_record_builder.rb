@@ -9,6 +9,8 @@ module ShopifyTransporter
     def build(input)
       validate_related(input)
 
+      # Why don't we need to worry about @last_record here the way we do in RecordBuilder?
+
       if has_parent?(input)
         result = yield parent_record(input)
         key = input['parent_id']

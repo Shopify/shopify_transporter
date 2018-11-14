@@ -14,9 +14,8 @@ module ShopifyTransporter
             end
             return record unless variant.present?
             accumulator = TopLevelVariantAttributesAccumulator.new(variant)
-            accumulator.accumulate(hash) #THIS MUTATES RECORD
-            
-            record
+            accumulator.accumulate(hash)
+            record # this shouldnt be necessary, need to fix
           end
 
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator

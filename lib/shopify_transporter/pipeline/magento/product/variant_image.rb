@@ -11,23 +11,8 @@ module ShopifyTransporter
           def convert(hash, record)
             return record unless hash['images'].present? && hash['parent_id'].present?
 
-            variants = case record['variants']
-            when nil
-              []
-            when Array
-              record['variants']
-            when Hash
-              [record['variants']]
-            end
-
-            parent_images = case record['images']
-            when nil
-              []
-            when Array
-              record['images']
-            when Hash
-              [record['images']]
-            end
+            variants = to_array(record, 'variants')
+            parent_images = to_array(record, 'images')
 
             record.merge(
               {
@@ -39,8 +24,21 @@ module ShopifyTransporter
 
           private
 
+          # Better name here? Or just a better way to do this?
+          def to_array(record, key)
+            case record[key]
+            when nil
+              []
+            when Array
+              record[key]
+            when Hash
+              [record[key]]
+            end
+          end
+
           def with_image(input, variant)
             return variant unless input['product_id'] == variant['product_id']
+
             variant.merge('variant_image' => variant_image(input))
           end
 

@@ -40,6 +40,7 @@ module ShopifyTransporter
           private
 
           def with_image(input, variant)
+            return variant unless input['product_id'] == variant['product_id']
             variant.merge('variant_image' => variant_image(input))
           end
 

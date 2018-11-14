@@ -10,6 +10,7 @@ module ShopifyTransporter
           def convert(hash, record)
             warn_if_too_many_options(hash)
             accumulator = TopLevelAttributesAccumulator.new(record)
+            
             accumulator.accumulate(hash)
           end
 
@@ -73,6 +74,7 @@ module ShopifyTransporter
             end
 
             def append_images_to_current_record!(input)
+              
               images = construct_images(input)
               if @output['images'].present?
                 @output['images'].concat(images)

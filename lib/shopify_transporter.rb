@@ -186,7 +186,10 @@ class TransporterTool
 
   def process(input, file_name, row_number)
     @record_builder.build(input) do |record|
-      run_pipeline(input, record)
+      
+      x = run_pipeline(input, record)
+     
+      x
     end
   rescue ShopifyTransporter::RequiredKeyMissing, ShopifyTransporter::MissingParentObject => e
     $stderr.puts error_message_from(e, file_name, row_number)
@@ -194,8 +197,10 @@ class TransporterTool
 
   def run_pipeline(row, initial_record)
     @pipeline_stages.reduce(initial_record) do |record, (_stage_name, stage)|
-      #binding.pry
-      stage.convert(row, record)
+      
+      y = stage.convert(row, record)
+     
+      y
     end
   end
 

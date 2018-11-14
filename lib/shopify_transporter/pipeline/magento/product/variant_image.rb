@@ -9,16 +9,16 @@ module ShopifyTransporter
       module Product
         class VariantImage < Pipeline::Stage
           def convert(hash, record)
-            return {} unless hash['images'].present? && hash['parent_id'].present?
+            return record unless hash['images'].present? && hash['parent_id'].present?
 
-            # variants = case record['variants']
-            # when nil
-            #   []
-            # when Array
-            #   record['variants']
-            # when Hash
-            #   [record['variants']]
-            # end
+            variants = case record['variants']
+            when nil
+              []
+            when Array
+              record['variants']
+            when Hash
+              [record['variants']]
+            end
 
             parent_images = case record['images']
             when nil
@@ -29,12 +29,12 @@ module ShopifyTransporter
               [record['images']]
             end
 
-            #binding.pry
+           
 
             record.merge(
               {
                 images: parent_images + [variant_image(hash)],
-                variants: []
+                variants: variants,
               }.deep_stringify_keys
             )
           end

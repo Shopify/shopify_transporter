@@ -25,10 +25,9 @@ module ShopifyTransporter
 
       if key_of(input).nil?
         result = yield @last_record
-        return
+      else
+        result = yield record_from(input)
       end
-
-      result = yield record_from(input)
 
       @instances[key_of(input)] = result
     end

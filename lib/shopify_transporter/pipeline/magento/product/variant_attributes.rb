@@ -8,8 +8,9 @@ module ShopifyTransporter
       module Product
         class VariantAttributes < Pipeline::Stage
           def convert(hash, record)
-            accumulator = VariantAttributesAccumulator.new(record)
-            accumulator.accumulate(hash)
+            # accumulator = VariantAttributesAccumulator.new(record)
+            # accumulator.accumulate(hash)
+            record # no op
           end
 
           class VariantAttributesAccumulator < Shopify::AttributesAccumulator

@@ -10,12 +10,6 @@ module ShopifyTransporter
           def convert(hash, record)
             return record unless hash['type'] == 'simple'
 
-            # variant = record['variants'].find do |product|
-            #   product['product_id'] == hash['product_id']
-            # end
-            #
-            # return record unless variant.present?
-
             accumulator = TopLevelVariantAttributesAccumulator.new({})
             accumulator.accumulate(hash)
 

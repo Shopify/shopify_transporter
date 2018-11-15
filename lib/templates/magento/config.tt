@@ -19,7 +19,6 @@ object_types:
     record_key: product_id
     pipeline_stages:
       - TopLevelAttributes
-      - VariantAttributes
       - TopLevelVariantAttributes
       - VariantImage
   order:

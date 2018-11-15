@@ -10,9 +10,12 @@ module ShopifyTransporter
           SHIPPING_PREFIX = 'shipping_'
 
           def convert(input, record)
-            record['billing_address'] = address_attributes(input, BILLING_PREFIX)
-            record['shipping_address'] = address_attributes(input, SHIPPING_PREFIX)
-            record
+            record.merge(
+              {
+                billing_address: address_attributes(input, BILLING_PREFIX),
+                shipping_address: address_attributes(input, SHIPPING_PREFIX),
+              }.deep_stringify_keys
+            )
           end
 
           private

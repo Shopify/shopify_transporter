@@ -5,7 +5,7 @@ module ShopifyTransporter
   module Exporters
     module Magento
       RSpec.describe Soap do
-        let(:init_params) do
+        let(:init_params_https) do
           {
             hostname: 'https://example.com',
             username: 'testuser',
@@ -14,9 +14,27 @@ module ShopifyTransporter
           }
         end
 
-        def stub_client_call(mock_client)
+        let(:init_params_http) do
+          {
+            hostname: 'http://example.com',
+            username: 'testuser',
+            api_key: 'testapikey',
+            batch_config: {},
+          }
+        end
+
+        let(:init_params_no_scheme) do
+          {
+            hostname: 'example.com',
+            username: 'testuser',
+            api_key: 'testapikey',
+            batch_config: {},
+          }
+        end
+
+        def stub_client_call(mock_client, scheme: 'https')
           expect(Savon).to receive(:client).with(
-            wsdl: "https://example.com/api/v2_soap?wsdl",
+            wsdl: "#{scheme}://example.com/api/v2_soap?wsdl",
             open_timeout: 500,
             read_timeout: 500,
           ).and_return(mock_client)
@@ -39,11 +57,37 @@ module ShopifyTransporter
         end
 
         describe '#call' do
+          context 'determining host connection protocol' do
+            it 'passes along https if it is provided' do
+              mock_client = spy('mock_client')
+              stub_client_call(mock_client, scheme: 'https')
+              stub_login_call(mock_client)
+
+              Soap.new(init_params_https).call(:test_call, {})
+            end
+
+            it 'passes along http if it is provided' do
+              mock_client = spy('mock_client')
+              stub_client_call(mock_client, scheme: 'http')
+              stub_login_call(mock_client)
+
+              Soap.new(init_params_http).call(:test_call, {})
+            end
+
+            it 'assumes https if no scheme is provided' do
+              mock_client = spy('mock_client')
+              stub_client_call(mock_client, scheme: 'https')
+              stub_login_call(mock_client)
+
+              Soap.new(init_params_no_scheme).call(:test_call, {})
+            end
+          end
+
           it 'raises FailedLoginError if login response does not contain a session id' do
             mock_client = spy('mock_client')
             stub_client_call(mock_client)
 
-            expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError)
+            expect { Soap.new(init_params_https).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError)
           end
 
           it 'raises FailedLoginError with the right message and format' do
@@ -53,7 +97,7 @@ module ShopifyTransporter
 
             expected_error_message = "Unable to obtain SOAP session ID from server.\n\nDetails:\n{:not_the_right_key=>0}"
 
-            expect { Soap.new(init_params).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError, expected_error_message)
+            expect { Soap.new(init_params_https).call(:test_call, {}) }.to raise_error(Soap::FailedLoginError, expected_error_message)
           end
 
           it 'creates a session correctly if the login response has keys :login_response and :login_return' do
@@ -61,7 +105,7 @@ module ShopifyTransporter
             stub_client_call(mock_client)
             stub_login_call(mock_client)
 
-            Soap.new(init_params).call(:test_call, {})
+            Soap.new(init_params_https).call(:test_call, {})
           end
 
           it 'creates a session correctly if login response has keys :login_response_param and :result' do
@@ -69,7 +113,7 @@ module ShopifyTransporter
             stub_client_call(mock_client)
             stub_login_call(mock_client, body: { login_response_param: { result: '456' } })
 
-            Soap.new(init_params).call(:test_call, {})
+            Soap.new(init_params_https).call(:test_call, {})
           end
 
           it 'calls Savon with the fn, session_id and params' do
@@ -84,7 +128,7 @@ module ShopifyTransporter
               },
             )
 
-            Soap.new(init_params).call(:test_call, {})
+            Soap.new(init_params_https).call(:test_call, {})
           end
 
           it 'retries soap calls up to 4 times with a delay when there is a savon error' do
@@ -92,7 +136,7 @@ module ShopifyTransporter
             stub_client_call(mock_client)
             stub_login_call(mock_client)
 
-            soap_instance = Soap.new(init_params)
+            soap_instance = Soap.new(init_params_https)
 
             retries = 0
             expect(mock_client).to receive(:call).with(
@@ -130,7 +174,7 @@ module ShopifyTransporter
           end
 
           it 'returns an enumerator with the results of #call for each batch specified' do
-            soap_client = Soap.new(init_params.merge(
+            soap_client = Soap.new(init_params_https.merge(
               batch_config: {
                 'first_id' => 0,
                 'last_id' => 7,
@@ -151,7 +195,7 @@ module ShopifyTransporter
           end
 
           it 'works when first id and last id are the same' do
-            soap_client = Soap.new(init_params.merge(
+            soap_client = Soap.new(init_params_https.merge(
               batch_config: {
                 'first_id' => 0,
                 'last_id' => 0,
@@ -170,7 +214,7 @@ module ShopifyTransporter
           end
 
           it 'correctly merges params passed in with the batching filter' do
-            soap_client = Soap.new(init_params.merge(
+            soap_client = Soap.new(init_params_https.merge(
               batch_config: {
                 'first_id' => 0,
                 'last_id' => 0,
@@ -202,7 +246,7 @@ module ShopifyTransporter
           end
 
           it 'skips the batch and continues with the next batch if call raises an error' do
-            soap_client = Soap.new(init_params.merge(
+            soap_client = Soap.new(init_params_https.merge(
               batch_config: {
                 'first_id' => 0,
                 'last_id' => 7,

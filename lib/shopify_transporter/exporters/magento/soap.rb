@@ -73,9 +73,6 @@ module ShopifyTransporter
         end
 
         def soap_client
-          default_scheme = 'https://'
-          hostname_with_scheme = protocol_provided?(@hostname) ? @hostname : default_scheme + @hostname
-
           @soap_client ||= Savon.client(
             wsdl: "#{hostname_with_scheme}/api/v2_soap?wsdl",
             open_timeout: 500,
@@ -83,9 +80,9 @@ module ShopifyTransporter
           )
         end
 
-        def protocol_provided?(address)
-          pattern = %r{(http)s?:\/\/.*}
-          (pattern =~ address) == 0
+        def hostname_with_scheme
+          uri = URI.parse(@hostname)
+          uri.scheme.present? ? @hostname : 'https://' + @hostname
         end
 
         def soap_session_id

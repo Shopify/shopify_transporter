@@ -84,7 +84,7 @@ module ShopifyTransporter
         end
 
         def protocol_provided?(address)
-          pattern = /(http)s?:\/\/.*/
+          pattern = %r{(http)s?:\/\/.*}
           (pattern =~ address) == 0
         end
 

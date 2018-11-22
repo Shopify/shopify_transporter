@@ -81,8 +81,7 @@ module ShopifyTransporter
         end
 
         def hostname_with_scheme
-          uri = URI.parse(@hostname)
-          uri.scheme.present? ? @hostname : 'https://' + @hostname
+          URI.parse(@hostname).scheme.present? ? @hostname : 'https://' + @hostname
         end
 
         def soap_session_id

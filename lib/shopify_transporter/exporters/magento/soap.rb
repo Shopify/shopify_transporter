@@ -74,10 +74,14 @@ module ShopifyTransporter
 
         def soap_client
           @soap_client ||= Savon.client(
-            wsdl: "#{@hostname}/api/v2_soap?wsdl",
+            wsdl: "#{hostname_with_scheme}/api/v2_soap?wsdl",
             open_timeout: 500,
             read_timeout: 500,
           )
+        end
+
+        def hostname_with_scheme
+          URI.parse(@hostname).scheme.present? ? @hostname : 'https://' + @hostname
         end
 
         def soap_session_id

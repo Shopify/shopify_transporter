@@ -116,9 +116,11 @@ module ShopifyTransporter
       end
 
       def line_item_row_values
-        return [] unless record_hash['line_items']
+        return [] unless record_hash['line_items'].present?
 
         record_hash['line_items'].map do |line_item_hash|
+          next unless line_item_hash.present?
+
           line_item = line_item_hash.slice(*LINE_ITEM_ATTRIBUTES)
             .transform_keys { |k| "#{LINE_ITEM_PREFIX}#{k}" }
             .merge(tax_line_hash(line_item_hash))

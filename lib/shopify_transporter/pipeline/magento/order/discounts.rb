@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
-require 'pry'
+
 module ShopifyTransporter
   module Pipeline
     module Magento
@@ -83,8 +83,7 @@ module ShopifyTransporter
             return false unless line_items?(hash)
 
             if line_items(hash).is_a?(Hash)
-              return true if value_as_float(line_items(hash), 'discount_percent') > 0
-              return false
+              value_as_float(line_items(hash), 'discount_percent') > 0
             else
               all_discount_percentages(hash).length == 1 && all_discount_percentages(hash).first > 0
             end

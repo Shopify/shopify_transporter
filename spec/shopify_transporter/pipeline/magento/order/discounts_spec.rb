@@ -107,6 +107,19 @@ module ShopifyTransporter::Pipeline::Magento::Order
         ]
         expect(shopify_order['discounts']).to match_array(expected_discount_code)
       end
+
+      it 'should generate correct discount info when line_items is a singular hash instead of an array' do
+        magento_order = FactoryBot.build(:magento_order, :with_fixed_amount_discount, :with_zero_percentage_discount)
+        shopify_order = described_class.new.convert(magento_order, {})
+        expected_discount_code = [
+          {
+            amount: 15,
+            code: magento_order['discount_description'],
+            type: 'fixed_amount'
+          }.stringify_keys
+        ]
+        expect(shopify_order['discounts']).to eq(expected_discount_code)
+      end
     end
   end
 end

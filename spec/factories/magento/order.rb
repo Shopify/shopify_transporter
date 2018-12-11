@@ -151,6 +151,15 @@ FactoryBot.define do
       end
     end
 
+    trait :with_zero_percentage_discount do
+      after(:build) do |order, evaluator|
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['items'] ||= {}
+        order['items']['result']['items']['item'] ||= create(:magento_zero_percentage_discount)
+      end
+    end
+
     trait :with_percentage_discounts do
       after(:build) do |order, evaluator|
         order['discount_amount'] = '-15.00'
@@ -256,6 +265,12 @@ FactoryBot.define do
   factory :magento_percentage_discount, class: Hash do
     skip_create
     sequence(:discount_percent) { "25.00" }
+    initialize_with { attributes.deep_stringify_keys }
+  end
+
+  factory :magento_zero_percentage_discount, class: Hash do
+    skip_create
+    sequence(:discount_percent) { "0.00" }
     initialize_with { attributes.deep_stringify_keys }
   end
 end

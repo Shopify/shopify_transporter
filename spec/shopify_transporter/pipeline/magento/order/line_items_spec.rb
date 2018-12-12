@@ -105,6 +105,46 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expect(shopify_order['line_items'][1]).to include(processed_line_items[1])
       end
 
+      it 'should combine meaningful pair of line items while leaving the rest as it is' do
+        parent_1 = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_1', product_type: 'configurable', name: 'parent_1_name')
+        child_1 = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_1', product_type: 'simple', name: 'child_1_name')
+        parent_1['price'] = 10
+        child_1['price'] = 0
+        parent_2 = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_2', product_type: 'simple', name: 'parent_2_name')
+        child_2 = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_2', product_type: 'simple', name: 'child_2_name')
+        parent_2['price'] = 15
+        child_2['price'] = 10
+        magento_order_line_items = [parent_1, child_1, parent_2, child_2]
+
+        magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
+        shopify_order = {}
+        described_class.new.convert(magento_order, shopify_order)
+
+        processed_line_items = [
+          {
+            "name"=>child_1['name'],
+            "price"=>parent_1['price'],
+            "quantity"=>parent_1['qty_ordered'],
+            "sku"=>parent_1['sku'],
+          },
+          {
+            "name"=>parent_2['name'],
+            "price"=>parent_2['price'],
+            "quantity"=>parent_2['qty_ordered'],
+            "sku"=>parent_2['sku'],
+          },
+          {
+            "name"=>child_2['name'],
+            "price"=>child_2['price'],
+            "quantity"=>child_2['qty_ordered'],
+            "sku"=>child_2['sku'],
+          },
+        ]
+        expect(shopify_order['line_items'][0]).to include(processed_line_items[0])
+        expect(shopify_order['line_items'][1]).to include(processed_line_items[1])
+        expect(shopify_order['line_items'][2]).to include(processed_line_items[2])
+      end
+
       it 'extracts line item attributes from an input hash' do
         magento_order_line_items = 2.times.map do |i|
           FactoryBot.build(:magento_order_line_item,

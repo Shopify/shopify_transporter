@@ -30,11 +30,11 @@ module ShopifyTransporter
               when 2
                 parent = associated_items.find { |x| x['product_type'] == 'configurable' }
                 child = associated_items.find { |x| x['product_type'] == 'simple' }
-                return line_items_without_type(line_items) unless should_merge_child_into_parent?(parent, child)
+                next line_items_without_type(associated_items) unless should_merge_child_into_parent?(parent, child)
 
-                parent.merge(child.slice('name')).except('product_type')
+                next parent.merge(child.slice('name')).except('product_type')
               end
-            end
+            end.flatten
           end
 
           def should_merge_child_into_parent?(parent, child)

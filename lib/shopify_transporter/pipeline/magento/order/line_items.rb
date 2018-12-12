@@ -26,13 +26,23 @@ module ShopifyTransporter
             line_items.group_by { |line_item| line_item['sku'] }.map do |_, associated_items|
               case associated_items.size
               when 1
-                associated_items.first
+                associated_items.first.except('product_type')
               when 2
                 parent = associated_items.find { |x| x['product_type'] == 'configurable' }
                 child = associated_items.find { |x| x['product_type'] == 'simple' }
-                parent.merge(child.slice('name'))
-              end.except('product_type')
+                return line_items_without_type(line_items) unless should_merge_child_into_parent?(parent, child)
+
+                parent.merge(child.slice('name')).except('product_type')
+              end
             end
+          end
+
+          def should_merge_child_into_parent?(parent, child)
+            parent.present? && child.present? && child['price'].present? && child['price'].to_f == 0
+          end
+
+          def line_items_without_type(line_items)
+            line_items.map { |item| item.except('product_type') }
           end
 
           def line_items_array(input)

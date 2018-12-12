@@ -26,6 +26,8 @@ module ShopifyTransporter::Pipeline::Magento::Order
       it 'combines parent and child info into one line item if they share a sku' do
         parent = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'configurable', name: 'parent_name')
         child = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'simple', name: 'child_name')
+        parent['price'] = 10
+        child['price'] = 0
         magento_order_line_items = [parent, child]
 
         magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
@@ -42,6 +44,65 @@ module ShopifyTransporter::Pipeline::Magento::Order
 
         expect(shopify_order['line_items'].size).to eq(1)
         expect(shopify_order['line_items'].first).to include(parent_line_item_with_child_name)
+      end
+
+      it 'will not combine two products if they share the same sku but are of the same type' do
+        parent = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'simple', name: 'parent_name')
+        child = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'simple', name: 'child_name')
+        parent['price'] = 10
+        child['price'] = 10
+        magento_order_line_items = [parent, child]
+
+        magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
+        shopify_order = {}
+        described_class.new.convert(magento_order, shopify_order)
+
+        processed_line_items = [
+          {
+            "name"=>parent['name'],
+            "price"=>parent['price'],
+            "quantity"=>parent['qty_ordered'],
+            "sku"=>parent['sku'],
+          },
+          {
+            "name"=>child['name'],
+            "price"=>child['price'],
+            "quantity"=>child['qty_ordered'],
+            "sku"=>child['sku'],
+          },
+        ]
+        expect(shopify_order['line_items'][0]).to include(processed_line_items[0])
+        expect(shopify_order['line_items'][1]).to include(processed_line_items[1])
+      end
+
+      it 'will not combine two products if they share the same sku but child product has a price larger than 0' do
+        parent = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'configurable', name: 'parent_name')
+        child = FactoryBot.build(:magento_order_line_item, sku: 'test_sku', product_type: 'simple', name: 'child_name')
+        parent['price'] = 10
+        child['price'] = 5
+        magento_order_line_items = [parent, child]
+
+        magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
+        shopify_order = {}
+
+        described_class.new.convert(magento_order, shopify_order)
+
+        processed_line_items = [
+          {
+            "name"=>parent['name'],
+            "price"=>parent['price'],
+            "quantity"=>parent['qty_ordered'],
+            "sku"=>parent['sku'],
+          },
+          {
+            "name"=>child['name'],
+            "price"=>child['price'],
+            "quantity"=>child['qty_ordered'],
+            "sku"=>child['sku'],
+          },
+        ]
+        expect(shopify_order['line_items'][0]).to include(processed_line_items[0])
+        expect(shopify_order['line_items'][1]).to include(processed_line_items[1])
       end
 
       it 'extracts line item attributes from an input hash' do

@@ -33,6 +33,8 @@ module ShopifyTransporter
                 next line_items_without_type(associated_items) unless should_merge_child_into_parent?(parent, child)
 
                 next parent.merge(child.slice('name')).except('product_type')
+              else
+                next line_items_without_type(associated_items)
               end
             end.flatten
           end

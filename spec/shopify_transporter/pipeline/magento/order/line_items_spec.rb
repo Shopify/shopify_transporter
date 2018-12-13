@@ -145,6 +145,41 @@ module ShopifyTransporter::Pipeline::Magento::Order
         expect(shopify_order['line_items'][2]).to include(processed_line_items[2])
       end
 
+      it 'will not merge any line items if the number of line items with the same sku is equal or more than 3' do
+        parent = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_1', product_type: 'configurable', name: 'parent_1_name')
+        child_1 = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_1', product_type: 'simple', name: 'child_1_name')
+        child_2 = FactoryBot.build(:magento_order_line_item, sku: 'test_sku_1', product_type: 'simple', name: 'child_1_name')
+
+        magento_order_line_items = [parent, child_1, child_2]
+        magento_order = FactoryBot.build(:magento_order, :with_line_items, line_items: magento_order_line_items)
+        shopify_order = {}
+        described_class.new.convert(magento_order, shopify_order)
+
+        processed_line_items = [
+          {
+            "name"=>parent['name'],
+            "price"=>parent['price'],
+            "quantity"=>parent['qty_ordered'],
+            "sku"=>parent['sku'],
+          },
+          {
+            "name"=>child_1['name'],
+            "price"=>child_1['price'],
+            "quantity"=>child_1['qty_ordered'],
+            "sku"=>child_1['sku'],
+          },
+          {
+            "name"=>child_2['name'],
+            "price"=>child_2['price'],
+            "quantity"=>child_2['qty_ordered'],
+            "sku"=>child_2['sku'],
+          },
+        ]
+        expect(shopify_order['line_items'][0]).to include(processed_line_items[0])
+        expect(shopify_order['line_items'][1]).to include(processed_line_items[1])
+        expect(shopify_order['line_items'][2]).to include(processed_line_items[2])
+      end
+
       it 'extracts line item attributes from an input hash' do
         magento_order_line_items = 2.times.map do |i|
           FactoryBot.build(:magento_order_line_item,

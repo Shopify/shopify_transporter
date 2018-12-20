@@ -23,10 +23,10 @@ module ShopifyTransporter
             result = items && items['result']
             address = result && result["#{prefix}address"]
             address ||= []
-            purge_address(input, address, prefix)
+            clean_address(input, address, prefix)
           end
 
-          def purge_address(input, address, prefix)
+          def clean_address(input, address, prefix)
             address.each_with_object({}) do |(key, val), purged_address|
               if val.is_a?(String)
                 purged_address[key] = val
@@ -59,7 +59,9 @@ module ShopifyTransporter
           end
 
           def name(address_attrs)
-            (address_attrs['firstname'].to_s + ' ' + address_attrs['lastname'].to_s).strip
+            if address_attrs['firstname'].present? && address_attrs['lastname'].present?
+              address_attrs['firstname'] + ' ' + address_attrs['lastname']
+            end
           end
         end
       end

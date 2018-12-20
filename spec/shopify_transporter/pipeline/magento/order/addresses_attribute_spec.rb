@@ -86,7 +86,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
           "billing_address" => {
             first_name: 'billing test first name-1',
             last_name: nil,
-            name: 'billing test first name-1',
+            name: nil,
             phone: 'billing test telephone-1',
             address1: 'billing test street-1',
             city: 'billing test city-1',
@@ -98,7 +98,7 @@ module ShopifyTransporter::Pipeline::Magento::Order
           "shipping_address" => {
             first_name: 'shipping test first name-1',
             last_name: nil,
-            name: 'shipping test first name-1',
+            name: nil,
             phone: nil,
             address1: 'shipping test street-1',
             city: 'shipping test city-1',

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'shopify_transporter/pipeline/stage'
 require 'shopify_transporter/shopify'
+
 module ShopifyTransporter
   module Pipeline
     module Magento
@@ -21,7 +22,22 @@ module ShopifyTransporter
             items = input['items']
             result = items && items['result']
             address = result && result["#{prefix}address"]
-            address || []
+            address ||= []
+            clean_address(input, address, prefix)
+          end
+
+          def clean_address(input, address, prefix)
+            address.each_with_object({}) do |(key, val), purged_address|
+              if val.is_a?(String)
+                purged_address[key] = val
+              else
+                address_type = prefix.chomp('_')
+                warning = "Warning: Order #{input['increment_id']} - "\
+                  "#{key} of the #{address_type} address is in an unexpected format. "\
+                  "Transporter CLI expects it to be a string. Skipping #{key}."
+                $stderr.puts warning
+              end
+            end
           end
 
           def address_attributes(input, prefix)

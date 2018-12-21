@@ -58,6 +58,24 @@ FactoryBot.define do
       end
     end
 
+    trait :with_billing_address_partially_in_unexpected_format do
+      after(:build) do |order, evaluator|
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['billing_address'] = create(:magento_order_billing_address_with_nonsense)
+        order['items']
+      end
+    end
+
+    trait :with_shipping_address_partially_in_unexpected_format do
+      after(:build) do |order, evaluator|
+        order['items'] ||= {}
+        order['items']['result'] ||= {}
+        order['items']['result']['shipping_address'] = create(:magento_order_shipping_address_with_nonsense)
+        order['items']
+      end
+    end
+
     trait :with_qty_shipped do
       after(:build) do |order, evaluator|
         order['items'] ||= {}
@@ -212,6 +230,22 @@ FactoryBot.define do
     initialize_with { attributes.deep_stringify_keys }
   end
 
+  factory :magento_order_billing_address_with_nonsense, class: Hash do
+    skip_create
+
+    sequence(:firstname) { |n| "billing test first name-#{n}" }
+    sequence(:lastname) { {"@xsi:type": "xsd:string"} }
+    sequence(:telephone) { |n| "billing test telephone-#{n}" }
+    sequence(:street) { |n| "billing test street-#{n}" }
+    sequence(:city) { |n| "billing test city-#{n}" }
+    sequence(:region) { |n| "billing test region-#{n}" }
+    sequence(:postcode) { |n| "billing test postcode-#{n}" }
+    sequence(:country_id) { |n| "billing test country-#{n}" }
+    sequence(:company) { {"@xsi:type": "xsd:string"} }
+
+    initialize_with { attributes.deep_stringify_keys }
+  end
+
   factory :magento_order_shipping_address, class: Hash do
     skip_create
 
@@ -224,6 +258,22 @@ FactoryBot.define do
     sequence(:postcode) { |n| "shipping test postcode-#{n}" }
     sequence(:country_id) { |n| "shipping test country-#{n}" }
     sequence(:company) {|n| "shipping test company-#{n}"}
+
+    initialize_with { attributes.deep_stringify_keys }
+  end
+
+  factory :magento_order_shipping_address_with_nonsense, class: Hash do
+    skip_create
+
+    sequence(:firstname) { |n| "shipping test first name-#{n}" }
+    sequence(:lastname) { {"@xsi:type": "xsd:string"} }
+    sequence(:telephone) { {"@xsi:type": "xsd:string"} }
+    sequence(:street) { |n| "shipping test street-#{n}" }
+    sequence(:city) { |n| "shipping test city-#{n}" }
+    sequence(:region) { |n| "shipping test region-#{n}" }
+    sequence(:postcode) { |n| "shipping test postcode-#{n}" }
+    sequence(:country_id) { |n| "shipping test country-#{n}" }
+    sequence(:company) { {"@xsi:type": "xsd:string"} }
 
     initialize_with { attributes.deep_stringify_keys }
   end

@@ -20,7 +20,7 @@ module CustomPipeline
       #
       #  Any modifications to the record within a pipeline stage are permanent to the Shopify record associated with the record_key.
       #
-      #  The next pipline stage to receive the record will receive the same input and the existing record which would consist of:
+      #  The next pipeline stage to receive the record will receive the same input and the existing record which would consist of:
       #
       #  {
       #     'first_name' => 'John',

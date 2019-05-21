@@ -115,6 +115,18 @@ module ShopifyTransporter
           @client
             .call(:catalog_inventory_stock_item_list, products: { product_id: product_id })
             .body[:catalog_inventory_stock_item_list_response][:result][:item][:qty].to_i
+            
+          if res.nil?
+            return 0
+          end
+              
+          item = res[:item]
+          if item.nil?
+            return 0
+          end
+              
+          qty = item[:qty].to_i
+          return qty
         end
 
         def images_attribute(product_id)

@@ -22,8 +22,8 @@ FactoryBot.define do
 
     trait :with_line_items do
       transient do
-        line_item_count 1
-        tax_line_count 1 
+        line_item_count { 1 }
+        tax_line_count { 1 }
       end
 
       line_items do
@@ -51,8 +51,8 @@ FactoryBot.define do
 
     trait :with_metafields do
       transient do
-        metafields nil
-        metafield_count 1
+        metafields { nil }
+        metafield_count { 1 }
       end
 
       after(:build) do  |order, evaluator|
@@ -115,7 +115,7 @@ FactoryBot.define do
 
     trait :complete do
       transient do
-        tax_line_count 0
+        tax_line_count { 0 }
       end
 
       with_line_items

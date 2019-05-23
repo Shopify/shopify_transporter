@@ -18,8 +18,8 @@ FactoryBot.define do
 
     trait :with_line_items do
       transient do
-        line_item_count 1
-        line_items nil
+        line_item_count { 1 }
+        line_items { nil }
       end
 
       items do
@@ -287,7 +287,7 @@ FactoryBot.define do
     sequence(:price) { |n| "price-#{n}" }
     sequence(:tax_amount) { |n| "tax_amount-#{n}" }
     sequence(:tax_percent) { |n| "tax_percent-#{n}" }
-    product_type 'simple'
+    product_type { 'simple' }
 
     initialize_with { attributes.stringify_keys }
   end

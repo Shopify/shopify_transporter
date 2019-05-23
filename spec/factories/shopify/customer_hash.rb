@@ -9,17 +9,17 @@ FactoryBot.define do
     sequence(:first_name) { |n| "John-#{n}" }
     sequence(:last_name) { |n| "Doe-#{n}" }
     sequence(:company) { |n| "Acme-Co-#{n}" }
-    accepts_marketing 'false'
+    accepts_marketing { 'false' }
     sequence(:tags) { |n| "Tag-#{n}" }
     sequence(:note) { |n| "Note-#{n}" }
-    tax_exempt 'false'
-    send_email_invite 'false'
-    send_email_welcome 'false'
+    tax_exempt { 'false' }
+    send_email_invite { 'false' }
+    send_email_welcome { 'false' }
 
     trait :with_metafields do
       transient do
-        metafields nil
-        metafield_count 1
+        metafields { nil }
+        metafield_count { 1 }
       end
 
       after(:build) do  |customer, evaluator|
@@ -29,8 +29,8 @@ FactoryBot.define do
 
     trait :with_addresses do
       transient do
-        addresses nil
-        address_count 1
+        addresses { nil }
+        address_count { 1 }
       end
 
       after(:build) do  |customer, evaluator|

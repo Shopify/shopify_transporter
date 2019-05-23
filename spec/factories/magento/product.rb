@@ -77,9 +77,9 @@ FactoryBot.define do
     end
 
     trait :with_product_options do
-      option1_name 'Color'
-      option2_name 'Size'
-      option3_name 'Style'
+      option1_name { 'Color' }
+      option2_name { 'Size' }
+      option3_name { 'Style' }
     end
 
     initialize_with { attributes.deep_stringify_keys }
@@ -140,7 +140,7 @@ FactoryBot.define do
     sequence(:handle) { 'french-cuff-cotton-twill-oxford' }
     sequence(:created_at) { '2013-03-05T01:25:10-05:00' }
     sequence(:published_scope) { 'web' }
-    type 'simple'
+    type { 'simple' }
 
     trait :with_parent_id do
       sequence(:parent_id) { |n| n.to_s }
@@ -190,7 +190,7 @@ FactoryBot.define do
     sequence(:price) { '222' }
     sequence(:weight) { '100' }
     sequence(:sku) { |n| "m#{n}" }
-    type 'simple'
+    type { 'simple' }
 
     trait :with_parent_id do
       sequence(:parent_id) { |n| n.to_s }

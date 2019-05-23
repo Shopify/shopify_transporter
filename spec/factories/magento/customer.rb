@@ -18,10 +18,10 @@ FactoryBot.define do
 
     trait :with_addresses do
       transient do
-        address_count 1
-        addresses nil
+        address_count { 1 }
+        addresses { nil }
       end
-      
+
       address_list do
         list = if addresses.present?
           addresses 

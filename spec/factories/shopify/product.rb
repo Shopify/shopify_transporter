@@ -19,7 +19,7 @@ FactoryBot.define do
 
     trait :with_metafields do
       transient do
-        metafield_count 1
+        metafield_count { 1 }
       end
 
       metafields do
@@ -29,8 +29,8 @@ FactoryBot.define do
 
     trait :with_variants do
       transient do
-        variant_count 1
-        variant_metafield_count 0
+        variant_count { 1 }
+        variant_metafield_count { 0 }
       end
 
       variants do
@@ -49,7 +49,7 @@ FactoryBot.define do
 
     trait :with_images do
       transient do
-        image_count 1
+        image_count { 1 }
       end
 
       images do
@@ -99,7 +99,7 @@ FactoryBot.define do
 
     trait :with_metafields do
       transient do
-        metafield_count 1
+        metafield_count { 1 }
       end
 
       metafields do

@@ -15,10 +15,12 @@ module ShopifyTransporter
 
         def export
           base_customers.each do |customer|
-            yield with_attributes(customer)
-          rescue Savon::Error => e
-            print_customer_details_error(customer, e)
-            yield customer
+            begin # rubocop:disable Style/RedundantBegin
+              yield with_attributes(customer)
+            rescue Savon::Error => e
+              print_customer_details_error(customer, e)
+              yield customer
+            end
           end
         end
 

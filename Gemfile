@@ -6,8 +6,8 @@ gemspec
 
 group :development do
   gem 'package_cloud'
-  gem 'rubocop', '~> 0.56.0'
-  gem 'rubocop-git', '~> 0.1'
+  gem 'rubocop'
+  gem 'rubocop-git'
 end
 
 group :test do
@@ -16,8 +16,8 @@ group :test do
 end
 
 group :development, :test do
-  gem 'factory_bot', '~> 4.8'
-  gem 'pry', '~> 0.11'
+  gem 'factory_bot'
+  gem 'pry'
   gem 'pry-byebug'
-  gem 'rspec', '~> 3.0'
+  gem 'rspec'
 end

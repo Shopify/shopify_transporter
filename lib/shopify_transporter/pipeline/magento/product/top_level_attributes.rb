@@ -88,7 +88,7 @@ module ShopifyTransporter
             end
 
             def image_alt_text(label)
-              if label.is_a? String
+              if label.is_a?(String)
                 label
               end
             end

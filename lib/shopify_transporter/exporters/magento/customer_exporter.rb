@@ -15,12 +15,10 @@ module ShopifyTransporter
 
         def export
           base_customers.each do |customer|
-            begin
-              yield with_attributes(customer)
-            rescue Savon::Error => e
-              print_customer_details_error(customer, e)
-              yield customer
-            end
+            yield with_attributes(customer)
+          rescue Savon::Error => e
+            print_customer_details_error(customer, e)
+            yield customer
           end
         end
 
@@ -34,7 +32,7 @@ module ShopifyTransporter
           Enumerator.new do |enumerator|
             @client.call_in_batches(method: :customer_customer_list, batch_index_column: 'customer_id').each do |batch|
               result = batch.body[:customer_customer_list_response][:store_view][:item] || []
-              result = [result] unless result.is_a? Array
+              result = [result] unless result.is_a?(Array)
               result.each { |customer| enumerator << customer }
             end
           end

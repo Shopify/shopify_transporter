@@ -30,7 +30,7 @@ module ShopifyTransporter
       def rename_fields(row, field_map)
         return row unless field_map.present?
         row = row.dup
-        field_map.each { |from, to| row[to] = row.delete from if row[from].present? }
+        field_map.each { |from, to| row[to] = row.delete(from) if row[from].present? }
         row
       end
 

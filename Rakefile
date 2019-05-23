@@ -6,6 +6,6 @@ require 'rubocop/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new
 
-task default: :spec
+task(default: :spec)
 
 Dir.glob('lib/tasks/*.rake').each { |r| import r }

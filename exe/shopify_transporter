@@ -59,12 +59,12 @@ module ShopifyTransporter
     no_commands do
       def conversion_error(message)
         say("Conversion error: #{message}", :red)
-        exit 1
+        exit(1)
       end
 
       def extract_error(message)
         say("Extract error: #{message}", :red)
-        exit 1
+        exit(1)
       end
     end
 

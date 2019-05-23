@@ -16,7 +16,7 @@ module ShopifyTransporter
         def export_table(table_name, index_column)
           export_file_path = "#{DB_CACHE_FOLDER}/#{table_name}.csv"
 
-          return if File.file? export_file_path
+          return if File.file?(export_file_path)
 
           index_key = index_column.to_sym
 

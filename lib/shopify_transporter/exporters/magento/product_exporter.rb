@@ -21,12 +21,10 @@ module ShopifyTransporter
 
         def export
           base_products.each do |product|
-            begin
-              yield with_attributes(product)
-            rescue Savon::Error => e
-              print_product_details_error(product, e)
-              yield product
-            end
+            yield with_attributes(product)
+          rescue Savon::Error => e
+            print_product_details_error(product, e)
+            yield product
           end
         end
 
@@ -36,7 +34,7 @@ module ShopifyTransporter
           Enumerator.new do |enumerator|
             @client.call_in_batches(method: :catalog_product_list, batch_index_column: 'product_id').each do |batch|
               result = batch.body[:catalog_product_list_response][:store_view][:item] || []
-              result = [result] unless result.is_a? Array
+              result = [result] unless result.is_a?(Array)
               with_parent_mappings(result).each { |product| enumerator << product }
             end
           end

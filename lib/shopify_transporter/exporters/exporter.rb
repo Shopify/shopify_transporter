@@ -37,7 +37,7 @@ module ShopifyTransporter
           print '  ' + JSON.pretty_generate(object, object_nl: "\n  ")
         end
       ensure
-        print "\n]"
+        print("\n]")
       end
 
       def object_exporter

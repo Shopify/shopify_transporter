@@ -14,7 +14,7 @@ module ShopifyTransporter
     def validate_config_exists
       unless File.exist?(config_filename)
         say('Cannot find config.yml at project root', :red)
-        exit 1
+        exit(1)
       end
     end
 
@@ -44,7 +44,7 @@ module ShopifyTransporter
       unless class_included_in?(config_file)
         pipeline_class_hash = { @pipeline_class.to_s => nil, 'type' => 'custom' }
         config_file['object_types'][@object_type.downcase]['pipeline_stages'] << pipeline_class_hash
-        File.open(config_filename, 'w') { |f| f.write config_file.to_yaml }
+        File.open(config_filename, 'w') { |f| f.write(config_file.to_yaml) }
         say('Updated config.yml with the new pipeline stage', :green)
         return
       end
@@ -56,9 +56,9 @@ module ShopifyTransporter
 
     def class_included_in?(config_file)
       hash_stages = config_file['object_types'][@object_type.downcase]['pipeline_stages'].select do |stage|
-        stage.is_a? Hash
+        stage.is_a?(Hash)
       end
-      hash_stages.find { |h| h.keys.include? @pipeline_class.to_s }.present?
+      hash_stages.find { |h| h.keys.include?(@pipeline_class.to_s) }.present?
     end
   end
 end

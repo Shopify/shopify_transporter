@@ -8,7 +8,7 @@ module ShopifyTransporter
       module Order
         class LineItems < Pipeline::Stage
           def convert(input, record)
-            record.merge!(
+            record.merge(
               {
                 line_items: line_items(input),
               }.stringify_keys

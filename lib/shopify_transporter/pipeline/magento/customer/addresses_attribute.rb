@@ -11,7 +11,7 @@ module ShopifyTransporter
             addresses = magento_addresses_from(input)
             return unless addresses
 
-            record.merge!(convert_addresses(addresses))
+            record.merge(convert_addresses(addresses))
           end
 
           private

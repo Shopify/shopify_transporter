@@ -92,7 +92,7 @@ module ShopifyTransporter
             'email' => 'buyer1@example.com'
           }
 
-          expected_output = initial_value.dup.merge!(input)
+          expected_output = initial_value.merge(input)
 
           accumulator = accumulator_that_accumulates_raw_input.new(initial_value)
           expect(accumulator.accumulate(input)).to eq(expected_output)

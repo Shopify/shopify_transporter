@@ -24,11 +24,12 @@ module ShopifyTransporter
       validate_related(input)
 
       if key_of(input).nil?
-        yield @last_record
-        return
+        result = yield @last_record
+      else
+        result = yield record_from(input)
       end
 
-      yield record_from(input)
+      @instances[key_of(input)] = result
     end
 
     private

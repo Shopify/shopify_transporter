@@ -52,8 +52,8 @@ module ShopifyTransporter::Pipeline::Magento::Product
           }
         ])
         configurable_product = FactoryBot.build(:configurable_magento_product,'variants': [simple_product_with_img, another_simple_product_with_img])
-        shopify_product = described_class.new.convert(simple_product_with_img, configurable_product)
-        shopify_product = described_class.new.convert(another_simple_product_with_img, configurable_product)
+        intermediate_record = described_class.new.convert(simple_product_with_img, configurable_product)
+        shopify_product = described_class.new.convert(another_simple_product_with_img, intermediate_record)
         expected_variant_image_info = {
           'simple_product_with_img' => {
             'variant_image' => {

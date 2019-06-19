@@ -8,17 +8,22 @@ module ShopifyTransporter
       module Product
         class TopLevelVariantAttributes < Pipeline::Stage
           def convert(hash, record)
-            return {} unless record.key?('variants')
-            simple_product_in_magento_format = record['variants'].find do |product|
-              product['product_id'] == hash['product_id']
-            end
-            return {} unless simple_product_in_magento_format.present?
-            accumulator = TopLevelVariantAttributesAccumulator.new(simple_product_in_magento_format)
+            return record unless hash['type'] == 'simple'
+
+            accumulator = TopLevelVariantAttributesAccumulator.new({})
             accumulator.accumulate(hash)
+
+            variants = record['variants'] || []
+
+            record.merge(
+              { variants: variants + [accumulator.output] }.deep_stringify_keys
+            )
+
           end
 
           class TopLevelVariantAttributesAccumulator < Shopify::AttributesAccumulator
             COLUMN_MAPPING = {
+              'product_id' => 'product_id',
               'sku' => 'sku',
               'weight' => 'weight',
               'price' => 'price',

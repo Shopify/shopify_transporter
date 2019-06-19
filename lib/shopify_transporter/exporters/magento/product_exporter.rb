@@ -80,10 +80,12 @@ module ShopifyTransporter
           case product[:type]
           when 'simple'
             product_with_base_attributes
+              .merge(categories: categories_for(product_with_base_attributes))
               .merge(inventory_quantity: inventory_quantity_for(product[:product_id]))
               .merge(variant_option_values(product_with_base_attributes))
           when 'configurable'
             product_with_base_attributes
+              .merge(categories: categories_for(product_with_base_attributes))
               .merge(configurable_product_options(product_with_base_attributes))
           else
             product_with_base_attributes
@@ -115,6 +117,26 @@ module ShopifyTransporter
           @client
             .call(:catalog_inventory_stock_item_list, products: { product_id: product_id })
             .body[:catalog_inventory_stock_item_list_response][:result][:item][:qty].to_i
+        end
+
+        def categories_for(product)
+          categories = []
+
+          if product[:categories][:item]
+            if product[:categories][:item].is_a? Array
+              product[:categories][:item].each do |category_id|
+                categories.push(@client
+                  .call(:catalog_category_info, category_id: category_id.to_i )
+                  .body[:catalog_category_info_response][:info])
+              end
+            else
+              categories.push(@client
+                .call(:catalog_category_info, category_id: product[:categories][:item].to_i )
+                .body[:catalog_category_info_response][:info])
+            end
+          end
+
+          return categories
         end
 
         def images_attribute(product_id)

@@ -8,7 +8,7 @@ module ShopifyTransporter
         %w( 
           name  email  financial_status  fulfillment_status  currency
           buyer_accepts_marketing  cancel_reason  cancelled_at  closed_at  tags  note 
-          phone  referring_site  processed_at  source_name  total_weight  total_tax
+          phone  referring_site  processed_at  source_name  total_weight  total_tax taxes_included
         )
       end
 

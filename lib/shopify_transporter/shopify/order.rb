@@ -15,7 +15,7 @@ module ShopifyTransporter
             'Name', 'Email', 'Financial Status', 'Fulfillment Status', 'Currency',
             'Buyer Accepts Marketing', 'Cancel Reason', 'Cancelled At', 'Closed At', 'Tags', 'Note',
             'Phone', 'Referring Site', 'Processed At', 'Source name', 'Total weight',
-            'Total Tax', 'Shipping Company', 'Shipping Name', 'Shipping Phone', 'Shipping First Name',
+            'Total Tax', 'Taxes Included', 'Shipping Company', 'Shipping Name', 'Shipping Phone', 'Shipping First Name',
             'Shipping Last Name', 'Shipping Address1', 'Shipping Address2', 'Shipping City',
             'Shipping Province', 'Shipping Province Code', 'Shipping Zip', 'Shipping Country',
             'Shipping Country Code', 'Billing Company', 'Billing Name', 'Billing Phone',
@@ -60,7 +60,7 @@ module ShopifyTransporter
       TOP_LEVEL_ATTRIBUTES = %w(
         name email financial_status fulfillment_status currency
         buyer_accepts_marketing cancel_reason cancelled_at closed_at tags note
-        phone referring_site processed_at source_name total_discounts total_weight total_tax
+        phone referring_site processed_at source_name total_discounts total_weight total_tax taxes_included
       )
 
       ADDRESS_ATTRIBUTES = %w(

@@ -1,3 +1,5 @@
+**_THIS TRANSPORTER APP HAS BEEN SUNSET AND THIS GEM IS NO LONGER MAINTAINED_**
+
 # Shopify Transporter
 
 `shopify_transporter` is a command-line tool that offers capabilities to extract and convert data from third-party platforms into a Shopify-friendly format.
